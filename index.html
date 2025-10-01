@@ -14,13 +14,17 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
-<link rel="canonical" href="https://ferienwohnung-parndorf.at/">
+<link rel="canonical" href="https://de.ferienwohnung-parndorf.at/">
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link rel="alternate" hreflang="de" href="https://de.ferien-wohnung-parndorf.at/">
+<link rel="alternate" hreflang="en" href="https://en.ferien-wohnung-parndorf.at/">
+    <link rel="alternate" href="https://en.ferien-wohnung-parndorf.at/" hreflang="x-default" />
+
 
 
 
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://www.ferienwohnung-parndorf.at">
+<meta property="og:url" content="https://de.ferienwohnung-parndorf.at/">
 <meta property="og:title" content="Ferienwohnung Parndorf - Gemütliches Apartment in Top-Lage">
 <meta property="og:description" content="Nur 2 km vom Designer Outlet entfernt. Ideal für Shopping, Erholung am Neusiedler See und Dienstreisen.">
 <meta property="og:image" content="https://www.ferienwohnung-parndorf.at/wohnzimmer.jpg">
@@ -194,8 +198,8 @@
     <div class="header-overlay"></div>
 
     <div class="language-selector">
-        <img src="https://flagcdn.com/de.svg" alt="Deutsch" data-lang="de">
-        <img src="https://flagcdn.com/gb.svg" alt="English" data-lang="en">
+        <a href="https://de.ferien-wohnung-parndorf.at/"><img src="https://flagcdn.com/de.svg" alt="Deutsch"></a>
+        <a href="https://en.ferien-wohnung-parndorf.at/"> <img src="https://flagcdn.com/gb.svg" alt="English"></a>
     </div>
 	
 	<button class="nav-toggle" aria-label="Menü öffnen">
@@ -204,18 +208,14 @@
 	
 	<nav class="main-nav" id="main-nav">
         <ul>
-  <li class="icon-link"><a href="#highlights">Highlights der Unterkunft</a></li>
-  <li class="icon-link"><a href="#gastgeberin">Ihre Gastgeberin</a></li>
-  <li class="icon-link"><a href="#ausstattung">Ausstattung</a></li>
-  <li class="icon-link"><a href="#lage">Lage & Umgebung</a></li>
-  <li class="icon-link"><a href="#kontakt">Kontakt</a></li>
-  <li class="icon-link"><a href="#impressum">Impressum</a></li>
+  <li class="icon-link"><a href="/highlights">Highlights der Unterkunft</a></li>
+  <li class="icon-link"><a href="/gastgeberin">Ihre Gastgeberin</a></li>
+  <li class="icon-link"><a href="/ausstattung">Ausstattung</a></li>
+  <li class="icon-link"><a href="/lage">Lage & Umgebung</a></li>
+  <li class="icon-link"><a href="/kontakt">Kontakt</a></li>
+  <li class="icon-link"><a href="/impressum">Impressum</a></li>
 
-  <!-- Sprachen -->
-  <li class="language-switcher">
-  <button class="lang-trigger active" data-lang="de">DE</button>
-  <button class="lang-trigger" data-lang="en">EN</button>
-</li>
+
 
   <!-- Fotos mit Unterpunkten -->
   <li>
@@ -371,8 +371,8 @@
             <div class="slide-caption">Garten</div>
         </div>
         
-        <button class="btn-prev" title="Weiter">❮</button>
-        <button class="btn-next"  title="Zurück">❯</button>
+        <button class="btn-prev" title="Zurück" aria-label="Vorheriges Bild">❮</button>
+        <button class="btn-next"  title="Weiter" aria-label="Nächstes Bild">❯</button>
         
         <div class="dots-container"></div>
     </div>
@@ -425,14 +425,14 @@
 
             <p>Unser Apartment verfügt über eine voll ausgestattete Küche und ein stilvolles Interieur, das zum Entspannen einlädt.</p>
 			 <div id="buchung" class="booking-buttons" >
-                <a href="https://www.booking.com/hotel/at/ferienwohnung-parndorf.de.html" target="_blank" rel="noopener noreferrer" class="booking-btn" title="Jetzt auf booking.com buchen">
+                <a href="https://www.booking.com/hotel/at/ferienwohnung-parndorf.de.html" target="_blank" rel="noopener noreferrer" class="booking-btn" title="Jetzt auf booking.com buchen" data-aos="fade-left" data-aos-delay="100" >
                     <svg width="42" height="42" viewBox="0 0 24 24" aria-hidden="true">
 					  <rect x="1" y="1" width="22" height="22" rx="6" fill="#ffffff"/>
 					  <path d="M8 6h4.2c1.66 0 3 1.34 3 3s-1.34 3-3 3H8V6zm0 6h4.6c1.77 0 3.2 1.43 3.2 3.2S14.37 18.4 12.6 18.4H8V12z" fill="#003580"/>
 					</svg>
 					<span>Booking.com</span>
                 </a>
-                <a href="https://www.airbnb.at/rooms/24131580" target="_blank" rel="noopener noreferrer" class="airbnb-btn" title="jetzt auf airbnb buchen">
+                <a href="https://www.airbnb.at/rooms/24131580" target="_blank" rel="noopener noreferrer" class="airbnb-btn" title="jetzt auf airbnb buchen" data-aos="fade-right" data-aos-delay="200">
                     <svg width="42" height="42" viewBox="0 0 1000 1000" aria-hidden="true">
 					  <path fill="#ffffff" d="M500 120c-36 0-67 19-83 50L216 657c-11 23-18 48-18 74 0 83 68 151 151 151 46 0 88-21 116-55l35-43 35 43c28 34 70 55 116 55 83 0 151-68 151-151 0-26-6-51-18-74L583 170c-16-31-47-50-83-50zm0 190c55 0 100 45 100 100s-45 100-100 100-100-45-100-100 45-100 100-100z"/>
 					</svg>
@@ -594,51 +594,50 @@
               <img src="outlet.webp" alt="Shopping">
 
             <h4>Für Shopping-Begeisterte & Genießer</h4>
-                           Das berühmte <strong>Designer Outlet Parndorf</strong> liegt nur 2 km entfernt und lädt mit über 160 Shops zum ausgiebigen Einkaufen ein. In der Umgebung finden Sie zudem zahlreiche Heurige, Restaurants und Bäckereien, die Sie mit burgenländischen Schmankerln verwöhnen. Abends kann das Kino oder die Bowlinghalle besucht werden.
+                    <span class="highlight-text">Das berühmte <strong>Designer Outlet Parndorf</strong> liegt nur 2 km entfernt und lädt mit über 160 Shops zum ausgiebigen Einkaufen ein. In der Umgebung finden Sie zudem zahlreiche Heurige, Restaurants und Bäckereien, die Sie mit burgenländischen Schmankerln verwöhnen. Abends kann das Kino oder die Bowlinghalle besucht werden.</span>
 
         </div>
 
         <div class="highlight-item" data-aos="fade-right" data-aos-delay="200">
-            <img src="outlet.webp" alt="Shopping">
+            <img src="see.webp" alt="Neusiedler See">
             <h4>Für Natur- & Aktivurlauber</h4>
-
-                Der <strong>Neusiedler See</strong> (8 km entfernt) ist ein Paradies für Wassersportler, Radfahrer und Naturliebhaber. Erkunden Sie die einzigartige Tier- und Pflanzenwelt im <strong>Nationalpark Neusiedler See-Seewinkel</strong> oder nutzen Sie die hervorragenden Radwege, die direkt durch die malerische Landschaft führen. Bei einer Bootsfahrt kann die Landschaft genossen werden.
+            <span class="highlight-text">Der <strong>Neusiedler See</strong> (8 km entfernt) ist ein Paradies für Wassersportler, Radfahrer und Naturliebhaber. Erkunden Sie die einzigartige Tier- und Pflanzenwelt im <strong>Nationalpark Neusiedler See-Seewinkel</strong> oder nutzen Sie die hervorragenden Radwege, die direkt durch die malerische Landschaft führen. Bei einer Bootsfahrt kann die Landschaft genossen werden.</span>
         </div>
 
         <div class="highlight-item" data-aos="fade-left" data-aos-delay="300">
-            <img src="outlet.webp" alt="Shopping">
+            <img src="esterhazy.webp" alt="Schloss Esterházy">
             <h4>Für Kultur- & Städtereisende</h4>
-                Besuchen Sie das prunkvolle <strong>Schloss Esterházy</strong> in Eisenstadt, das nur etwa 20 km entfernt ist. Dank der exzellenten Bahnanbindung sind auch Tagesausflüge in die Metropolen <strong>Wien, Bratislava und Budapest</strong> bequem und einfach möglich.
+            <span class="highlight-text">Besuchen Sie das prunkvolle <strong>Schloss Esterházy</strong> in Eisenstadt, das nur etwa 20 km entfernt ist. Dank der exzellenten Bahnanbindung sind auch Tagesausflüge in die Metropolen <strong>Wien, Bratislava und Budapest</strong> bequem und einfach möglich.</span>
         </div>
         <div class="highlight-item" data-aos="fade-right" data-aos-delay="400">
-            <img src="outlet.webp" alt="Shopping">
+            <img src="spazieren.webp" alt="Harachpark">
             <h4>Parks</h4>
-                Besuchen Sie Bruck an der Leitha (ca. 7 km), der Barockgarten <strong>Harrachpark</strong> bietet sich für einen ausgedehnten Spaziergang an.
+            <span class="highlight-text">Besuchen Sie Bruck an der Leitha (ca. 7 km), der Barockgarten <strong>Harrachpark</strong> bietet sich für einen ausgedehnten Spaziergang an. Auch Ausflug zum <strong>Schloss Halbturn</strong> und <strong>Schloss Kittsee</strong> lohnt sich.</span>
         </div>
         <div class="highlight-item" data-aos="fade-left" data-aos-delay="500">
-            <img src="outlet.webp" alt="Shopping">
+            <img src="wandern.webp" alt="Hundsheimer Berge">
             <h4>Wandern</h4>
-            Die <strong>Hundsheimer Berge</strong> bei Hainburg (20 km entfernt) laden zum Wandern ein. Dort lohnt sich auch ein Besuch von der Römerstadt Carnuntum.
+            <span class="highlight-text">Die <strong>Hundsheimer Berge</strong> bei Hainburg (20 km entfernt) laden zum Wandern ein. Dort lohnt sich auch ein Besuch von der Römerstadt Carnuntum.</span>
         </div>
         <div class="highlight-item" data-aos="fade-right" data-aos-delay="600">
-            <img src="outlet.webp" alt="Shopping">
+            <img src="theater.webp" alt="Kultursommer Parndorf">
             <h4>Veranstaltungen</h4>
-            Der Parndorfer Kultursommer findet mit einem <strong>Theater</strong> vor der Kirche statt. Regelmäßig findet der <strong>Markt der Erde</strong> statt mit vielen Bio-Produkten aus der Region. Sehr beliebt ist das <strong>Dorffest</strong>, mit Aktivitäten der Vereine.
+            <span class="highlight-text">Der Parndorfer Kultursommer findet mit einem <strong>Theater</strong> vor der Kirche statt. Regelmäßig findet der <strong>Markt der Erde</strong> statt mit vielen Bio-Produkten aus der Region. Sehr beliebt ist das <strong>Dorffest</strong>, mit Aktivitäten der Vereine.</span>
         </div>
         <div class="highlight-item" data-aos="fade-left" data-aos-delay="700">
-            <img src="outlet.webp" alt="Shopping">
+            <img src="dorfmuseum.webp" alt="Museum">
             <h4>Museen</h4>
-            Der Parndorfer Kultursommer findet mit einem <strong>Theater</strong> vor der Kirche statt. Regelmäßig findet der <strong>Markt der Erde</strong> statt mit vielen Bio-Produkten aus der Region. Sehr beliebt ist das <strong>Dorffest</strong>, mit Aktivitäten der Vereine.
+            <span class="highlight-text">Besucht das <strong>Dorfmuseum in Neudorf</strong> (5km entfernt) und das <strong>Dorfmuseum in Mönchhof.</strong></span>
         </div>
         <div class="highlight-item" data-aos="fade-right" data-aos-delay="800">
-            <img src="outlet.webp" alt="Shopping">
+            <img src="familypark.webp" alt="Familypark">
             <h4>Freizeitpark</h4>
-            Der Parndorfer Kultursommer findet mit einem <strong>Theater</strong> vor der Kirche statt. Regelmäßig findet der <strong>Markt der Erde</strong> statt mit vielen Bio-Produkten aus der Region. Sehr beliebt ist das <strong>Dorffest</strong>, mit Aktivitäten der Vereine.
+            <span class="highlight-text">Der <strong>Familypark</strong> in Sankt Margarethen bietet über 30 Fahrattraktionen.</span>
         </div>
         <div class="highlight-item" data-aos="fade-left" data-aos-delay="900">
-            <img src="outlet.webp" alt="Shopping">
+            <img src="therme.webp" alt="Therme">
             <h4>Therme</h4>
-            Der Parndorfer Kultursommer findet mit einem <strong>Theater</strong> vor der Kirche statt. Regelmäßig findet der <strong>Markt der Erde</strong> statt mit vielen Bio-Produkten aus der Region. Sehr beliebt ist das <strong>Dorffest</strong>, mit Aktivitäten der Vereine.
+            <span class="highlight-text">Die <strong>Therme in Frauenkirchen</strong> liegt am Rande des Nationalpaks Neusiedlersee-Seewinkel</span>
         </div>
 
     </div>

@@ -1,3 +1,9 @@
+if (sessionStorage.redirect) {
+  const redirect = sessionStorage.redirect;
+  delete sessionStorage.redirect;
+  history.replaceState(null, null, redirect);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- LOGIK FÜR DIE HAUPT-SLIDESHOW IM CONTENT-BEREICH ---
@@ -151,6 +157,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LOGIK FÜR DAS MOBILE NAVIGATIONS-MENÜ (BURGER) ---
     const navToggle = document.querySelector('.nav-toggle');
+
+
+
+    navToggle.setAttribute('aria-controls', 'main-nav');
+navToggle.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') mainNav.classList.remove('open');
+});
+
+// Escape überall: close menu & popups
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeMenu?.();
+    closePopup?.(); // je nachdem welche Funktionen vorhanden sind
+  }
+});
+
+
     const mainNav = document.getElementById('main-nav');
     if (navToggle && mainNav) {
         const navLinks = mainNav.querySelectorAll('a:not([data-gallery])'); // Schließt Gallerie-Links aus
@@ -478,10 +501,39 @@ function waSend(e){
   messages.scrollTop = messages.scrollHeight;
 
   // WhatsApp öffnen
-  const phone = "43650921060";
+  const phone = "436504124810";
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
   window.open(url, "_blank");
 
   input.value = "";
   return false;
 }
+
+function navigateTo(path) {
+  history.pushState(null, null, path);
+  handleRoute();
+}
+
+function handleRoute() {
+  const path = window.location.pathname.replace("/", "");
+  const targetId = path || "home"; // home = Startabschnitt
+  const targetEl = document.getElementById(targetId);
+
+  if (targetEl) {
+    targetEl.scrollIntoView({ behavior: "smooth" });
+  }
+}
+
+// Navigation-Links abfangen
+document.addEventListener("click", e => {
+  if (e.target.matches("[data-link]")) {
+    e.preventDefault();
+    navigateTo(e.target.getAttribute("href"));
+  }
+});
+
+// Browser-Back/Forward
+window.addEventListener("popstate", handleRoute);
+
+// Initiale Route abarbeiten
+window.addEventListener("DOMContentLoaded", handleRoute);
