@@ -395,16 +395,55 @@ if (ctaFloating && footer) {
   });
 }
 
-const toggle = document.getElementById("wa-toggle");
-  const chatbox = document.getElementById("wa-chatbox");
-  const closeBtn = document.getElementById("wa-close");
+const waToggle = document.getElementById('wa-toggle');
+    const waWidget = document.getElementById('wa-widget');
+    const waClose = document.getElementById('wa-close');
+    const waForm = document.getElementById('wa-form');
+    const waInput = document.getElementById('wa-input');
 
-  toggle.addEventListener("click", () => {
-    chatbox.classList.add("active");
-  });
-  closeBtn.addEventListener("click", () => {
-    chatbox.classList.remove("active");
-  });
+    // Ihre Telefonnummer im internationalen Format (ohne '+', '00' oder Leerzeichen)
+    const phoneNumber = '436509210630';
+
+    if (waToggle) {
+        waToggle.addEventListener('click', function() {
+            if (waWidget) {
+                waWidget.classList.toggle('open');
+            }
+        });
+    }
+
+    if (waClose) {
+        waClose.addEventListener('click', function() {
+            if (waWidget) {
+                waWidget.classList.remove('open');
+            }
+        });
+    }
+
+    if (waForm) {
+        waForm.addEventListener('submit', function(event) {
+            // Verhindert das Standard-Verhalten des Formulars
+            event.preventDefault();
+
+            const message = waInput.value.trim();
+            if (message === '') {
+                // Leere Nachrichten nicht senden
+                return;
+            }
+
+            // Erstellt den WhatsApp-Link
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+            // Öffnet den Link in einem neuen Tab
+            window.open(whatsappUrl, '_blank');
+
+            // Optional: Eingabefeld leeren und Widget nach dem Senden schließen
+            waInput.value = '';
+            if (waWidget) {
+                waWidget.classList.remove('open');
+            }
+        });
+    }
 
   document.getElementById('map-placeholder-streetview').addEventListener('click', function() {
     // Erstelle das iframe-Element

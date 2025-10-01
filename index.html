@@ -736,9 +736,6 @@
   <a href="https://www.airbnb.at/rooms/24131580" target="_blank" rel="noopener noreferrer" class="airbnb-btn" data-aos="zoom-in">
     Airbnb
   </a>
-    <div id="wa-toggle" aria-label="WhatsApp Chat öffnen" data-aos="zoom-in">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" width="28">
-  </div>
 </div>
 
 <div id="wa-widget">
@@ -758,7 +755,7 @@
       </div>
     </div>
 
-    <form id="wa-form" onsubmit="return waSend(event)">
+    <form id="wa-form">
       <input id="wa-input" type="text" placeholder="Nachricht schreiben…" required>
       <button type="submit">➤</button>
     </form>
@@ -773,5 +770,8 @@
     offset: 80        // Startpunkt (px vor Sichtbarkeit)
   });
 </script>
+<div id="wa-toggle" class="whatsapp-btn" aria-label="WhatsApp Chat öffnen" data-aos="zoom-in">
+    <img src="WhatsApp.svg" alt="WhatsApp" width="28">
+  </div>
 </body>
 </html>
