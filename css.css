@@ -529,7 +529,7 @@ header p {
     color: #f0f0f0;
 }
 
-#load-map-btn {
+.load-map-btn {
     cursor: pointer;
     background-color: var(--primary-color);
 }
@@ -1589,7 +1589,7 @@ header{
   opacity: 1;
 }
 
-html, body {
-  max-width: 100%;
-  overflow-x: hidden; /* verhindert horizontales Scrollen */
+body {
+  width: 100%;
+  overflow-x: hidden;
 }
