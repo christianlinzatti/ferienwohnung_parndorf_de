@@ -1553,7 +1553,7 @@ header{
     }
 
     #wa-toggle {
-        bottom: 15px;
+        bottom: 80px;
         right: 15px;
         width: 55px;
         height: 55px;
@@ -1587,4 +1587,9 @@ header{
 }
 [data-aos].aos-animate.fade-in {
   opacity: 1;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden; /* verhindert horizontales Scrollen */
 }
