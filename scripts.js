@@ -535,5 +535,16 @@ document.addEventListener("click", e => {
 // Browser-Back/Forward
 window.addEventListener("popstate", handleRoute);
 
-// Initiale Route abarbeiten
-window.addEventListener("DOMContentLoaded", handleRoute);
+document.addEventListener("DOMContentLoaded", handleRoute);
+
+// --- Links mit data-link korrekt abfangen ---
+document.addEventListener("click", e => {
+  const link = e.target.closest("[data-link]");
+  if (link) {
+    e.preventDefault();
+    navigateTo(link.getAttribute("href"));
+  }
+});
+
+// --- Browser-Vor/Zurück-Buttons unterstützen ---
+window.addEventListener("popstate", handleRoute);
