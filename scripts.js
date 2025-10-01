@@ -515,36 +515,39 @@ function navigateTo(path) {
 }
 
 function handleRoute() {
+  // Pfad aus URL holen, ohne führenden Slash
   const path = window.location.pathname.replace("/", "");
-  const targetId = path || "home"; // home = Startabschnitt
+  const targetId = path || "highlights"; // Fallback auf "highlights" oder "home"
   const targetEl = document.getElementById(targetId);
 
+  // Zum passenden Abschnitt scrollen
   if (targetEl) {
     targetEl.scrollIntoView({ behavior: "smooth" });
   }
+
+  // Aktiven Menüpunkt hervorheben
+  document.querySelectorAll('nav a[data-link]').forEach(link => {
+    const linkPath = link.getAttribute("href").replace("/", "");
+    if (linkPath === targetId) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
 }
 
-// Navigation-Links abfangen
-document.addEventListener("click", e => {
-  if (e.target.matches("[data-link]")) {
-    e.preventDefault();
-    navigateTo(e.target.getAttribute("href"));
-  }
-});
-
-// Browser-Back/Forward
-window.addEventListener("popstate", handleRoute);
-
-document.addEventListener("DOMContentLoaded", handleRoute);
-
-// --- Links mit data-link korrekt abfangen ---
+// --- Klicks auf Links abfangen ---
 document.addEventListener("click", e => {
   const link = e.target.closest("[data-link]");
   if (link) {
     e.preventDefault();
-    navigateTo(link.getAttribute("href"));
+    const href = link.getAttribute("href");
+    navigateTo(href);
   }
 });
 
-// --- Browser-Vor/Zurück-Buttons unterstützen ---
+// --- Auf Browsernavigation (Zurück / Vor) reagieren ---
 window.addEventListener("popstate", handleRoute);
+
+// --- Router beim ersten Laden starten ---
+document.addEventListener("DOMContentLoaded", handleRoute);
