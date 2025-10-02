@@ -348,7 +348,7 @@ main {
 
 .main-content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* zwei gleich breite Spalten */
+  grid-template-columns: 1.5fr 0.5fr; /* zwei gleich breite Spalten */
   gap: 2rem; /* Abstand zwischen den Spalten */
   align-items: start;
 }
