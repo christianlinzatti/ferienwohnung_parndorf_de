@@ -79,14 +79,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const photoPopupPrevBtn = photoPopup?.querySelector(".prev");
   const photoPopupNextBtn = photoPopup?.querySelector(".next");
 
-  const galleries = {
-    kueche: ["kueche.webp", "essbereich.webp"],
-    schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
-    wohnzimmer: ["wohnzimmer.webp"],
-    badezimmer: ["badezimmer.webp", "wc.webp"],
-    terrasse: ["terrasse.webp", "garten.webp"],
-    eingangsbereich: ["eingangsbereich.webp"],
-  };
+  const allImages = [
+  "wohnzimmer.webp",
+  "schlafzimmer.webp",
+  "betten.webp",
+  "bett_kasten.webp",
+  "kueche.webp",
+  "essbereich.webp",
+  "badezimmer.webp",
+  "wc.webp",
+  "terrasse.webp",
+  "garten.webp",
+  "eingangsbereich.webp"
+];
+
+const galleries = {
+  kueche: ["kueche.webp", "essbereich.webp"],
+  schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
+  wohnzimmer: ["wohnzimmer.webp"],
+  badezimmer: ["badezimmer.webp", "wc.webp"],
+  terrasse: ["terrasse.webp", "garten.webp"],
+  eingangsbereich: ["eingangsbereich.webp"],
+  all: allImages // globale Galerie
+};
 
   let currentGalleryImages = [];
   let currentGalleryIndex = 0;
@@ -139,36 +154,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const galleryKeys = Object.keys(galleries);
 
-    if (galleryKeys.includes(galleryKey)) {
-      const fotosSection = document.getElementById("fotos");
-      fotosSection?.scrollIntoView({ behavior: "smooth" });
+if (galleryKeys.includes(galleryKey)) {
+  const fotosSection = document.getElementById("fotos");
+  fotosSection?.scrollIntoView({ behavior: "smooth" });
 
-      currentGalleryImages = galleries[galleryKey] || [];
-      currentGalleryIndex = 0;
+  // Standard: Galerie nach Kategorie
+  currentGalleryImages = galleries[galleryKey] || [];
+  currentGalleryIndex = 0;
 
-      if (imageKey) {
-        const matchIndex = currentGalleryImages.findIndex(src =>
-          src.toLowerCase().includes(imageKey.toLowerCase())
-        );
-        if (matchIndex >= 0) {
-          currentGalleryIndex = matchIndex;
-        }
-      }
-
-      openPhotoPopup();
-    } else {
-      if (photoPopup.classList.contains('open')) {
-        closePhotoPopup(false);
-      }
-      const targetEl = document.getElementById(targetId);
-      targetEl?.scrollIntoView({ behavior: "smooth" });
+  if (imageKey) {
+    // Sonderfall: Bild direkt aufgerufen -> globale Galerie aktivieren
+    currentGalleryImages = Object.values(galleries).flat(); // alle Bilder zusammen
+    const matchIndex = currentGalleryImages.findIndex(src =>
+      src.toLowerCase().includes(imageKey.toLowerCase())
+    );
+    if (matchIndex >= 0) {
+      currentGalleryIndex = matchIndex;
     }
+  }
 
-    document.querySelectorAll('nav a[data-link]').forEach(link => {
-      const linkPath = link.getAttribute("href").replace(/[/|#]/g, "");
-      link.classList.toggle("active", linkPath === targetId);
-    });
-  };
+  openPhotoPopup();
+} else {
+  if (photoPopup.classList.contains('open')) {
+    closePhotoPopup(false);
+  }
+  const targetEl = document.getElementById(targetId);
+  targetEl?.scrollIntoView({ behavior: "smooth" });
+}
+
+document.querySelectorAll('nav a[data-link]').forEach(link => {
+  const linkPath = link.getAttribute("href").replace(/[/|#]/g, "");
+  link.classList.toggle("active", linkPath === targetId);
+});
 
   // globaler Klick-Handler für SPA-Links
   document.addEventListener("click", e => {
