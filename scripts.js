@@ -393,6 +393,18 @@ if (navToggle && mainNav) {
     lucide.createIcons();
   }
 
+   const burgerToggle = document.getElementById("burger-toggle");
+  const burgerClose = document.getElementById("burger-close");
+  const burgerMenu = document.querySelector(".burger-menu");
+
+  burgerToggle?.addEventListener("click", () => {
+    burgerMenu.classList.add("open");
+  });
+
+  burgerClose?.addEventListener("click", () => {
+    burgerMenu.classList.remove("open");
+  });
+
 
 }); // DOMContentLoaded end
 

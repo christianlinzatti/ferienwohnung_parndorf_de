@@ -353,6 +353,30 @@ main {
   align-items: start;
 }
 
+.burger-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;           /* 🔥 in die Ecke links oben */
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  z-index: 1100;        /* über dem Header-Bild */
+}
+
+.burger-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;          /* 🔥 in die Ecke rechts oben */
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: white;
+  cursor: pointer;
+  z-index: 1200;
+}
+
 .content-box {
   background: white;
   padding: 20px;
