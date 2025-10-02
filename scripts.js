@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
           e.preventDefault();
           e.stopPropagation();
 
-          // galleryKey = alt Attribut (z.B. "kueche")
-          const galleryKey = img.alt.toLowerCase();
+          let galleryKey = img.alt?.toLowerCase() || "";
+            galleryKey = galleryKey.replace(/\.(jpe?g|png|webp)$/i, ""); // falls alt ein Dateiname ist
           let imageKey = null;
 
           // versuche aus dem Dateinamen einen Unterkey abzuleiten
