@@ -80,8 +80,7 @@ header {
   min-height: 20vh;
   left: 0;           /* 🔥 hinzufügen */
   width: 100%;       /* 🔥 hinzufügen */
-  height: 60vh;             /* 🔥 feste Höhe reserviert, anpassbar */
-  min-height: 400px;        /* 🔥 optional: Mindesthöhe für große Screens */
+  height: 300px;             /* 🔥 feste Höhe reserviert, anpassbar */
 }
 
 header.sticky {
