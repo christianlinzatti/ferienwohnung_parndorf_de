@@ -906,3 +906,85 @@ footer {
     bottom: 30px;
   }
 }
+
+
+#burger-menu {
+  padding: 20px;
+}
+
+#burger-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+}
+
+#burger-menu li {
+  margin: 10px 0;
+}
+
+#burger-menu a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+#burger-menu i {
+  width: 20px;
+  height: 20px;
+}
+
+#burger-menu .section-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #666;
+  text-transform: uppercase;
+  margin-top: 10px;
+  display: block;
+}
+
+.teasers .teaser-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.teasers img {
+  width: 100%;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+#burger-menu .cta {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#burger-menu .btn-whatsapp,
+#burger-menu .btn-book {
+  text-align: center;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+#burger-menu .btn-whatsapp {
+  background: #25d366;
+  color: white;
+}
+
+#burger-menu .btn-book {
+  background: #ff5a5f;
+  color: white;
+}
+
+.lang-switch {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.9rem;
+}

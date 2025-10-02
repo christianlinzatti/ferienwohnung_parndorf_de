@@ -172,6 +172,8 @@
   }
 ]
 </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
 </head>
 <body>
 
@@ -206,107 +208,65 @@
 	<button class="nav-toggle" aria-label="Menü öffnen">
         <span class="hamburger"></span>
     </button>
-	
-	<nav class="main-nav" id="main-nav">
-        <ul>
-  <li class="icon-link"><a href="/highlights" data-link>Highlights der Unterkunft</a></li>
-  <li class="icon-link"><a href="/gastgeberin" data-link>Ihre Gastgeberin</a></li>
-  <li class="icon-link"><a href="/ausstattung" data-link>Ausstattung</a></li>
-  <li class="icon-link"><a href="/lage" data-link>Lage & Umgebung</a></li>
-  <li class="icon-link"><a href="/kontakt" data-link>Kontakt</a></li>
-  <li class="icon-link"><a href="/impressum" data-link>Impressum</a></li>
-  <!-- Fotos mit Unterpunkten -->
-  <li>
-    <span><a href="#fotos">Fotos</a></span>
-    <ul class="submenu">
-	
-	
-	
-<li class="photo-link">
-<a class="icon-link" href="/kueche" data-link aria-label="Küche" title="Küche">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img">
-<title>Küche</title>
-<path d="M6 10c0-2.5 3.5-4 6-4s6 1.5 6 4" />
-<line x1="12" y1="6" x2="12" y2="5" />
-<rect x="3.5" y="10" width="13" height="7" rx="1" />
-<line x1="16.5" y1="12" x2="20.5" y2="12" />
-<line x1="16.5" y1="15" x2="20.5" y2="15" />
-<line x1="5" y1="18" x2="15" y2="18" />
-</svg> Küche
-</a>
-</li>
+	<nav id="burger-menu">
+  <button class="menu-close" aria-label="Menü schließen">&times;</button>
 
-<li class="photo-link">
-<a class="icon-link" href="/schlafzimmer" data-link aria-label="Schlafzimmer" title="Schlafzimmer">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img">
-<title>Schlafzimmer</title>
-<line x1="3" y1="13" x2="3" y2="19" />
-<line x1="21" y1="13" x2="21" y2="19" />
-<line x1="3" y1="13" x2="21" y2="13" />
-<rect x="6" y="10" width="5" height="3" rx="1" />
-<path d="M11 11h5a2 2 0 0 1 2 2v0" />
-<line x1="3" y1="19" x2="21" y2="19" />
-</svg> Schlafzimmer
-</a>
-</li>
+  <ul class="main-links">
+    <li><span class="section-title">Räume</span></li>
+    <li><a href="/wohnzimmer/wohnzimmer" data-link>
+      <i data-lucide="sofa"></i> Wohnzimmer
+    </a></li>
+    <li><a href="/schlafzimmer/schlafzimmer" data-link>
+      <i data-lucide="bed-double"></i> Schlafzimmer
+    </a></li>
+    <li><a href="/kueche/kueche" data-link>
+      <i data-lucide="utensils"></i> Küche
+    </a></li>
+    <li><a href="/badezimmer/badezimmer" data-link>
+      <i data-lucide="shower-head"></i> Badezimmer
+    </a></li>
+    <li><a href="/terrasse/terrasse" data-link>
+      <i data-lucide="sun"></i> Terrasse
+    </a></li>
+    <li><a href="/eingangsbereich/eingangsbereich" data-link>
+      <i data-lucide="door-open"></i> Eingangsbereich
+    </a></li>
+  </ul>
 
-<li class="photo-link">
-<a class="icon-link" href="/wohnzimmer" data-link aria-label="Wohnzimmer" title="Wohnzimmer">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img">
-<title>Wohnzimmer</title>
-<rect x="4" y="9" width="16" height="6" rx="3" />
-<rect x="3" y="13" width="18" height="5" rx="2" />
-<line x1="7" y1="18" x2="7" y2="20" />
-<line x1="17" y1="18" x2="17" y2="20" />
-</svg> Wohnzimmer
-</a>
-</li>
+  <ul class="info-links">
+    <li><span class="section-title">Infos</span></li>
+    <li><a href="/ausstattung" data-link><i data-lucide="settings"></i> Ausstattung</a></li>
+    <li><a href="/anfahrt" data-link><i data-lucide="map-pin"></i> Anfahrt</a></li>
+    <li><a href="/kontakt" data-link><i data-lucide="phone"></i> Kontakt</a></li>
+  </ul>
 
-<li class="photo-link">
-<a class="icon-link" href="/terrasse" data-link aria-label="Terrasse" title="Terrasse">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img">
-<title>Terrasse</title>
-<path d="M3 12L12 6l9 6z" />
-<line x1="12" y1="6" x2="12" y2="12" />
-<line x1="7.5" y1="9" x2="12" y2="12" />
-<line x1="16.5" y1="9" x2="12" y2="12" />
-<line x1="12" y1="12" x2="12" y2="20" />
-<line x1="9" y1="20" x2="15" y2="20" />
-</svg> Terrasse
-</a>
-</li>
+  <div class="teasers">
+    <span class="section-title">Einblicke</span>
+    <div class="teaser-grid">
+      <a href="/schlafzimmer/schlafzimmer" data-link><img src="/schlafzimmer.webp" alt="Schlafzimmer"></a>
+      <a href="/kueche/kueche" data-link><img src="/kueche.webp" alt="Küche"></a>
+      <a href="/terrasse/terrasse" data-link><img src="/terrasse.webp" alt="Terrasse"></a>
+    </div>
+  </div>
 
-<li class="photo-link">
-<a class="icon-link" href="/eingang" data-link aria-label="Eingangsbereich" title="Eingangsbereich">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img">
-<title>Eingangsbereich</title>
-<rect x="6" y="3" width="12" height="18" rx="1" />
-<circle cx="14.5" cy="12" r="0.75" />
-<line x1="6" y1="21" x2="18" y2="21" />
-</svg> Eingangsbereich
-</a>
-</li>
+  <div class="cta">
+    <a href="/whatsapp" data-link class="btn-whatsapp">
+      <i data-lucide="message-circle"></i> WhatsApp Anfrage
+    </a>
+    <a href="https://www.airbnb.at/rooms/24131580"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="btn-book">
+      <i data-lucide="home"></i> Jetzt auf Airbnb buchen
+    </a>
+  </div>
 
-<li class="photo-link">
-<a class="icon-link" href="/badezimmer" data-link aria-label="Badezimmer" title="Badezimmer">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img">
-<title>Badezimmer</title>
-<path d="M5 6h6a4 4 0 0 1 4 4v1" />
-<path d="M15 11h3" />
-<line x1="12" y1="14" x2="12" y2="16" />
-<line x1="14" y1="14" x2="14" y2="16" />
-<line x1="16" y1="14" x2="16" y2="16" />
-<line x1="18" y1="14" x2="18" y2="16" />
-<line x1="6" y1="20" x2="20" y2="20" />
-</svg> Badezimmer
-</a>
-</li>	
-	
- 
-</ul>
-  </li>
-</ul>
-    </nav>
+  <div class="lang-switch">
+    <a href="https://de.ferienwohnung-parndorf.at">DE</a> |
+    <a href="https://en.ferienwohnung-parndorf.at">EN</a>
+  </div>
+</nav>
+
 
     <div class="header-content">
         <h1 data-aos="fade-up">Ferienwohnung Parndorf</h1>
@@ -765,7 +725,7 @@
   </div>
 </div>
 <div id="wa-toggle" class="whatsapp-btn" aria-label="WhatsApp Chat öffnen" data-aos="zoom-in">
-    <img src="WhatsApp.svg" alt="WhatsApp" width="28">
+    <a href="/whatsapp" data-link><img src="WhatsApp.svg" alt="WhatsApp" width="28"></a>
   </div>
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script>

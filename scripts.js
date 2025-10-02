@@ -29,6 +29,21 @@ document.addEventListener('DOMContentLoaded', () => {
     eingangsbereich: ["eingangsbereich.webp"],
   };
 
+  const galleriesEn = {
+  kitchen: ["kueche.webp", "essbereich.webp"],
+  bedroom: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
+  livingroom: ["wohnzimmer.webp"],
+  bathroom: ["badezimmer.webp", "wc.webp"],
+  terrace: ["terrasse.webp", "garten.webp"],
+  entrance: ["eingangsbereich.webp"],
+};
+
+const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
+
+// Aktives Galerie-Mapping auswählen
+const galleriesActive = lang === "en" ? galleriesEn : galleries;
+
+
   // =========================================================
   // 1. Slideshow (nur Vorschau)
   // =========================================================
@@ -142,7 +157,7 @@ const updateUrlForCurrentImage = () => {
 
   // versuche galleryKey zu finden
   let galleryKey = null;
-  for (const [gk, imgs] of Object.entries(galleries)) {
+  for (const [gk, imgs] of Object.entries(galleriesActive)) {
     if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey)) {
       galleryKey = gk;
       break;
@@ -191,11 +206,12 @@ const renderGallery = () => {
 };
 
   const openPhotoPopup = () => {
-    if (currentGalleryImages.length === 0) return;
-    renderGallery();
-    photoPopup?.classList.add('open');
-    document.body.classList.add('popup-is-open', 'no-scroll');
-  };
+  if (currentGalleryImages.length === 0) return;
+  renderGallery();
+  updateUrlForCurrentImage(); // <--- hinzufügen
+  photoPopup?.classList.add('open');
+  document.body.classList.add('popup-is-open', 'no-scroll');
+};
 
   const closePhotoPopup = (updateHistory = true) => {
     photoPopup?.classList.remove('open');
@@ -222,16 +238,26 @@ photoPopupPrevBtn?.addEventListener("click", () => {
   // Router-Logik (robust)
   // =========================================================
   const handleRoute = (isInitial = false) => {
-    const rawPath = (window.location.pathname || "");
-    const cleaned = rawPath.replace(/^\/+|\/+$/g, ""); // remove leading/trailing slashes
-    const hash = (window.location.hash || "").replace(/^#/, "");
-    const target = cleaned || hash || "highlights";
+  const rawPath = window.location.pathname || "";
+  const hash = (window.location.hash || "").replace(/^#/, "");
 
-    const parts = target.split("/").filter(Boolean);
-    const galleryKeyRaw = parts[0] ? stripExt(parts[0].toLowerCase()) : "";
-    const imageKeyRaw = parts[1] ? stripExt(parts[1].toLowerCase()) : "";
+  // Wenn nur ein Hash da ist (z. B. #fotos) → direkt dorthin springen
+  if (hash && !rawPath.replace(/^\/+|\/+$/g, "")) {
+    if (!isInitial) {
+      const targetEl = document.getElementById(hash);
+      targetEl?.scrollIntoView({ behavior: "smooth" });
+    }
+    return;
+  }
 
-    const galleryKeys = Object.keys(galleries);
+  const cleaned = rawPath.replace(/^\/+|\/+$/g, "");
+  const target = cleaned || "highlights";
+  const parts = target.split("/").filter(Boolean);
+  const galleryKeyRaw = parts[0] ? stripExt(parts[0].toLowerCase()) : "";
+  const imageKeyRaw = parts[1] ? stripExt(parts[1].toLowerCase()) : "";
+
+  const galleryKeys = Object.keys(galleriesActive);
+
 
     if (galleryKeyRaw && galleryKeys.includes(galleryKeyRaw)) {
       if (!isInitial) {
@@ -240,7 +266,7 @@ photoPopupPrevBtn?.addEventListener("click", () => {
       }
 
       // Default: Kategorie-Galerie
-      currentGalleryImages = galleries[galleryKeyRaw].slice();
+      currentGalleryImages = galleriesActive[galleryKeyRaw].slice();
       currentGalleryIndex = 0;
 
       // Wenn imageKey vorhanden -> globale Galerie öffnen (Pfeiltasten über alle Bilder)
@@ -253,6 +279,13 @@ photoPopupPrevBtn?.addEventListener("click", () => {
       openPhotoPopup();
     } else {
       if (photoPopup?.classList.contains('open')) closePhotoPopup(false);
+
+      if (target === "whatsapp") {
+            // WhatsApp-Widget öffnen
+            waWidget?.classList.add("open");
+            return;
+        }
+
       if (!isInitial) {
         const targetEl = document.getElementById(target);
         targetEl?.scrollIntoView({ behavior: "smooth" });
@@ -270,15 +303,25 @@ photoPopupPrevBtn?.addEventListener("click", () => {
   // globaler Klick-Handler für SPA-Links (robust normalisieren)
   // =========================================================
   document.addEventListener("click", e => {
-    if (e.target.closest('.slideshow-container') || e.target.closest('#photo-popup')) return;
+  if (e.target.closest('.slideshow-container') || e.target.closest('#photo-popup')) return;
 
-    const link = e.target.closest("a[data-link]");
-    if (!link) return;
+  const link = e.target.closest("a[data-link]");
+  if (!link) return;
 
+  let hrefAttr = link.getAttribute("href") || '/';
+
+  // 🔥 Hier Hash-Links abfangen
+  if (hrefAttr.startsWith("#")) {
     e.preventDefault();
+    const targetId = hrefAttr.replace("#", "");
+    const targetEl = document.getElementById(targetId);
+    targetEl?.scrollIntoView({ behavior: "smooth" });
+    return; // wichtig: Abbruch, nicht weiter in den Router
+  }
+
+  e.preventDefault();
 
     // Hole das originale href-Attribut (nicht link.href, das ist absolute)
-    let hrefAttr = link.getAttribute("href") || '/';
     // Normalisiere auf Pfad-Form: "/foo" oder "/foo/bar"
     let hrefPath = hrefAttr;
     try {
@@ -295,10 +338,10 @@ photoPopupPrevBtn?.addEventListener("click", () => {
     }
 
     // Prüfe, ob es sich um eine Kategorie handelt und erweitere bei Bedarf
-    const galleryKeys = Object.keys(galleries);
+    const galleryKeys = Object.keys(galleriesActive);
     const cleanHref = hrefPath.replace(/^\/+|\/+$/g, "").split('#')[0];
     if (galleryKeys.includes(cleanHref)) {
-      const firstImage = galleries[cleanHref][0];
+      const firstImage = galleriesActive[cleanHref][0];
       const firstKey = firstImage ? stripExt(firstImage) : null;
       if (firstKey) {
         hrefPath = `/${cleanHref}/${firstKey}`;
@@ -316,6 +359,14 @@ photoPopupPrevBtn?.addEventListener("click", () => {
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closePhotoPopup(true);
   });
+
+  document.addEventListener("DOMContentLoaded", () => {
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+});
+
+
 }); // DOMContentLoaded end
 
 // =========================================================
@@ -437,7 +488,10 @@ const waInput = document.getElementById('wa-input');
 
 if (waToggle && waWidget) {
   waToggle.addEventListener('click', () => waWidget.classList.toggle('open'));
-  waClose?.addEventListener('click', () => waWidget.classList.remove('open'));
+  waClose?.addEventListener('click', () => {
+    waWidget.classList.remove('open');
+    history.pushState(null, null, '/#kontakt'); // z. B. auf Kontaktseite springen
+    });
   waForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     const message = waInput.value.trim();
