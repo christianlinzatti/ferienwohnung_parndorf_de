@@ -31,12 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
     slides.forEach((slide, i) => {
       const dot = document.createElement('div');
       dot.classList.add('dot');
+      const img = slide.querySelector('img');
+      const caption = slide.querySelector('.slide-caption')?.textContent || (img?.alt || '');
+      dot.title = caption;
       dot.addEventListener('click', () => { showSlide(i); resetInterval(); });
-      const caption = slide.querySelector('.slide-caption')?.textContent || img.alt;
-  dot.title = caption;
       dotsContainer.appendChild(dot);
 
-      const img = slide.querySelector('img');
       if (img) {
         img.addEventListener('click', (e) => {
           e.preventDefault();
@@ -79,29 +79,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const photoPopupPrevBtn = photoPopup?.querySelector(".prev");
   const photoPopupNextBtn = photoPopup?.querySelector(".next");
 
-  const allImages = [
-  "wohnzimmer.webp",
-  "schlafzimmer.webp",
-  "betten.webp",
-  "bett_kasten.webp",
-  "kueche.webp",
-  "essbereich.webp",
-  "badezimmer.webp",
-  "wc.webp",
-  "terrasse.webp",
-  "garten.webp",
-  "eingangsbereich.webp"
-];
-
-const galleries = {
-  kueche: ["kueche.webp", "essbereich.webp"],
-  schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
-  wohnzimmer: ["wohnzimmer.webp"],
-  badezimmer: ["badezimmer.webp", "wc.webp"],
-  terrasse: ["terrasse.webp", "garten.webp"],
-  eingangsbereich: ["eingangsbereich.webp"],
-  all: allImages // globale Galerie
-};
+  const galleries = {
+    kueche: ["kueche.webp", "essbereich.webp"],
+    schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
+    wohnzimmer: ["wohnzimmer.webp"],
+    badezimmer: ["badezimmer.webp", "wc.webp"],
+    terrasse: ["terrasse.webp", "garten.webp"],
+    eingangsbereich: ["eingangsbereich.webp"],
+  };
 
   let currentGalleryImages = [];
   let currentGalleryIndex = 0;
@@ -154,38 +139,39 @@ const galleries = {
 
     const galleryKeys = Object.keys(galleries);
 
-if (galleryKeys.includes(galleryKey)) {
-  const fotosSection = document.getElementById("fotos");
-  fotosSection?.scrollIntoView({ behavior: "smooth" });
+    if (galleryKeys.includes(galleryKey)) {
+      const fotosSection = document.getElementById("fotos");
+      fotosSection?.scrollIntoView({ behavior: "smooth" });
 
-  // Standard: Galerie nach Kategorie
-  currentGalleryImages = galleries[galleryKey] || [];
-  currentGalleryIndex = 0;
+      // Standard: Kategorie
+      currentGalleryImages = galleries[galleryKey] || [];
+      currentGalleryIndex = 0;
 
-  if (imageKey) {
-    // Sonderfall: Bild direkt aufgerufen -> globale Galerie aktivieren
-    currentGalleryImages = Object.values(galleries).flat(); // alle Bilder zusammen
-    const matchIndex = currentGalleryImages.findIndex(src =>
-      src.toLowerCase().includes(imageKey.toLowerCase())
-    );
-    if (matchIndex >= 0) {
-      currentGalleryIndex = matchIndex;
+      if (imageKey) {
+        // Sonderfall: Bild direkt -> globale Galerie
+        currentGalleryImages = Object.values(galleries).flat();
+        const matchIndex = currentGalleryImages.findIndex(src =>
+          src.toLowerCase().includes(imageKey.toLowerCase())
+        );
+        if (matchIndex >= 0) {
+          currentGalleryIndex = matchIndex;
+        }
+      }
+
+      openPhotoPopup();
+    } else {
+      if (photoPopup.classList.contains('open')) {
+        closePhotoPopup(false);
+      }
+      const targetEl = document.getElementById(targetId);
+      targetEl?.scrollIntoView({ behavior: "smooth" });
     }
-  }
 
-  openPhotoPopup();
-} else {
-  if (photoPopup.classList.contains('open')) {
-    closePhotoPopup(false);
-  }
-  const targetEl = document.getElementById(targetId);
-  targetEl?.scrollIntoView({ behavior: "smooth" });
-}
-
-document.querySelectorAll('nav a[data-link]').forEach(link => {
-  const linkPath = link.getAttribute("href").replace(/[/|#]/g, "");
-  link.classList.toggle("active", linkPath === targetId);
-});
+    document.querySelectorAll('nav a[data-link]').forEach(link => {
+      const linkPath = link.getAttribute("href").replace(/[/|#]/g, "");
+      link.classList.toggle("active", linkPath === targetId);
+    });
+  };
 
   // globaler Klick-Handler für SPA-Links
   document.addEventListener("click", e => {
@@ -280,7 +266,6 @@ const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-2
   };
 
   s.onload = () => {
-    // Versuche, das Widget zu initialisieren — falls es synchron wirft, fange ab
     try {
       window.AirbnbSuperhostWidget?.create('airbnb-superhost-widget-24131580', ROOM_ID);
     } catch (err) {
@@ -289,9 +274,8 @@ const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-2
       return;
     }
 
-    // Polling: prüfe für eine kurze Zeit, ob das Widget wirklich Inhalt rendert
     let attempts = 0;
-    const maxAttempts = 8; // 8 * 400ms = 3.2s
+    const maxAttempts = 8;
     const checkInterval = 400;
 
     const interval = setInterval(() => {
@@ -300,7 +284,6 @@ const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-2
       const hasImg = !!airbnbWidgetContainer.querySelector('img');
       const hasMeaningfulChildren = airbnbWidgetContainer.children.length > 0 && !airbnbWidgetContainer.querySelector('.airbnb-fallback');
 
-      // Wenn Widget explizit eine Fehlermeldung schreibt -> Fallback
       if (text.includes('failed to load') || text.includes('failed') || text.includes('error') || text.includes('nicht geladen')) {
         console.warn('Airbnb widget: erkannter Fehlertext:', text);
         clearInterval(interval);
@@ -308,13 +291,11 @@ const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-2
         return;
       }
 
-      // Wenn Widget Elemente erzeugt hat (und es kein Fallback ist), dann alles ok
       if (hasMeaningfulChildren && !text.includes('failed') && !text.includes('error')) {
         clearInterval(interval);
-        return; // erfolgreich geladen
+        return;
       }
 
-      // Timeout -> kein sinnvolles Rendering -> Fallback
       if (attempts >= maxAttempts) {
         clearInterval(interval);
         console.warn('Airbnb widget: kein Rendering innerhalb Timeout — zeige Fallback.');
@@ -358,22 +339,17 @@ if (ctaFloating && topSentinel && bottomSentinel) {
   let topVisible = false;
   let bottomVisible = false;
 
-  const observer = new IntersectionObserver((entries) => {
+  const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
-      if (entry.target.id === 'cta-top-sentinel') {
-        topVisible = entry.isIntersecting;
-      }
-      if (entry.target.id === 'cta-bottom-sentinel') {
-        bottomVisible = entry.isIntersecting;
+      if (entry.target === topSentinel) topVisible = entry.isIntersecting;
+      if (entry.target === bottomSentinel) bottomVisible = entry.isIntersecting;
+
+      if (!topVisible && !bottomVisible) {
+        ctaFloating.classList.add('visible');
+      } else {
+        ctaFloating.classList.remove('visible');
       }
     });
-
-    // Buttons nur anzeigen, wenn weder oben noch unten sichtbar
-    if (!topVisible && !bottomVisible) {
-      ctaFloating.classList.add('visible');
-    } else {
-      ctaFloating.classList.remove('visible');
-    }
   });
 
   observer.observe(topSentinel);
