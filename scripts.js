@@ -355,10 +355,14 @@ photoPopupPrevBtn?.addEventListener("click", () => {
   window.addEventListener("popstate", () => handleRoute(false));
   handleRoute(true); // initial ohne automatischem scroll
 
-  // ESC = schließen
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closePhotoPopup(true);
-  });
+  if (e.key === 'Escape') {
+    closePhotoPopup(true);
+    navToggle?.classList.remove("open");
+    mainNav?.classList.remove("open");
+    document.body.classList.remove("no-scroll");
+  }
+});
 
   // =========================================================
 // Burger-Menü Toggle
@@ -383,11 +387,9 @@ if (navToggle && mainNav) {
   });
 }
 
-  document.addEventListener("DOMContentLoaded", () => {
-  if (window.lucide) {
+ if (window.lucide) {
     lucide.createIcons();
   }
-});
 
 
 }); // DOMContentLoaded end

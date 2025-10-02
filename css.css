@@ -143,31 +143,36 @@ header p {
 
 /* --- 4. Navigation (Mobile & Desktop Off-Canvas) --- */
 .nav-toggle {
-  display: block; /* Visible on all viewports */
-  position: fixed;
-  top: max(12px, env(safe-area-inset-top));
-  left: 16px;
-  z-index: 1000;
-  padding: 10px;
   background: transparent;
   border: none;
+  padding: 8px;
   cursor: pointer;
+  z-index: 1001;
 }
-
-.hamburger,
-.hamburger::before,
-.hamburger::after {
-  content: '';
+.nav-toggle .hamburger {
   display: block;
-  width: 30px;
-  height: 3px;
-  background-color: white;
-  border-radius: 3px;
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  width: 28px;
+  height: 2px;
+  background: white;
+  position: relative;
+  border-radius: 2px;
+  transition: background 0.2s ease;
 }
+.nav-toggle .hamburger::before,
+.nav-toggle .hamburger::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 28px;
+  height: 2px;
+  background: white;
+  border-radius: 2px;
+  transition: transform 0.25s ease, top 0.25s ease, opacity 0.2s ease;
+}
+.nav-toggle .hamburger::before { top: -8px; }
+.nav-toggle .hamburger::after  { top: 8px; }
 
-.hamburger::before { transform: translateY(-8px); }
-.hamburger::after { transform: translateY(8px); }
+
 
 .nav-toggle.open .hamburger { background-color: transparent; }
 .nav-toggle.open .hamburger::before { transform: rotate(45deg); }
@@ -987,4 +992,16 @@ footer {
   margin-top: 15px;
   text-align: center;
   font-size: 0.9rem;
+}
+
+/* -> Sicherstellen, dass Links im mobilen Menü weiß sind */
+#main-nav #burger-menu a,
+.main-nav #burger-menu a {
+  color: white !important;
+}
+
+
+
+#burger-menu a:hover {
+  color: var(--accent-booking); /* schönes Blau aus deiner Farbpalette */
 }
