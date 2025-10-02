@@ -149,8 +149,12 @@ const renderGallery = () => {
 
   currentGalleryImages.forEach((src, idx) => {
     const img = document.createElement("img");
-    img.src = src.startsWith("/") ? src : "/" + src;
-    img.alt = stripExt(src);
+img.src = src.startsWith("/") ? src : "/" + src;
+img.alt = stripExt(src);
+
+// data-caption, falls schon im HTML definiert
+const key = stripExt(src.split("/").pop());
+img.dataset.caption = captions[key] || key.replace(/_/g, " ");
     if (idx === currentGalleryIndex) img.classList.add("active");
     popupImagesContainer.appendChild(img);
   });
@@ -159,12 +163,9 @@ const renderGallery = () => {
   const currentSrc = currentGalleryImages[currentGalleryIndex];
   if (currentSrc) {
     const imageKey = stripExt(currentSrc.split("/").pop());
-    const captionText = imageKey.replace(/_/g, " "); // evtl. schöner formatieren
-
-    if (popupCaption) popupCaption.textContent = captionText;
-
-    // Titel der Seite ändern
-    document.title = `Ferienwohnung Parndorf – ${captionText}`;
+    const captionText = activeImg.dataset.caption || activeImg.alt;
+  if (popupCaption) popupCaption.textContent = captionText;
+  document.title = `Ferienwohnung Parndorf – ${captionText}`;
   }
 };
 
