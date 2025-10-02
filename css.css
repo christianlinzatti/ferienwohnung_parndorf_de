@@ -78,6 +78,8 @@ header {
   justify-content: center;
   align-items: center;
   min-height: 20vh;
+  left: 0;           /* 🔥 hinzufügen */
+  width: 100%;       /* 🔥 hinzufügen */
 }
 
 header.sticky {
@@ -92,6 +94,7 @@ header.sticky {
   width: 100%;
   height: 100%;
   z-index: 1;
+  overflow: hidden; /* 🔥 hinzufügen, falls Bilder zu groß sind */
 }
 
 .header-slide {
@@ -105,6 +108,7 @@ header.sticky {
   opacity: 0;
   transform: scale(1.1);
   transition: opacity 1.5s ease-in-out, transform 8s linear;
+  background-repeat: no-repeat; /* 🔥 hinzufügen */
 }
 
 .header-slide.active {
