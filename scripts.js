@@ -333,14 +333,32 @@ if (waToggle && waWidget) {
   });
 }
 
-// =========================================================
-// 8. Floating CTA Buttons (Booking sichtbar, außer bei Section)
-// =========================================================
 const ctaFloating = document.querySelector('.cta-floating');
-const bookingSection = document.getElementById('buchung');
-if (ctaFloating && bookingSection) {
+const topSentinel = document.getElementById('cta-top-sentinel');
+const bottomSentinel = document.getElementById('cta-bottom-sentinel');
+
+if (ctaFloating && topSentinel && bottomSentinel) {
+  let topVisible = false;
+  let bottomVisible = false;
+
   const observer = new IntersectionObserver((entries) => {
-    ctaFloating.classList.toggle('visible', !entries[0].isIntersecting);
-  }, { threshold: 0.1 });
-  observer.observe(bookingSection);
+    entries.forEach(entry => {
+      if (entry.target.id === 'cta-top-sentinel') {
+        topVisible = entry.isIntersecting;
+      }
+      if (entry.target.id === 'cta-bottom-sentinel') {
+        bottomVisible = entry.isIntersecting;
+      }
+    });
+
+    // Buttons nur anzeigen, wenn weder oben noch unten sichtbar
+    if (!topVisible && !bottomVisible) {
+      ctaFloating.classList.add('visible');
+    } else {
+      ctaFloating.classList.remove('visible');
+    }
+  });
+
+  observer.observe(topSentinel);
+  observer.observe(bottomSentinel);
 }
