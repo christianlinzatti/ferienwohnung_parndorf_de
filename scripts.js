@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // baue Route: /galleryKey/imageKey  (falls galleryKey vorhanden) sonst /imageKey
           const url = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
-          history.pushState(null, null, url);
+          history.pushState({ popupScope: 'global' }, null, url);
           handleRoute(false);
         });
       }
