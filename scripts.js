@@ -183,7 +183,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const link = e.target.closest("a[data-link]");
     if (link) {
       e.preventDefault();
-      history.pushState(null, null, link.href);
+
+      let href = link.getAttribute("href") || '/';
+
+      // --- NEU: Galerie-Links automatisch mit erstem Bild erweitern ---
+      const galleryKeys = Object.keys(galleries);
+      const cleanHref = href.replace(/^\/+|\/+$/g, ""); // ohne führende/Trailing Slashes
+      if (galleryKeys.includes(cleanHref)) {
+        const firstImage = galleries[cleanHref][0]; // erstes Bild dieser Galerie
+        const firstKey = firstImage ? firstImage.replace(/\.(jpe?g|png|webp)$/i, '') : null;
+        if (firstKey) {
+          href = `/${cleanHref}/${firstKey}`;
+        }
+      }
+
+      history.pushState(null, null, href);
       handleRoute();
     }
   });
