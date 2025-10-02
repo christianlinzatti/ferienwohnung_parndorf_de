@@ -826,14 +826,33 @@ footer {
 }
 
 #photo-popup .popup-images img {
-  display: none;              /* alle Bilder ausblenden */
-  max-width: 100%;
-  max-height: 100%;
+  /* Wichtig für die Überblendung */
+  position: absolute;
+
+  /* Steuert das Ein- und Ausblenden */
+  opacity: 0;
+
+  /* Startet bei Normalgröße für den Zoom */
+  transform: scale(1);
+
+  /* Definiert die Dauer der Animationen */
+  transition:
+    opacity 0.4s ease-in-out,
+    transform 8s ease-in-out;
+
+  /* Alte Stile bleiben erhalten */
+  max-width: 95vw;
+  max-height: 90vh;
   object-fit: contain;
+  display: block; /* Ersetzt das alte display: none */
 }
 
 #photo-popup .popup-images img.active {
-  display: block;             /* nur aktives Bild sichtbar */
+  /* Macht das aktive Bild sichtbar */
+  opacity: 1;
+
+  /* Startet den langsamen Zoom-Effekt */
+  transform: scale(1.05);
 }
 
 #photo-popup .popup-caption {
