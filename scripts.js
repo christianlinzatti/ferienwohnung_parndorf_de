@@ -59,45 +59,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Klick auf Slides → Router öffnen
     slides.forEach((slide, i) => {
-      const dot = document.createElement('div');
-      dot.classList.add('dot');
-      const img = slide.querySelector('img');
-      const caption = slide.querySelector('.slide-caption')?.textContent || (img?.alt || '');
-      dot.title = caption;
-      dot.addEventListener('click', () => { showSlide(i); resetInterval(); });
-      dotsContainer.appendChild(dot);
+  const img = slide.querySelector('img');
 
-      if (img) {
-        img.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
+  // Caption (Prio: data-caption > slide-caption > alt)
+  const caption =
+    img?.dataset.caption ||
+    slide.querySelector('.slide-caption')?.textContent ||
+    img?.alt ||
+    '';
 
-          // Bild-Basename (ohne Pfad, ohne Extension)
-          const src = (img.getAttribute('src') || '').toLowerCase();
-          const srcBase = src.split('/').pop() || '';
-          const imageKey = stripExt(srcBase);
+  // Bild-Basename als "slug"
+  const src = (img.getAttribute('src') || '').toLowerCase();
+  const srcBase = src.split('/').pop() || '';
+  const imageKey = stripExt(srcBase);
 
-          // Versuche galleryKey aus alt zu lesen; wenn nicht vorhanden -> finde gallery über lookup
-          let galleryKey = (img.alt || '').toLowerCase();
-          galleryKey = stripExt(galleryKey);
-
-          if (!galleryKey) {
-            // Lookup: find gallery that contains this image
-            for (const [gk, imgs] of Object.entries(galleries)) {
-              if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey.toLowerCase())) {
-                galleryKey = gk;
-                break;
-              }
-            }
-          }
-
-          // baue Route: /galleryKey/imageKey  (falls galleryKey vorhanden) sonst /imageKey
-          const url = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
-          history.pushState({ popupScope: 'global' }, null, url);
-          handleRoute(false);
-        });
+  // galleryKey ermitteln (wie bisher)
+  let galleryKey = (img.alt || '').toLowerCase();
+  galleryKey = stripExt(galleryKey);
+  if (!galleryKey) {
+    for (const [gk, imgs] of Object.entries(galleries)) {
+      if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey.toLowerCase())) {
+        galleryKey = gk;
+        break;
       }
-    });
+    }
+  }
+
+  const url = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
+
+  // jetzt echten Link erzeugen
+  const dot = document.createElement('a');
+  dot.classList.add('dot');
+  dot.href = url;
+  dot.title = caption;
+  dot.setAttribute('aria-label', caption); // für Screenreader
+
+  // Klick abfangen → interne Navigation statt echter Reload
+  dot.addEventListener('click', (e) => {
+    e.preventDefault();
+    showSlide(i);
+    resetInterval();
+    history.pushState({ popupScope: 'global' }, '', url);
+    handleRoute(false);
+  });
+
+  dotsContainer.appendChild(dot);
+});
 
     btnNext?.addEventListener('click', () => { nextSlide(); resetInterval(); });
     btnPrev?.addEventListener('click', () => { prevSlide(); resetInterval(); });
