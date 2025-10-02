@@ -104,6 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
     handleRoute(false);
   });
 
+  slide.addEventListener('click', (e) => {
+        e.preventDefault();
+        showSlide(i); // Ensure the correct slide is active
+        resetInterval();
+        history.pushState({ popupScope: 'global' }, '', url);
+        handleRoute(false);
+      });
+
   dotsContainer.appendChild(dot);
 });
 
