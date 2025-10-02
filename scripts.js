@@ -92,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
   dot.classList.add('dot');
   dot.href = url;
   dot.title = caption;
+  dot.setAttribute('data-link', '');
   dot.setAttribute('aria-label', caption); // für Screenreader
 
   // Klick abfangen → interne Navigation statt echter Reload
