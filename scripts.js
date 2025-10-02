@@ -127,51 +127,53 @@ document.addEventListener('DOMContentLoaded', () => {
   photoPopupCloseBtn?.addEventListener("click", () => closePhotoPopup(true));
   photoPopup?.addEventListener("click", e => e.target === photoPopup && closePhotoPopup(true));
 
-  // Router-Logik
-  const handleRoute = () => {
-    const path = window.location.pathname.replace("/", "");
-    const hash = window.location.hash.replace("#", "");
-    const targetId = path || hash || "highlights";
+ const handleRoute = (isInitial = false) => {
+  const path = window.location.pathname.replace("/", "");
+  const hash = window.location.hash.replace("#", "");
+  const targetId = path || hash || "highlights";
 
-    const parts = targetId.split("/").filter(Boolean); // z.B. ["kueche","essbereich"]
-    const galleryKey = parts[0];
-    const imageKey = parts[1];
+  const parts = targetId.split("/").filter(Boolean);
+  const galleryKey = parts[0];
+  const imageKey = parts[1];
 
-    const galleryKeys = Object.keys(galleries);
+  const galleryKeys = Object.keys(galleries);
 
-    if (galleryKeys.includes(galleryKey)) {
+  if (galleryKeys.includes(galleryKey)) {
+    // nur beim User-Klick scrollen
+    if (!isInitial) {
       const fotosSection = document.getElementById("fotos");
       fotosSection?.scrollIntoView({ behavior: "smooth" });
+    }
 
-      // Standard: Kategorie
-      currentGalleryImages = galleries[galleryKey] || [];
-      currentGalleryIndex = 0;
+    currentGalleryImages = galleries[galleryKey] || [];
+    currentGalleryIndex = 0;
 
-      if (imageKey) {
-        // Sonderfall: Bild direkt -> globale Galerie
-        currentGalleryImages = Object.values(galleries).flat();
-        const matchIndex = currentGalleryImages.findIndex(src =>
-          src.toLowerCase().includes(imageKey.toLowerCase())
-        );
-        if (matchIndex >= 0) {
-          currentGalleryIndex = matchIndex;
-        }
+    if (imageKey) {
+      currentGalleryImages = Object.values(galleries).flat();
+      const matchIndex = currentGalleryImages.findIndex(src =>
+        src.toLowerCase().includes(imageKey.toLowerCase())
+      );
+      if (matchIndex >= 0) {
+        currentGalleryIndex = matchIndex;
       }
+    }
 
-      openPhotoPopup();
-    } else {
-      if (photoPopup.classList.contains('open')) {
-        closePhotoPopup(false);
-      }
+    openPhotoPopup();
+  } else {
+    if (photoPopup.classList.contains('open')) {
+      closePhotoPopup(false);
+    }
+    if (!isInitial) {
       const targetEl = document.getElementById(targetId);
       targetEl?.scrollIntoView({ behavior: "smooth" });
     }
+  }
 
-    document.querySelectorAll('nav a[data-link]').forEach(link => {
-      const linkPath = link.getAttribute("href").replace(/[/|#]/g, "");
-      link.classList.toggle("active", linkPath === targetId);
-    });
-  };
+  document.querySelectorAll('nav a[data-link]').forEach(link => {
+    const linkPath = link.getAttribute("href").replace(/[/|#]/g, "");
+    link.classList.toggle("active", linkPath === targetId);
+  });
+};
 
   // globaler Klick-Handler für SPA-Links
   document.addEventListener("click", e => {
@@ -187,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener("popstate", handleRoute);
-  handleRoute(); // initial
+  handleRoute(true); // initial
 
   // =========================================================
   // 3. Escape Taste = Popup schließen
