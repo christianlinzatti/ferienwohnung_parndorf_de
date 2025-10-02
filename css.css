@@ -69,7 +69,7 @@ header {
   top: 0;
   z-index: 20;
   color: white;
-  padding: 80px 20px;
+  padding: 40px 20px;
   text-align: center;
   border-radius: 0 0 20px 20px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -214,8 +214,6 @@ header p {
 
 body.no-scroll {
   overflow: hidden;  /* Gilt nur, wenn das Menü offen ist */
-  position: relative; /* Statt fixed, damit keine zweite Scrollbar entsteht */
-  height: auto;
 }
 
 .main-nav li {
@@ -774,10 +772,18 @@ footer {
 
 /* --- 11. Popups / Modals (Fullscreen) --- */
 .popup-container, #photo-popup {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.9);
-  display: none; justify-content: center; align-items: center;
-  z-index: 3000; opacity: 0; transition: opacity 0.3s ease;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .popup-container.open, #photo-popup.open { display: flex; opacity: 1; }
@@ -949,22 +955,6 @@ footer {
   }
 }
 
-#photo-popup .popup-caption {
-  position: absolute;
-  bottom: 40px;              /* etwas über den Buttons */
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 90%;
-  padding: 10px 15px;
-  background: rgba(0,0,0,0.6);  /* halbtransparent */
-  color: #fff;
-  font-size: 1rem;
-  line-height: 1.4;
-  text-align: center;
-  border-radius: 6px;
-  pointer-events: none;      /* Klicks gehen durch */
-  z-index: 2100;
-}
 
 /* Mobile: Caption kleiner */
 @media (max-width: 600px) {
@@ -995,8 +985,8 @@ footer {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: #333;
-  font-size: 1.1rem;
+  color: #fff !important;
+  font-size: 1.2rem;
 }
 
 #burger-menu i {
@@ -1060,7 +1050,7 @@ footer {
 /* -> Sicherstellen, dass Links im mobilen Menü weiß sind */
 #main-nav #burger-menu a,
 .main-nav #burger-menu a {
-  color: white !important;
+  color: white;
 }
 
 
