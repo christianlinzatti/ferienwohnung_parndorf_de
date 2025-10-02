@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentGalleryImages = [];
   let currentGalleryIndex = 0;
 
-  const updateUrlForCurrentImage = () => {
+const updateUrlForCurrentImage = () => {
   const currentSrc = currentGalleryImages[currentGalleryIndex];
   if (!currentSrc) return;
 
@@ -135,19 +135,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const newUrl = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
   history.replaceState({ popupScope: 'global' }, null, newUrl);
+
+  // Seitentitel aktualisieren
+  const captionText = imageKey.replace(/_/g, " ");
+  document.title = `Ferienwohnung Parndorf – ${captionText}`;
 };
 
-  const renderGallery = () => {
-    if (!popupImagesContainer) return;
-    popupImagesContainer.innerHTML = "";
-    currentGalleryImages.forEach((src, idx) => {
-      const img = document.createElement("img");
-      img.src = src.startsWith("/") ? src : "/" + src; // immer root-absolute
-      img.alt = stripExt(src);
-      if (idx === currentGalleryIndex) img.classList.add("active");
-      popupImagesContainer.appendChild(img);
-    });
-  };
+  const popupCaption = photoPopup?.querySelector(".popup-caption");
+
+const renderGallery = () => {
+  if (!popupImagesContainer) return;
+  popupImagesContainer.innerHTML = "";
+
+  currentGalleryImages.forEach((src, idx) => {
+    const img = document.createElement("img");
+    img.src = src.startsWith("/") ? src : "/" + src;
+    img.alt = stripExt(src);
+    if (idx === currentGalleryIndex) img.classList.add("active");
+    popupImagesContainer.appendChild(img);
+  });
+
+  // Caption + Titel setzen
+  const currentSrc = currentGalleryImages[currentGalleryIndex];
+  if (currentSrc) {
+    const imageKey = stripExt(currentSrc.split("/").pop());
+    const captionText = imageKey.replace(/_/g, " "); // evtl. schöner formatieren
+
+    if (popupCaption) popupCaption.textContent = captionText;
+
+    // Titel der Seite ändern
+    document.title = `Ferienwohnung Parndorf – ${captionText}`;
+  }
+};
 
   const openPhotoPopup = () => {
     if (currentGalleryImages.length === 0) return;
