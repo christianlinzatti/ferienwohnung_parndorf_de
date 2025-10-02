@@ -343,7 +343,7 @@ img {
 
 /* --- 5. Main Content & Layout --- */
 main {
-    margin-top: 250px; /* gleiche Höhe wie header */
+    margin-top: 0px; /* gleiche Höhe wie header */
 }
 
 .main-content-grid {
