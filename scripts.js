@@ -232,17 +232,82 @@ if (header) {
 // 6. Airbnb Widget
 // =========================================================
 const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-24131580');
-if (airbnbWidgetContainer) {
+(function initAirbnbWidgetWithFallback() {
+  const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-24131580');
+  if (!airbnbWidgetContainer) return;
+
+  const ROOM_ID = '24131580';
+
+  function showStaticAirbnbBadge() {
+    // Sauber ersetzen und click-handler setzen
+    airbnbWidgetContainer.innerHTML = `
+      <a href="https://www.airbnb.at/rooms/${ROOM_ID}" target="_blank" rel="noopener noreferrer"
+         class="airbnb-fallback" aria-label="Airbnb Listing öffnen" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;cursor:pointer;">
+        <img src="super.webp"
+           alt="Airbnb Superhost"
+           style="max-width:150px; cursor:pointer;" />
+      </a>
+    `;
+    console.warn('Airbnb widget: Fallback-Badge angezeigt (CORS/Netzwerkfehler).');
+  }
+
+  // Script einbinden
   const s = document.createElement('script');
   s.src = 'https://airbnb-proxy.elgordoraba.workers.dev/widget.js';
   s.async = true;
-  s.onload = () => window.AirbnbSuperhostWidget?.create('airbnb-superhost-widget-24131580', '24131580');
-  document.head.appendChild(s);
 
-  airbnbWidgetContainer.addEventListener('click', () => {
-    window.open('https://www.airbnb.at/rooms/24131580', '_blank');
-  });
-}
+  // Script-Ladefehler -> sofort Fallback
+  s.onerror = () => {
+    console.error('Airbnb widget script konnte nicht geladen werden (onerror).');
+    showStaticAirbnbBadge();
+  };
+
+  s.onload = () => {
+    // Versuche, das Widget zu initialisieren — falls es synchron wirft, fange ab
+    try {
+      window.AirbnbSuperhostWidget?.create('airbnb-superhost-widget-24131580', ROOM_ID);
+    } catch (err) {
+      console.error('AirbnbWidget.create() hat geworfen:', err);
+      showStaticAirbnbBadge();
+      return;
+    }
+
+    // Polling: prüfe für eine kurze Zeit, ob das Widget wirklich Inhalt rendert
+    let attempts = 0;
+    const maxAttempts = 8; // 8 * 400ms = 3.2s
+    const checkInterval = 400;
+
+    const interval = setInterval(() => {
+      attempts++;
+      const text = (airbnbWidgetContainer.innerText || '').trim().toLowerCase();
+      const hasImg = !!airbnbWidgetContainer.querySelector('img');
+      const hasMeaningfulChildren = airbnbWidgetContainer.children.length > 0 && !airbnbWidgetContainer.querySelector('.airbnb-fallback');
+
+      // Wenn Widget explizit eine Fehlermeldung schreibt -> Fallback
+      if (text.includes('failed to load') || text.includes('failed') || text.includes('error') || text.includes('nicht geladen')) {
+        console.warn('Airbnb widget: erkannter Fehlertext:', text);
+        clearInterval(interval);
+        showStaticAirbnbBadge();
+        return;
+      }
+
+      // Wenn Widget Elemente erzeugt hat (und es kein Fallback ist), dann alles ok
+      if (hasMeaningfulChildren && !text.includes('failed') && !text.includes('error')) {
+        clearInterval(interval);
+        return; // erfolgreich geladen
+      }
+
+      // Timeout -> kein sinnvolles Rendering -> Fallback
+      if (attempts >= maxAttempts) {
+        clearInterval(interval);
+        console.warn('Airbnb widget: kein Rendering innerhalb Timeout — zeige Fallback.');
+        showStaticAirbnbBadge();
+      }
+    }, checkInterval);
+  };
+
+  document.head.appendChild(s);
+})();
 
 // =========================================================
 // 7. WhatsApp Widget
