@@ -149,23 +149,28 @@ const renderGallery = () => {
 
   currentGalleryImages.forEach((src, idx) => {
     const img = document.createElement("img");
-img.src = src.startsWith("/") ? src : "/" + src;
-img.alt = stripExt(src);
+    img.src = src.startsWith("/") ? src : "/" + src;
+    img.alt = stripExt(src);
 
-// data-caption, falls schon im HTML definiert
-const key = stripExt(src.split("/").pop());
-img.dataset.caption = captions[key] || key.replace(/_/g, " ");
+    // caption aus vorhandenem <img>-Element im DOM holen
+    // wir suchen nach einem Bild mit gleichem src in der Slideshow
+    const originalImg = document.querySelector(`img[src$="${src}"]`);
+    if (originalImg?.dataset.caption) {
+      img.dataset.caption = originalImg.dataset.caption;
+    } else {
+      img.dataset.caption = img.alt.replace(/_/g, " ");
+    }
+
     if (idx === currentGalleryIndex) img.classList.add("active");
     popupImagesContainer.appendChild(img);
   });
 
   // Caption + Titel setzen
-  const currentSrc = currentGalleryImages[currentGalleryIndex];
-  if (currentSrc) {
-    const imageKey = stripExt(currentSrc.split("/").pop());
+  const activeImg = popupImagesContainer.querySelector("img.active");
+  if (activeImg) {
     const captionText = activeImg.dataset.caption || activeImg.alt;
-  if (popupCaption) popupCaption.textContent = captionText;
-  document.title = `Ferienwohnung Parndorf – ${captionText}`;
+    if (popupCaption) popupCaption.textContent = captionText;
+    document.title = `Ferienwohnung Parndorf – ${captionText}`;
   }
 };
 
