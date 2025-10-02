@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     popupImagesContainer.innerHTML = "";
     currentGalleryImages.forEach((src, idx) => {
       const img = document.createElement("img");
-      img.src = src;
+      img.src = src.startsWith("/") ? src : "/" + src;
       if (idx === currentGalleryIndex) img.classList.add("active");
       popupImagesContainer.appendChild(img);
     });
