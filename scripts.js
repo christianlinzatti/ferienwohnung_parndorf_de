@@ -445,7 +445,7 @@ const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-2
          class="airbnb-fallback" aria-label="Airbnb Listing öffnen" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;cursor:pointer;">
         <img src="super.webp"
            alt="Airbnb Superhost"
-           style="cursor:pointer;" />
+           style="max-width:444px; cursor:pointer;" />
       </a>
     `;
     console.warn('Airbnb widget: Fallback-Badge angezeigt (CORS/Netzwerkfehler).');
