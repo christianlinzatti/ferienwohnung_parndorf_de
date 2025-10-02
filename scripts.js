@@ -360,6 +360,29 @@ photoPopupPrevBtn?.addEventListener("click", () => {
     if (e.key === 'Escape') closePhotoPopup(true);
   });
 
+  // =========================================================
+// Burger-Menü Toggle
+// =========================================================
+const navToggle = document.querySelector(".nav-toggle");
+const mainNav = document.querySelector(".main-nav");
+
+if (navToggle && mainNav) {
+  navToggle.addEventListener("click", () => {
+    navToggle.classList.toggle("open");
+    mainNav.classList.toggle("open");
+    document.body.classList.toggle("no-scroll");
+  });
+
+  // optional: Menü schließen, wenn ein Link geklickt wird
+  mainNav.querySelectorAll("a[data-link]").forEach(link => {
+    link.addEventListener("click", () => {
+      navToggle.classList.remove("open");
+      mainNav.classList.remove("open");
+      document.body.classList.remove("no-scroll");
+    });
+  });
+}
+
   document.addEventListener("DOMContentLoaded", () => {
   if (window.lucide) {
     lucide.createIcons();
