@@ -216,7 +216,7 @@ const renderGallery = () => {
   const closePhotoPopup = (updateHistory = true) => {
     photoPopup?.classList.remove('open');
     document.body.classList.remove('popup-is-open', 'no-scroll');
-    if (updateHistory) history.pushState(null, null, '/#fotogallerie');
+    if (updateHistory) history.pushState(null, null, '/#main');
   };
 
   photoPopupNextBtn?.addEventListener("click", () => {
