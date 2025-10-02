@@ -118,6 +118,25 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentGalleryImages = [];
   let currentGalleryIndex = 0;
 
+  const updateUrlForCurrentImage = () => {
+  const currentSrc = currentGalleryImages[currentGalleryIndex];
+  if (!currentSrc) return;
+
+  const imageKey = stripExt(currentSrc.split('/').pop().toLowerCase());
+
+  // versuche galleryKey zu finden
+  let galleryKey = null;
+  for (const [gk, imgs] of Object.entries(galleries)) {
+    if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey)) {
+      galleryKey = gk;
+      break;
+    }
+  }
+
+  const newUrl = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
+  history.replaceState({ popupScope: 'global' }, null, newUrl);
+};
+
   const renderGallery = () => {
     if (!popupImagesContainer) return;
     popupImagesContainer.innerHTML = "";
@@ -144,15 +163,17 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   photoPopupNextBtn?.addEventListener("click", () => {
-    if (!currentGalleryImages.length) return;
-    currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryImages.length;
-    renderGallery();
-  });
-  photoPopupPrevBtn?.addEventListener("click", () => {
-    if (!currentGalleryImages.length) return;
-    currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
-    renderGallery();
-  });
+  if (!currentGalleryImages.length) return;
+  currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryImages.length;
+  renderGallery();
+  updateUrlForCurrentImage();
+});
+photoPopupPrevBtn?.addEventListener("click", () => {
+  if (!currentGalleryImages.length) return;
+  currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
+  renderGallery();
+  updateUrlForCurrentImage();
+});
   photoPopupCloseBtn?.addEventListener("click", () => closePhotoPopup(true));
   photoPopup?.addEventListener("click", e => e.target === photoPopup && closePhotoPopup(true));
 
