@@ -616,7 +616,7 @@ main {
 /* --- 9. WhatsApp Widget --- */
 #wa-toggle {
   position: fixed;
-  bottom: 90px;
+  bottom: 150px;
   right: 20px;
   background-color: #25D366;
   color: white;
