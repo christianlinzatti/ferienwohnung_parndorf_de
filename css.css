@@ -40,7 +40,7 @@
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
-  padding-top: 120px;
+  padding-top: 0;
   background: var(--background-light);
   color: var(--text-color);
   line-height: 1.6;
@@ -343,9 +343,7 @@ img {
 
 /* --- 5. Main Content & Layout --- */
 main {
-  max-width: 1100px;
-  margin: 20px auto;
-  padding: 0 20px;
+    margin-top: 250px; /* gleiche Höhe wie header */
 }
 
 .main-content-grid {
