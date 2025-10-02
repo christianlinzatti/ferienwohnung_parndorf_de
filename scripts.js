@@ -237,20 +237,22 @@ photoPopupPrevBtn?.addEventListener("click", () => {
   // =========================================================
   // Router-Logik (robust)
   // =========================================================
-  const handleRoute = (isInitial = false) => {
+ const handleRoute = (isInitial = false) => {
   const rawPath = window.location.pathname || "";
+  const cleaned = rawPath.replace(/^\/+|\/+$/g, "");
   const hash = (window.location.hash || "").replace(/^#/, "");
 
-  // Wenn nur ein Hash da ist (z. B. #fotos) → direkt dorthin springen
-  if (hash && !rawPath.replace(/^\/+|\/+$/g, "")) {
-    if (!isInitial) {
-      const targetEl = document.getElementById(hash);
-      targetEl?.scrollIntoView({ behavior: "smooth" });
+  // --- NEU: Hash-Scroll immer erlauben ---
+  if (hash) {
+    const targetEl = document.getElementById(hash);
+    if (targetEl) {
+      if (!isInitial) {
+        targetEl.scrollIntoView({ behavior: "smooth" });
+      }
+      return; // <--- wichtig, sonst läuft Galerie/Router weiter
     }
-    return;
   }
 
-  const cleaned = rawPath.replace(/^\/+|\/+$/g, "");
   const target = cleaned || "highlights";
   const parts = target.split("/").filter(Boolean);
   const galleryKeyRaw = parts[0] ? stripExt(parts[0].toLowerCase()) : "";
