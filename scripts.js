@@ -1,6 +1,36 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Hilfsfunktionen
+  const stripExt = s => s ? s.replace(/\.(jpe?g|png|webp)$/i, '') : '';
+  const ensureRoot = s => s && s.startsWith('/') ? s : ('/' + s);
+
   // =========================================================
-  // 1. Slideshow (nur Vorschau, kein eigenes Popup mehr)
+  // GALLERIES (muss vor Slideshow deklariert sein)
+  // =========================================================
+  const allImages = [
+    "wohnzimmer.webp",
+    "schlafzimmer.webp",
+    "betten.webp",
+    "bett_kasten.webp",
+    "kueche.webp",
+    "essbereich.webp",
+    "badezimmer.webp",
+    "wc.webp",
+    "terrasse.webp",
+    "garten.webp",
+    "eingangsbereich.webp"
+  ];
+
+  const galleries = {
+    kueche: ["kueche.webp", "essbereich.webp"],
+    schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
+    wohnzimmer: ["wohnzimmer.webp"],
+    badezimmer: ["badezimmer.webp", "wc.webp"],
+    terrasse: ["terrasse.webp", "garten.webp"],
+    eingangsbereich: ["eingangsbereich.webp"],
+  };
+
+  // =========================================================
+  // 1. Slideshow (nur Vorschau)
   // =========================================================
   const mainSlideshowContainer = document.querySelector('.slideshow-container');
   if (mainSlideshowContainer) {
@@ -42,23 +72,29 @@ document.addEventListener('DOMContentLoaded', () => {
           e.preventDefault();
           e.stopPropagation();
 
-          let galleryKey = img.alt?.toLowerCase() || "";
-            galleryKey = galleryKey.replace(/\.(jpe?g|png|webp)$/i, ""); // falls alt ein Dateiname ist
-          let imageKey = null;
+          // Bild-Basename (ohne Pfad, ohne Extension)
+          const src = (img.getAttribute('src') || '').toLowerCase();
+          const srcBase = src.split('/').pop() || '';
+          const imageKey = stripExt(srcBase);
 
-          // versuche aus dem Dateinamen einen Unterkey abzuleiten
-          const src = img.getAttribute('src').toLowerCase();
-          if (src.includes("essbereich")) imageKey = "essbereich";
-          else if (src.includes("betten")) imageKey = "betten";
-          else if (src.includes("bett_kasten")) imageKey = "bett_kasten";
-          else if (src.includes("wc")) imageKey = "wc";
-          else if (src.includes("garten")) imageKey = "garten";
-          else if (src.includes("terrasse")) imageKey = "terrasse";
+          // Versuche galleryKey aus alt zu lesen; wenn nicht vorhanden -> finde gallery über lookup
+          let galleryKey = (img.alt || '').toLowerCase();
+          galleryKey = stripExt(galleryKey);
 
-          // baue Route: /galleryKey[/imageKey]
-          const url = imageKey ? `/${galleryKey}/${imageKey}` : `/${galleryKey}`;
+          if (!galleryKey) {
+            // Lookup: find gallery that contains this image
+            for (const [gk, imgs] of Object.entries(galleries)) {
+              if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey.toLowerCase())) {
+                galleryKey = gk;
+                break;
+              }
+            }
+          }
+
+          // baue Route: /galleryKey/imageKey  (falls galleryKey vorhanden) sonst /imageKey
+          const url = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
           history.pushState(null, null, url);
-          handleRoute();
+          handleRoute(false);
         });
       }
     });
@@ -79,23 +115,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const photoPopupPrevBtn = photoPopup?.querySelector(".prev");
   const photoPopupNextBtn = photoPopup?.querySelector(".next");
 
-  const galleries = {
-    kueche: ["kueche.webp", "essbereich.webp"],
-    schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
-    wohnzimmer: ["wohnzimmer.webp"],
-    badezimmer: ["badezimmer.webp", "wc.webp"],
-    terrasse: ["terrasse.webp", "garten.webp"],
-    eingangsbereich: ["eingangsbereich.webp"],
-  };
-
   let currentGalleryImages = [];
   let currentGalleryIndex = 0;
 
   const renderGallery = () => {
+    if (!popupImagesContainer) return;
     popupImagesContainer.innerHTML = "";
     currentGalleryImages.forEach((src, idx) => {
       const img = document.createElement("img");
-      img.src = src.startsWith("/") ? src : "/" + src;
+      img.src = src.startsWith("/") ? src : "/" + src; // immer root-absolute
+      img.alt = stripExt(src);
       if (idx === currentGalleryIndex) img.classList.add("active");
       popupImagesContainer.appendChild(img);
     });
@@ -104,119 +133,131 @@ document.addEventListener('DOMContentLoaded', () => {
   const openPhotoPopup = () => {
     if (currentGalleryImages.length === 0) return;
     renderGallery();
-    photoPopup.classList.add('open');
+    photoPopup?.classList.add('open');
     document.body.classList.add('popup-is-open', 'no-scroll');
   };
 
   const closePhotoPopup = (updateHistory = true) => {
-    photoPopup.classList.remove('open');
+    photoPopup?.classList.remove('open');
     document.body.classList.remove('popup-is-open', 'no-scroll');
-    if (updateHistory) {
-      history.pushState(null, null, '/#fotos');
-    }
+    if (updateHistory) history.pushState(null, null, '/#fotos');
   };
 
   photoPopupNextBtn?.addEventListener("click", () => {
+    if (!currentGalleryImages.length) return;
     currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryImages.length;
     renderGallery();
   });
   photoPopupPrevBtn?.addEventListener("click", () => {
+    if (!currentGalleryImages.length) return;
     currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
     renderGallery();
   });
   photoPopupCloseBtn?.addEventListener("click", () => closePhotoPopup(true));
   photoPopup?.addEventListener("click", e => e.target === photoPopup && closePhotoPopup(true));
 
- const handleRoute = (isInitial = false) => {
-  const path = window.location.pathname.replace("/", "");
-  const hash = window.location.hash.replace("#", "");
-  const targetId = path || hash || "highlights";
+  // =========================================================
+  // Router-Logik (robust)
+  // =========================================================
+  const handleRoute = (isInitial = false) => {
+    const rawPath = (window.location.pathname || "");
+    const cleaned = rawPath.replace(/^\/+|\/+$/g, ""); // remove leading/trailing slashes
+    const hash = (window.location.hash || "").replace(/^#/, "");
+    const target = cleaned || hash || "highlights";
 
-  const parts = targetId.split("/").filter(Boolean);
-  const galleryKey = parts[0];
-  const imageKey = parts[1];
+    const parts = target.split("/").filter(Boolean);
+    const galleryKeyRaw = parts[0] ? stripExt(parts[0].toLowerCase()) : "";
+    const imageKeyRaw = parts[1] ? stripExt(parts[1].toLowerCase()) : "";
 
-  const galleryKeys = Object.keys(galleries);
+    const galleryKeys = Object.keys(galleries);
 
-  if (galleryKeys.includes(galleryKey)) {
-    // nur beim User-Klick scrollen
-    if (!isInitial) {
-      const fotosSection = document.getElementById("fotos");
-      fotosSection?.scrollIntoView({ behavior: "smooth" });
-    }
+    if (galleryKeyRaw && galleryKeys.includes(galleryKeyRaw)) {
+      if (!isInitial) {
+        const fotosSection = document.getElementById("fotos");
+        fotosSection?.scrollIntoView({ behavior: "smooth" });
+      }
 
-    currentGalleryImages = galleries[galleryKey] || [];
-    currentGalleryIndex = 0;
+      // Default: Kategorie-Galerie
+      currentGalleryImages = galleries[galleryKeyRaw].slice();
+      currentGalleryIndex = 0;
 
-    if (imageKey) {
-      currentGalleryImages = Object.values(galleries).flat();
-      const matchIndex = currentGalleryImages.findIndex(src =>
-        src.toLowerCase().includes(imageKey.toLowerCase())
-      );
-      if (matchIndex >= 0) {
-        currentGalleryIndex = matchIndex;
+      // Wenn imageKey vorhanden -> globale Galerie öffnen (Pfeiltasten über alle Bilder)
+      if (imageKeyRaw) {
+        currentGalleryImages = allImages.slice();
+        const matchIndex = currentGalleryImages.findIndex(s => stripExt(s).toLowerCase() === imageKeyRaw.toLowerCase());
+        if (matchIndex >= 0) currentGalleryIndex = matchIndex;
+      }
+
+      openPhotoPopup();
+    } else {
+      if (photoPopup?.classList.contains('open')) closePhotoPopup(false);
+      if (!isInitial) {
+        const targetEl = document.getElementById(target);
+        targetEl?.scrollIntoView({ behavior: "smooth" });
       }
     }
 
-    openPhotoPopup();
-  } else {
-    if (photoPopup.classList.contains('open')) {
-      closePhotoPopup(false);
-    }
-    if (!isInitial) {
-      const targetEl = document.getElementById(targetId);
-      targetEl?.scrollIntoView({ behavior: "smooth" });
-    }
-  }
+    // Nav active toggle
+    document.querySelectorAll('nav a[data-link]').forEach(link => {
+      const hrefAttr = (link.getAttribute("href") || "").replace(/^\/+|\/+$/g, "");
+      link.classList.toggle("active", hrefAttr === cleaned || hrefAttr === hash);
+    });
+  };
 
-  document.querySelectorAll('nav a[data-link]').forEach(link => {
-    const linkPath = link.getAttribute("href").replace(/[/|#]/g, "");
-    link.classList.toggle("active", linkPath === targetId);
-  });
-};
-
-  // globaler Klick-Handler für SPA-Links
+  // =========================================================
+  // globaler Klick-Handler für SPA-Links (robust normalisieren)
+  // =========================================================
   document.addEventListener("click", e => {
-    if (e.target.closest('.slideshow-container') || e.target.closest('#photo-popup')) {
-      return;
-    }
+    if (e.target.closest('.slideshow-container') || e.target.closest('#photo-popup')) return;
+
     const link = e.target.closest("a[data-link]");
-    if (link) {
-      e.preventDefault();
+    if (!link) return;
 
-      let href = link.getAttribute("href") || '/';
+    e.preventDefault();
 
-      // --- NEU: Galerie-Links automatisch mit erstem Bild erweitern ---
-      const galleryKeys = Object.keys(galleries);
-      const cleanHref = href.replace(/^\/+|\/+$/g, ""); // ohne führende/Trailing Slashes
-      if (galleryKeys.includes(cleanHref)) {
-        const firstImage = galleries[cleanHref][0]; // erstes Bild dieser Galerie
-        const firstKey = firstImage ? firstImage.replace(/\.(jpe?g|png|webp)$/i, '') : null;
-        if (firstKey) {
-          href = `/${cleanHref}/${firstKey}`;
-        }
+    // Hole das originale href-Attribut (nicht link.href, das ist absolute)
+    let hrefAttr = link.getAttribute("href") || '/';
+    // Normalisiere auf Pfad-Form: "/foo" oder "/foo/bar"
+    let hrefPath = hrefAttr;
+    try {
+      // falls absolute URL in hrefAttr steht, extrahiere pathname
+      if (/^https?:\/\//i.test(hrefAttr)) {
+        const u = new URL(hrefAttr);
+        hrefPath = u.pathname + (u.hash || '');
+      } else {
+        // ensure leading slash
+        if (!hrefPath.startsWith('/')) hrefPath = '/' + hrefPath;
       }
-
-      history.pushState(null, null, href);
-      handleRoute();
+    } catch (err) {
+      if (!hrefPath.startsWith('/')) hrefPath = '/' + hrefPath;
     }
+
+    // Prüfe, ob es sich um eine Kategorie handelt und erweitere bei Bedarf
+    const galleryKeys = Object.keys(galleries);
+    const cleanHref = hrefPath.replace(/^\/+|\/+$/g, "").split('#')[0];
+    if (galleryKeys.includes(cleanHref)) {
+      const firstImage = galleries[cleanHref][0];
+      const firstKey = firstImage ? stripExt(firstImage) : null;
+      if (firstKey) {
+        hrefPath = `/${cleanHref}/${firstKey}`;
+      }
+    }
+
+    history.pushState(null, null, hrefPath);
+    handleRoute(false);
   });
 
-  window.addEventListener("popstate", handleRoute);
-  handleRoute(true); // initial
+  window.addEventListener("popstate", () => handleRoute(false));
+  handleRoute(true); // initial ohne automatischem scroll
 
-  // =========================================================
-  // 3. Escape Taste = Popup schließen
-  // =========================================================
+  // ESC = schließen
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      closePhotoPopup(true);
-    }
+    if (e.key === 'Escape') closePhotoPopup(true);
   });
-});
+}); // DOMContentLoaded end
 
 // =========================================================
-// 4. Header-Slideshow
+// Header slideshow + sticky header (keine Änderungen nötig)
 // =========================================================
 const headerSlides = document.querySelectorAll('.header-slide');
 if (headerSlides.length > 1) {
