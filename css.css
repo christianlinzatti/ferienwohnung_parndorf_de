@@ -65,7 +65,7 @@ h1, h2, h3, h4 {
 
 /* --- 3. Header --- */
 header {
-  position: relative;
+  position: fixed;
   top: 0;
   z-index: 20;
   color: white;
@@ -343,7 +343,7 @@ img {
 
 /* --- 5. Main Content & Layout --- */
 main {
-    margin-top: 0px; /* gleiche Höhe wie header */
+      margin-top: 250px; /* gleiche Höhe wie der Header */
 }
 
 .main-content-grid {
@@ -389,7 +389,7 @@ main {
 .slideshow-container {
   position: relative;
   max-width: 1100px;
-  margin-bottom: 20px;
+  margin: 0 auto 20px;
   border-radius: 15px;
   box-shadow: var(--box-shadow);
   overflow: hidden;
