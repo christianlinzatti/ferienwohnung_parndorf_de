@@ -861,3 +861,29 @@ footer {
     bottom: 30px;
   }
 }
+
+#photo-popup .popup-caption {
+  position: absolute;
+  bottom: 40px;              /* etwas über den Buttons */
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 90%;
+  padding: 10px 15px;
+  background: rgba(0,0,0,0.6);  /* halbtransparent */
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.4;
+  text-align: center;
+  border-radius: 6px;
+  pointer-events: none;      /* Klicks gehen durch */
+  z-index: 2100;
+}
+
+/* Mobile: Caption kleiner */
+@media (max-width: 600px) {
+  #photo-popup .popup-caption {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    bottom: 30px;
+  }
+}
