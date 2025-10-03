@@ -29,6 +29,11 @@ html {
   margin-top: 0;
 }
 
+header.sticky, .header-slideshow {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   background: var(--background-light);
