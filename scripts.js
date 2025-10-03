@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {string} imageUrl - Die URL des Bildes.
    * @param {string} caption - Die Bildunterschrift aus data-caption.
    */
-  const updateMetaTagsForImage = (imageUrl, caption) => {
+  window.updateMetaTagsForImage = (imageUrl, caption) => {
     if (!imageUrl || !caption) return;
 
     const fullImageUrl = new URL(imageUrl, window.location.origin).href;
