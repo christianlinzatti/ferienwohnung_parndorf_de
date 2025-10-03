@@ -40,49 +40,64 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {string} imageUrl - Die URL des Bildes.
    * @param {string} caption - Die Bildunterschrift aus data-caption.
    */
-  window.updateMetaTagsForImage = (imageUrl, caption) => {
-    if (!imageUrl || !caption) return;
+  const updateMetaTagsForImage = (imageUrl, caption) => {
+  console.log('[meta] updateMetaTagsForImage called', { imageUrl, caption });
 
-    const fullImageUrl = new URL(imageUrl, window.location.origin).href;
+  // fallback: wenn caption fehlt, versuche aus imageUrl einen lesbaren Namen zu bauen
+  if (!caption) {
+    try {
+      const u = new URL(imageUrl, window.location.origin);
+      caption = u.pathname.split('/').pop().replace(/[-_]/g, ' ');
+    } catch (e) {
+      caption = caption || '';
+    }
+  }
 
-    // Wählt die Texte basierend auf der Sprache aus
-    const newTitle = translations[lang].metaTitle.replace('{caption}', caption);
-    const newDescription = translations[lang].metaDescription.replace('{caption}', caption);
+  if (!imageUrl && !caption) {
+    console.warn('[meta] Abbruch: weder imageUrl noch caption vorhanden');
+    return;
+  }
 
-    document.title = newTitle;
+  const fullImageUrl = imageUrl ? new URL(imageUrl, window.location.origin).href : '';
+  const newTitle = translations[lang].metaTitle.replace('{caption}', caption || '');
+  const newDescription = translations[lang].metaDescription.replace('{caption}', caption || '');
 
-    // *** KORREKTUR HIER ***
-    // Standard Meta-Description aktualisieren
-    document.querySelector('meta[name="description"]')?.setAttribute('content', newDescription);
+  document.title = newTitle;
 
-    // Open Graph Tags (Facebook, etc.)
-    document.querySelector('meta[property="og:title"]')?.setAttribute('content', newTitle);
-    document.querySelector('meta[property="og:description"]')?.setAttribute('content', newDescription);
-    document.querySelector('meta[property="og:image"]')?.setAttribute('content', fullImageUrl);
-
-    // Twitter Card Tags
-    document.querySelector('meta[property="twitter:title"]')?.setAttribute('content', newTitle);
-    document.querySelector('meta[property="twitter:description"]')?.setAttribute('content', newDescription);
-    document.querySelector('meta[property="twitter:image"]')?.setAttribute('content', fullImageUrl);
+  const setMeta = (selector, value) => {
+    const el = document.head.querySelector(selector) || document.querySelector(selector);
+    if (el) {
+      el.setAttribute('content', value);
+    } else {
+      console.warn('[meta] Selector nicht gefunden:', selector);
+    }
   };
 
-  /**
-   * Setzt alle Meta-Tags auf ihre ursprünglichen Werte zurück.
-   */
- const resetMetaTags = () => {
-    document.title = originalPageTitle;
+  setMeta('meta[name="description"]', newDescription);
+  setMeta('meta[property="og:title"]', newTitle);
+  setMeta('meta[property="og:description"]', newDescription);
+  if (fullImageUrl) setMeta('meta[property="og:image"]', fullImageUrl);
+  setMeta('meta[property="twitter:title"]', newTitle);
+  setMeta('meta[property="twitter:description"]', newDescription);
+  if (fullImageUrl) setMeta('meta[property="twitter:image"]', fullImageUrl);
 
-    // *** KORREKTUR HIER ***
-    // Standard Meta-Description zurücksetzen
-    if (originalMeta.description) document.querySelector('meta[name="description"]')?.setAttribute('content', originalMeta.description);
+  console.log('[meta] gesetzt ->', document.querySelector('meta[name="description"]')?.content);
+};
 
-    if (originalMeta.ogTitle) document.querySelector('meta[property="og:title"]')?.setAttribute('content', originalMeta.ogTitle);
-    if (originalMeta.ogDescription) document.querySelector('meta[property="og:description"]')?.setAttribute('content', originalMeta.ogDescription);
-    if (originalMeta.ogImage) document.querySelector('meta[property="og:image"]')?.setAttribute('content', originalMeta.ogImage);
-    if (originalMeta.twitterTitle) document.querySelector('meta[property="twitter:title"]')?.setAttribute('content', originalMeta.twitterTitle);
-    if (originalMeta.twitterDescription) document.querySelector('meta[property="twitter:description"]')?.setAttribute('content', originalMeta.twitterDescription);
-    if (originalMeta.twitterImage) document.querySelector('meta[property="twitter:image"]')?.setAttribute('content', originalMeta.twitterImage);
-  };
+const resetMetaTags = () => {
+  console.log('[meta] resetMetaTags called');
+  document.title = originalPageTitle;
+
+  if (originalMeta.description) document.querySelector('meta[name="description"]')?.setAttribute('content', originalMeta.description);
+  if (originalMeta.ogTitle) document.querySelector('meta[property="og:title"]')?.setAttribute('content', originalMeta.ogTitle);
+  if (originalMeta.ogDescription) document.querySelector('meta[property="og:description"]')?.setAttribute('content', originalMeta.ogDescription);
+  if (originalMeta.ogImage) document.querySelector('meta[property="og:image"]')?.setAttribute('content', originalMeta.ogImage);
+  if (originalMeta.twitterTitle) document.querySelector('meta[property="twitter:title"]')?.setAttribute('content', originalMeta.twitterTitle);
+  if (originalMeta.twitterDescription) document.querySelector('meta[property="twitter:description"]')?.setAttribute('content', originalMeta.twitterDescription);
+  if (originalMeta.twitterImage) document.querySelector('meta[property="twitter:image"]')?.setAttribute('content', originalMeta.twitterImage);
+
+  console.log('[meta] zurückgesetzt ->', document.querySelector('meta[name="description"]')?.content);
+};
 
 
   // =========================================================
@@ -251,36 +266,50 @@ document.addEventListener('DOMContentLoaded', () => {
   const popupCaption = photoPopup?.querySelector(".popup-caption");
 
   const renderGallery = () => {
-    if (!popupImagesContainer) return;
-    popupImagesContainer.innerHTML = "";
+  console.log('[gallery] renderGallery called', { currentGalleryImagesLength: currentGalleryImages.length, currentGalleryIndex });
 
-    currentGalleryImages.forEach((src, idx) => {
-      const img = document.createElement("img");
-      img.src = src.startsWith("/") ? src : "/" + src;
-      img.alt = stripExt(src);
+  if (!popupImagesContainer) {
+    console.warn('[gallery] popupImagesContainer ist null — Popup-Element nicht gefunden');
+    return;
+  }
+  popupImagesContainer.innerHTML = "";
 
-      // caption aus vorhandenem <img>-Element im DOM holen
-      // wir suchen nach einem Bild mit gleichem src in der Slideshow
-      const originalImg = document.querySelector(`#fotogallerie img[src$="${src}"]`);
-
-      if (originalImg?.dataset.caption) {
-        img.dataset.caption = originalImg.dataset.caption;
-      } else {
-        img.dataset.caption = img.alt.replace(/_/g, " ");
-      }
-
-      if (idx === currentGalleryIndex) img.classList.add("active");
-      popupImagesContainer.appendChild(img);
-    });
-
-    // Caption, Titel und Metadaten setzen
-    const activeImg = popupImagesContainer.querySelector("img.active");
-    if (activeImg) {
-      const captionText = activeImg.dataset.caption || activeImg.alt;
-      if (popupCaption) popupCaption.textContent = captionText;
-      updateMetaTagsForImage(activeImg.src, captionText);
-    }
+  // helper: finde Originalbild in #fotogallerie nach Basename (robuster als attribute selector)
+  const findOriginalImgByBasename = (basename) => {
+    const list = Array.from(document.querySelectorAll('#fotogallerie img'));
+    const targetBase = basename.split('/').pop().toLowerCase();
+    return list.find(imgEl => {
+      const srcAttr = (imgEl.getAttribute('src') || '').split('/').pop().toLowerCase();
+      return srcAttr === targetBase;
+    }) || null;
   };
+
+  currentGalleryImages.forEach((src, idx) => {
+    const img = document.createElement("img");
+    img.src = src.startsWith("/") ? src : "/" + src;
+    img.alt = stripExt(src);
+
+    const originalImg = findOriginalImgByBasename(src);
+    if (originalImg?.dataset?.caption) {
+      img.dataset.caption = originalImg.dataset.caption;
+    } else {
+      img.dataset.caption = img.alt.replace(/_/g, " ");
+    }
+
+    if (idx === currentGalleryIndex) img.classList.add("active");
+    popupImagesContainer.appendChild(img);
+  });
+
+  const activeImg = popupImagesContainer.querySelector("img.active");
+  if (activeImg) {
+    const captionText = (activeImg.dataset.caption || activeImg.alt || '').trim();
+    if (popupCaption) popupCaption.textContent = captionText;
+    console.log('[gallery] activeImg:', { src: activeImg.src, captionText });
+    updateMetaTagsForImage(activeImg.src, captionText);
+  } else {
+    console.warn('[gallery] kein activeImg gefunden — MetaUpdate übersprungen');
+  }
+};
 
   const openPhotoPopup = () => {
     if (currentGalleryImages.length === 0) return;
