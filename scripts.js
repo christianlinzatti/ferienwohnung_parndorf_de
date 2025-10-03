@@ -185,7 +185,8 @@ const renderGallery = () => {
 
     // caption aus vorhandenem <img>-Element im DOM holen
     // wir suchen nach einem Bild mit gleichem src in der Slideshow
-    const originalImg = document.querySelector(`img[src$="${src}"]`);
+    const originalImg = document.querySelector(`#fotogallerie img[src$="${src}"]`);
+
     if (originalImg?.dataset.caption) {
       img.dataset.caption = originalImg.dataset.caption;
     } else {
