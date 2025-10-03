@@ -276,6 +276,13 @@ main {
   }
 }
 
+@media (min-width: 901px) {
+  .host-section,
+  .reviews-section {
+    grid-column: 2; /* beide kommen in die rechte Spalte */
+  }
+}
+
 .content-box {
   background: white;
   padding: clamp(1rem, 5vw, 2rem);
