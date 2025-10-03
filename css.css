@@ -89,6 +89,7 @@ header {
   bottom: 0;
   opacity: 0;
   transition: opacity 1.5s ease-in-out;
+  overflow: hidden;
 }
 
 .header-slide.active img {
