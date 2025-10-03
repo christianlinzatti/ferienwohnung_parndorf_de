@@ -588,6 +588,7 @@ document.getElementById('load-streetview-btn')?.addEventListener('click', functi
                 loadMapBtn.disabled = true;
             }
         });
+    }
 
 // =========================================================
 // 5. Sticky Header beim Scrollen
