@@ -395,7 +395,7 @@ if (navToggle && mainNav) {
 
    const burgerToggle = document.getElementById("burger-toggle");
   const burgerClose = document.getElementById("burger-close");
-  const burgerMenu = document.querySelector(".burger-menu");
+  const burgerMenu = document.querySelector(".main-nav");
 
   burgerToggle?.addEventListener("click", () => {
     burgerMenu.classList.add("open");
