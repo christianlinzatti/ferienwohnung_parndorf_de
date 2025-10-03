@@ -25,6 +25,10 @@ html {
   overflow-x: hidden; /* Apply horizontal overflow blocking here */
 }
 
+.left-column .content-box:first-child {
+  margin-top: 0;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   background: var(--background-light);
