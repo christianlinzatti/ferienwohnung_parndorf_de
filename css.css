@@ -31,7 +31,7 @@ body {
   color: var(--text-color);
   line-height: 1.6;
   padding-top: var(--header-height);
-  /* The overflow-x rule is not needed here anymore */
+  width: 100%;
 }
 
 /* Prevents background scroll when a popup or nav is open */
