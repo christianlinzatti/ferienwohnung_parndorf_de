@@ -4,6 +4,81 @@ document.addEventListener('DOMContentLoaded', () => {
   const ensureRoot = s => s && s.startsWith('/') ? s : ('/' + s);
 
   // =========================================================
+  // SPRACHEINSTELLUNGEN UND TEXTE
+  // =========================================================
+  const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
+
+  // Zentraler Ort für alle übersetzbaren Texte
+  const translations = {
+    de: {
+      metaTitle: "Ferienwohnung Parndorf | {caption}",
+      metaDescription: "Ein Blick auf: {caption}. Gemütliches Apartment in Parndorf, nur 2 km vom Designer Outlet entfernt. Ideal für Shopping, Erholung am Neusiedler See und Dienstreisen."
+    },
+    en: {
+      metaTitle: "Holiday Apartment Parndorf | {caption}",
+      metaDescription: "A look at: {caption}. Cozy apartment in Parndorf, just 2 km from the Designer Outlet. Ideal for shopping, relaxing at Lake Neusiedl, and business trips."
+    }
+  };
+
+  // =========================================================
+  // METADATEN-HANDLING
+  // =========================================================
+  const originalPageTitle = document.title;
+  // Speichern der ursprünglichen Meta-Werte beim Laden der Seite
+  const originalMeta = {
+    ogTitle: document.querySelector('meta[property="og:title"]')?.content,
+    ogDescription: document.querySelector('meta[property="og:description"]')?.content,
+    ogImage: document.querySelector('meta[property="og:image"]')?.content,
+    twitterTitle: document.querySelector('meta[property="twitter:title"]')?.content,
+    twitterDescription: document.querySelector('meta[property="twitter:description"]')?.content,
+    twitterImage: document.querySelector('meta[property="twitter:image"]')?.content,
+    description: document.querySelector('meta[name="description"]')?.content
+  };
+
+  /**
+   * Aktualisiert die Meta-Tags der Seite basierend auf dem aktiven Bild.
+   * @param {string} imageUrl - Die URL des Bildes.
+   * @param {string} caption - Die Bildunterschrift aus data-caption.
+   */
+  const updateMetaTagsForImage = (imageUrl, caption) => {
+    if (!imageUrl || !caption) return;
+
+    const fullImageUrl = new URL(imageUrl, window.location.origin).href;
+
+    // Wählt die Texte basierend auf der Sprache aus
+    const newTitle = translations[lang].metaTitle.replace('{caption}', caption);
+    const newDescription = translations[lang].metaDescription.replace('{caption}', caption);
+
+    document.title = newTitle;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', newDescription);
+
+    // Open Graph Tags (Facebook, etc.)
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', newTitle);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', newDescription);
+    document.querySelector('meta[property="og:image"]')?.setAttribute('content', fullImageUrl);
+
+    // Twitter Card Tags
+    document.querySelector('meta[property="twitter:title"]')?.setAttribute('content', newTitle);
+    document.querySelector('meta[property="twitter:description"]')?.setAttribute('content', newDescription);
+    document.querySelector('meta[property="twitter:image"]')?.setAttribute('content', fullImageUrl);
+  };
+
+  /**
+   * Setzt alle Meta-Tags auf ihre ursprünglichen Werte zurück.
+   */
+  const resetMetaTags = () => {
+    document.title = originalPageTitle;
+    if (originalMeta.description) document.querySelector('meta[name="description"]')?.setAttribute('content', originalMeta.description);
+    if (originalMeta.ogTitle) document.querySelector('meta[property="og:title"]')?.setAttribute('content', originalMeta.ogTitle);
+    if (originalMeta.ogDescription) document.querySelector('meta[property="og:description"]')?.setAttribute('content', originalMeta.ogDescription);
+    if (originalMeta.ogImage) document.querySelector('meta[property="og:image"]')?.setAttribute('content', originalMeta.ogImage);
+    if (originalMeta.twitterTitle) document.querySelector('meta[property="twitter:title"]')?.setAttribute('content', originalMeta.twitterTitle);
+    if (originalMeta.twitterDescription) document.querySelector('meta[property="twitter:description"]')?.setAttribute('content', originalMeta.twitterDescription);
+    if (originalMeta.twitterImage) document.querySelector('meta[property="twitter:image"]')?.setAttribute('content', originalMeta.twitterImage);
+  };
+
+
+  // =========================================================
   // GALLERIES (muss vor Slideshow deklariert sein)
   // =========================================================
   const allImages = [
@@ -30,19 +105,16 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const galleriesEn = {
-  kitchen: ["kueche.webp", "essbereich.webp"],
-  bedroom: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
-  livingroom: ["wohnzimmer.webp"],
-  bathroom: ["badezimmer.webp", "wc.webp"],
-  terrace: ["terrasse.webp", "garten.webp"],
-  entrance: ["eingangsbereich.webp"],
-};
+    kitchen: ["kueche.webp", "essbereich.webp"],
+    bedroom: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
+    livingroom: ["wohnzimmer.webp"],
+    bathroom: ["badezimmer.webp", "wc.webp"],
+    terrace: ["terrasse.webp", "garten.webp"],
+    entrance: ["eingangsbereich.webp"],
+  };
 
-const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
-const originalPageTitle = document.title
-
-// Aktives Galerie-Mapping auswählen
-const galleriesActive = lang === "en" ? galleriesEn : galleries;
+  // Aktives Galerie-Mapping auswählen
+  const galleriesActive = lang === "en" ? galleriesEn : galleries;
 
 
   // =========================================================
@@ -75,52 +147,52 @@ const galleriesActive = lang === "en" ? galleriesEn : galleries;
 
     // Klick auf Slides → Router öffnen
     slides.forEach((slide, i) => {
-  const img = slide.querySelector('img');
+      const img = slide.querySelector('img');
 
-  // Caption (Prio: data-caption > slide-caption > alt)
-  const caption =
-    img?.dataset.caption ||
-    slide.querySelector('.slide-caption')?.textContent ||
-    img?.alt ||
-    '';
+      // Caption (Prio: data-caption > slide-caption > alt)
+      const caption =
+        img?.dataset.caption ||
+        slide.querySelector('.slide-caption')?.textContent ||
+        img?.alt ||
+        '';
 
-  // Bild-Basename als "slug"
-  const src = (img.getAttribute('src') || '').toLowerCase();
-  const srcBase = src.split('/').pop() || '';
-  const imageKey = stripExt(srcBase);
+      // Bild-Basename als "slug"
+      const src = (img.getAttribute('src') || '').toLowerCase();
+      const srcBase = src.split('/').pop() || '';
+      const imageKey = stripExt(srcBase);
 
-  // galleryKey ermitteln (wie bisher)
-  let galleryKey = (img.alt || '').toLowerCase();
-  galleryKey = stripExt(galleryKey);
-  if (!galleryKey) {
-    for (const [gk, imgs] of Object.entries(galleries)) {
-      if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey.toLowerCase())) {
-        galleryKey = gk;
-        break;
+      // galleryKey ermitteln (wie bisher)
+      let galleryKey = (img.alt || '').toLowerCase();
+      galleryKey = stripExt(galleryKey);
+      if (!galleryKey) {
+        for (const [gk, imgs] of Object.entries(galleries)) {
+          if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey.toLowerCase())) {
+            galleryKey = gk;
+            break;
+          }
+        }
       }
-    }
-  }
 
-  const url = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
+      const url = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
 
-  // jetzt echten Link erzeugen
-  const dot = document.createElement('a');
-  dot.classList.add('dot');
-  dot.href = url;
-  dot.title = caption;
-  dot.setAttribute('data-link', '');
-  dot.setAttribute('aria-label', caption); // für Screenreader
+      // jetzt echten Link erzeugen
+      const dot = document.createElement('a');
+      dot.classList.add('dot');
+      dot.href = url;
+      dot.title = caption;
+      dot.setAttribute('data-link', '');
+      dot.setAttribute('aria-label', caption); // für Screenreader
 
-  // Klick abfangen → interne Navigation statt echter Reload
-  dot.addEventListener('click', (e) => {
-    e.preventDefault();
-    showSlide(i);
-    resetInterval();
-    history.pushState({ popupScope: 'global' }, '', url);
-    handleRoute(false);
-  });
+      // Klick abfangen → interne Navigation statt echter Reload
+      dot.addEventListener('click', (e) => {
+        e.preventDefault();
+        showSlide(i);
+        resetInterval();
+        history.pushState({ popupScope: 'global' }, '', url);
+        handleRoute(false);
+      });
 
-  slide.addEventListener('click', (e) => {
+      slide.addEventListener('click', (e) => {
         e.preventDefault();
         showSlide(i); // Ensure the correct slide is active
         resetInterval();
@@ -128,8 +200,8 @@ const galleriesActive = lang === "en" ? galleriesEn : galleries;
         handleRoute(false);
       });
 
-  dotsContainer.appendChild(dot);
-});
+      dotsContainer.appendChild(dot);
+    });
 
     btnNext?.addEventListener('click', () => { nextSlide(); resetInterval(); });
     btnPrev?.addEventListener('click', () => { prevSlide(); resetInterval(); });
@@ -150,119 +222,115 @@ const galleriesActive = lang === "en" ? galleriesEn : galleries;
   let currentGalleryImages = [];
   let currentGalleryIndex = 0;
 
-const updateUrlForCurrentImage = () => {
-  const currentSrc = currentGalleryImages[currentGalleryIndex];
-  if (!currentSrc) return;
+  const updateUrlForCurrentImage = () => {
+    const currentSrc = currentGalleryImages[currentGalleryIndex];
+    if (!currentSrc) return;
 
-  const imageKey = stripExt(currentSrc.split('/').pop().toLowerCase());
+    const imageKey = stripExt(currentSrc.split('/').pop().toLowerCase());
 
-  // versuche galleryKey zu finden
-  let galleryKey = null;
-  for (const [gk, imgs] of Object.entries(galleriesActive)) {
-    if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey)) {
-      galleryKey = gk;
-      break;
+    // versuche galleryKey zu finden
+    let galleryKey = null;
+    for (const [gk, imgs] of Object.entries(galleriesActive)) {
+      if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey)) {
+        galleryKey = gk;
+        break;
+      }
     }
-  }
 
-  const newUrl = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
-  history.replaceState({ popupScope: 'global' }, null, newUrl);
-
-  // Seitentitel aktualisieren
-  //const captionText = imageKey.replace(/_/g, " ");
-  //document.title = `Ferienwohnung Parndorf – ${captionText}`;
-};
+    const newUrl = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
+    history.replaceState({ popupScope: 'global' }, null, newUrl);
+  };
 
   const popupCaption = photoPopup?.querySelector(".popup-caption");
 
-const renderGallery = () => {
-  if (!popupImagesContainer) return;
-  popupImagesContainer.innerHTML = "";
+  const renderGallery = () => {
+    if (!popupImagesContainer) return;
+    popupImagesContainer.innerHTML = "";
 
-  currentGalleryImages.forEach((src, idx) => {
-    const img = document.createElement("img");
-    img.src = src.startsWith("/") ? src : "/" + src;
-    img.alt = stripExt(src);
+    currentGalleryImages.forEach((src, idx) => {
+      const img = document.createElement("img");
+      img.src = src.startsWith("/") ? src : "/" + src;
+      img.alt = stripExt(src);
 
-    // caption aus vorhandenem <img>-Element im DOM holen
-    // wir suchen nach einem Bild mit gleichem src in der Slideshow
-    const originalImg = document.querySelector(`#fotogallerie img[src$="${src}"]`);
+      // caption aus vorhandenem <img>-Element im DOM holen
+      // wir suchen nach einem Bild mit gleichem src in der Slideshow
+      const originalImg = document.querySelector(`#fotogallerie img[src$="${src}"]`);
 
-    if (originalImg?.dataset.caption) {
-      img.dataset.caption = originalImg.dataset.caption;
-    } else {
-      img.dataset.caption = img.alt.replace(/_/g, " ");
+      if (originalImg?.dataset.caption) {
+        img.dataset.caption = originalImg.dataset.caption;
+      } else {
+        img.dataset.caption = img.alt.replace(/_/g, " ");
+      }
+
+      if (idx === currentGalleryIndex) img.classList.add("active");
+      popupImagesContainer.appendChild(img);
+    });
+
+    // Caption, Titel und Metadaten setzen
+    const activeImg = popupImagesContainer.querySelector("img.active");
+    if (activeImg) {
+      const captionText = activeImg.dataset.caption || activeImg.alt;
+      if (popupCaption) popupCaption.textContent = captionText;
+      updateMetaTagsForImage(activeImg.src, captionText);
     }
-
-    if (idx === currentGalleryIndex) img.classList.add("active");
-    popupImagesContainer.appendChild(img);
-  });
-
-  // Caption + Titel setzen
-  const activeImg = popupImagesContainer.querySelector("img.active");
-  if (activeImg) {
-    const captionText = activeImg.dataset.caption || activeImg.alt;
-    if (popupCaption) popupCaption.textContent = captionText;
-    document.title = `Ferienwohnung Parndorf – ${captionText}`;
-  }
-};
+  };
 
   const openPhotoPopup = () => {
-  if (currentGalleryImages.length === 0) return;
-  renderGallery();
-  updateUrlForCurrentImage(); // <--- hinzufügen
-  photoPopup?.classList.add('open');
-  document.body.classList.add('popup-is-open', 'no-scroll');
-};
+    if (currentGalleryImages.length === 0) return;
+    renderGallery();
+    updateUrlForCurrentImage();
+    photoPopup?.classList.add('open');
+    document.body.classList.add('popup-is-open', 'no-scroll');
+  };
 
   const closePhotoPopup = (updateHistory = true) => {
     photoPopup?.classList.remove('open');
     document.body.classList.remove('popup-is-open', 'no-scroll');
-    document.title = originalPageTitle;
+    resetMetaTags();
     if (updateHistory) history.pushState(null, null, '/#main');
   };
 
   photoPopupNextBtn?.addEventListener("click", () => {
-  if (!currentGalleryImages.length) return;
-  currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryImages.length;
-  renderGallery();
-  updateUrlForCurrentImage();
-});
-photoPopupPrevBtn?.addEventListener("click", () => {
-  if (!currentGalleryImages.length) return;
-  currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
-  renderGallery();
-  updateUrlForCurrentImage();
-});
+    if (!currentGalleryImages.length) return;
+    currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryImages.length;
+    renderGallery();
+    updateUrlForCurrentImage();
+  });
+
+  photoPopupPrevBtn?.addEventListener("click", () => {
+    if (!currentGalleryImages.length) return;
+    currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
+    renderGallery();
+    updateUrlForCurrentImage();
+  });
+
   photoPopupCloseBtn?.addEventListener("click", () => closePhotoPopup(true));
   photoPopup?.addEventListener("click", e => e.target === photoPopup && closePhotoPopup(true));
 
   // =========================================================
   // Router-Logik (robust)
   // =========================================================
- const handleRoute = (isInitial = false) => {
-  const rawPath = window.location.pathname || "";
-  const cleaned = rawPath.replace(/^\/+|\/+$/g, "");
-  const hash = (window.location.hash || "").replace(/^#/, "");
+  const handleRoute = (isInitial = false) => {
+    const rawPath = window.location.pathname || "";
+    const cleaned = rawPath.replace(/^\/+|\/+$/g, "");
+    const hash = (window.location.hash || "").replace(/^#/, "");
 
-  // --- NEU: Hash-Scroll immer erlauben ---
-  if (hash) {
-    const targetEl = document.getElementById(hash);
-    if (targetEl) {
-      if (!isInitial) {
-        targetEl.scrollIntoView({ behavior: "smooth" });
+    if (hash) {
+      const targetEl = document.getElementById(hash);
+      if (targetEl) {
+        if (!isInitial) {
+          targetEl.scrollIntoView({ behavior: "smooth" });
+        }
+        return;
       }
-      return; // <--- wichtig, sonst läuft Galerie/Router weiter
     }
-  }
 
-  const target = cleaned || "highlights";
-  const parts = target.split("/").filter(Boolean);
-  const galleryKeyRaw = parts[0] ? stripExt(parts[0].toLowerCase()) : "";
-  const imageKeyRaw = parts[1] ? stripExt(parts[1].toLowerCase()) : "";
+    const target = cleaned || "highlights";
+    const parts = target.split("/").filter(Boolean);
+    const galleryKeyRaw = parts[0] ? stripExt(parts[0].toLowerCase()) : "";
+    const imageKeyRaw = parts[1] ? stripExt(parts[1].toLowerCase()) : "";
 
-  const galleryKeys = Object.keys(galleriesActive);
-
+    const galleryKeys = Object.keys(galleriesActive);
 
     if (galleryKeyRaw && galleryKeys.includes(galleryKeyRaw)) {
       if (!isInitial) {
@@ -270,11 +338,9 @@ photoPopupPrevBtn?.addEventListener("click", () => {
         fotosSection?.scrollIntoView({ behavior: "smooth" });
       }
 
-      // Default: Kategorie-Galerie
       currentGalleryImages = galleriesActive[galleryKeyRaw].slice();
       currentGalleryIndex = 0;
 
-      // Wenn imageKey vorhanden -> globale Galerie öffnen (Pfeiltasten über alle Bilder)
       if (imageKeyRaw) {
         currentGalleryImages = allImages.slice();
         const matchIndex = currentGalleryImages.findIndex(s => stripExt(s).toLowerCase() === imageKeyRaw.toLowerCase());
@@ -286,10 +352,9 @@ photoPopupPrevBtn?.addEventListener("click", () => {
       if (photoPopup?.classList.contains('open')) closePhotoPopup(false);
 
       if (target === "whatsapp") {
-            // WhatsApp-Widget öffnen
-            waWidget?.classList.add("open");
-            return;
-        }
+        waWidget?.classList.add("open");
+        return;
+      }
 
       if (!isInitial) {
         const targetEl = document.getElementById(target);
@@ -297,7 +362,6 @@ photoPopupPrevBtn?.addEventListener("click", () => {
       }
     }
 
-    // Nav active toggle
     document.querySelectorAll('nav a[data-link]').forEach(link => {
       const hrefAttr = (link.getAttribute("href") || "").replace(/^\/+|\/+$/g, "");
       link.classList.toggle("active", hrefAttr === cleaned || hrefAttr === hash);
@@ -308,41 +372,35 @@ photoPopupPrevBtn?.addEventListener("click", () => {
   // globaler Klick-Handler für SPA-Links (robust normalisieren)
   // =========================================================
   document.addEventListener("click", e => {
-  if (e.target.closest('.slideshow-container') || e.target.closest('#photo-popup')) return;
+    if (e.target.closest('.slideshow-container') || e.target.closest('#photo-popup')) return;
 
-  const link = e.target.closest("a[data-link]");
-  if (!link) return;
+    const link = e.target.closest("a[data-link]");
+    if (!link) return;
 
-  let hrefAttr = link.getAttribute("href") || '/';
+    let hrefAttr = link.getAttribute("href") || '/';
 
-  // 🔥 Hier Hash-Links abfangen
-  if (hrefAttr.startsWith("#")) {
+    if (hrefAttr.startsWith("#")) {
+      e.preventDefault();
+      const targetId = hrefAttr.replace("#", "");
+      const targetEl = document.getElementById(targetId);
+      targetEl?.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
     e.preventDefault();
-    const targetId = hrefAttr.replace("#", "");
-    const targetEl = document.getElementById(targetId);
-    targetEl?.scrollIntoView({ behavior: "smooth" });
-    return; // wichtig: Abbruch, nicht weiter in den Router
-  }
 
-  e.preventDefault();
-
-    // Hole das originale href-Attribut (nicht link.href, das ist absolute)
-    // Normalisiere auf Pfad-Form: "/foo" oder "/foo/bar"
     let hrefPath = hrefAttr;
     try {
-      // falls absolute URL in hrefAttr steht, extrahiere pathname
       if (/^https?:\/\//i.test(hrefAttr)) {
         const u = new URL(hrefAttr);
         hrefPath = u.pathname + (u.hash || '');
       } else {
-        // ensure leading slash
         if (!hrefPath.startsWith('/')) hrefPath = '/' + hrefPath;
       }
     } catch (err) {
       if (!hrefPath.startsWith('/')) hrefPath = '/' + hrefPath;
     }
 
-    // Prüfe, ob es sich um eine Kategorie handelt und erweitere bei Bedarf
     const galleryKeys = Object.keys(galleriesActive);
     const cleanHref = hrefPath.replace(/^\/+|\/+$/g, "").split('#')[0];
     if (galleryKeys.includes(cleanHref)) {
@@ -358,56 +416,55 @@ photoPopupPrevBtn?.addEventListener("click", () => {
   });
 
   window.addEventListener("popstate", () => handleRoute(false));
-  handleRoute(true); // initial ohne automatischem scroll
+  handleRoute(true);
 
   document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closePhotoPopup(true);
-    navToggle?.classList.remove("open");
-    mainNav?.classList.remove("open");
-    document.body.classList.remove("no-scroll");
-  }
-});
+    if (e.key === 'Escape') {
+      if (photoPopup?.classList.contains('open')) {
+        closePhotoPopup(true);
+      }
+
+      const burgerMenu = document.querySelector(".main-nav");
+      if(burgerMenu?.classList.contains("open")) {
+        burgerMenu.classList.remove("open");
+        document.body.classList.remove("no-scroll");
+      }
+    }
+  });
 
   // =========================================================
-// Burger-Menü Toggle
-// =========================================================
-const navToggle = document.querySelector(".nav-toggle");
-const mainNav = document.querySelector(".main-nav");
-
-if (navToggle && mainNav) {
-  navToggle.addEventListener("click", () => {
-    navToggle.classList.toggle("open");
-    mainNav.classList.toggle("open");
-    document.body.classList.toggle("no-scroll");
-  });
-
-  // optional: Menü schließen, wenn ein Link geklickt wird
-  mainNav.querySelectorAll("a[data-link]").forEach(link => {
-    link.addEventListener("click", () => {
-      navToggle.classList.remove("open");
-      mainNav.classList.remove("open");
-      document.body.classList.remove("no-scroll");
-    });
-  });
-}
-
- if (window.lucide) {
-    lucide.createIcons();
-  }
-
-   const burgerToggle = document.getElementById("burger-toggle");
+  // Burger-Menü Toggle
+  // =========================================================
+  const burgerToggle = document.getElementById("burger-toggle");
   const burgerClose = document.getElementById("burger-close");
   const burgerMenu = document.querySelector(".main-nav");
 
-  burgerToggle?.addEventListener("click", () => {
-    burgerMenu.classList.add("open");
-  });
+  if (burgerToggle && burgerMenu) {
+    burgerToggle.addEventListener("click", () => {
+        burgerMenu.classList.add("open");
+        document.body.classList.add("no-scroll");
+    });
+  }
 
-  burgerClose?.addEventListener("click", () => {
-    burgerMenu.classList.remove("open");
-  });
+  if (burgerClose && burgerMenu) {
+    burgerClose.addEventListener("click", () => {
+        burgerMenu.classList.remove("open");
+        document.body.classList.remove("no-scroll");
+    });
+  }
 
+  if(burgerMenu) {
+      burgerMenu.querySelectorAll("a[data-link]").forEach(link => {
+        link.addEventListener("click", () => {
+          burgerMenu.classList.remove("open");
+          document.body.classList.remove("no-scroll");
+        });
+      });
+  }
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
 
 }); // DOMContentLoaded end
 
@@ -446,7 +503,6 @@ if (header) {
 // =========================================================
 // 6. Airbnb Widget
 // =========================================================
-const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-24131580');
 (function initAirbnbWidgetWithFallback() {
   const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-24131580');
   if (!airbnbWidgetContainer) return;
@@ -454,7 +510,6 @@ const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-2
   const ROOM_ID = '24131580';
 
   function showStaticAirbnbBadge() {
-    // Sauber ersetzen und click-handler setzen
     airbnbWidgetContainer.innerHTML = `
       <a href="https://www.airbnb.at/rooms/${ROOM_ID}" target="_blank" rel="noopener noreferrer"
          class="airbnb-fallback" aria-label="Airbnb Listing öffnen" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;cursor:pointer;">
@@ -466,12 +521,10 @@ const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-2
     console.warn('Airbnb widget: Fallback-Badge angezeigt (CORS/Netzwerkfehler).');
   }
 
-  // Script einbinden
   const s = document.createElement('script');
   s.src = 'https://airbnb-proxy.elgordoraba.workers.dev/widget.js';
   s.async = true;
 
-  // Script-Ladefehler -> sofort Fallback
   s.onerror = () => {
     console.error('Airbnb widget script konnte nicht geladen werden (onerror).');
     showStaticAirbnbBadge();
@@ -493,7 +546,6 @@ const airbnbWidgetContainer = document.getElementById('airbnb-superhost-widget-2
     const interval = setInterval(() => {
       attempts++;
       const text = (airbnbWidgetContainer.innerText || '').trim().toLowerCase();
-      const hasImg = !!airbnbWidgetContainer.querySelector('img');
       const hasMeaningfulChildren = airbnbWidgetContainer.children.length > 0 && !airbnbWidgetContainer.querySelector('.airbnb-fallback');
 
       if (text.includes('failed to load') || text.includes('failed') || text.includes('error') || text.includes('nicht geladen')) {
@@ -532,8 +584,8 @@ if (waToggle && waWidget) {
   waToggle.addEventListener('click', () => waWidget.classList.toggle('open'));
   waClose?.addEventListener('click', () => {
     waWidget.classList.remove('open');
-    history.pushState(null, null, '/#kontakt'); // z. B. auf Kontaktseite springen
-    });
+    history.pushState(null, null, '/#kontakt');
+  });
   waForm?.addEventListener('submit', (e) => {
     e.preventDefault();
     const message = waInput.value.trim();
