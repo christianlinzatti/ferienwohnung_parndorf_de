@@ -581,6 +581,14 @@ if (header) {
 
   const interval = setInterval(() => {
     attempts++;
+
+    const text = (airbnbWidgetContainer.innerText || '').toLowerCase();
+    if (text.includes('failed') || text.includes('error')) {
+        airbnbWidgetContainer.innerHTML = '';
+        showStaticAirbnbBadge();
+        clearInterval(interval);
+        return;
+  }
     const hasMeaningfulChildren = airbnbWidgetContainer.children.length > 0 && !airbnbWidgetContainer.querySelector('.airbnb-fallback');
 
     // Prüfen: Ist der Container immer noch leer → Fallback
