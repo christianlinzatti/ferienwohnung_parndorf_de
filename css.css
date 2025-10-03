@@ -597,7 +597,7 @@ main {
 
 #wa-widget {
   position: fixed;
-  bottom: 90px;
+  bottom: 150px;
   right: 20px;
   width: 350px;
   max-width: 90vw;
