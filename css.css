@@ -265,14 +265,13 @@ main {
 
 .main-content-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 2fr 1fr; /* links größer, rechts schmaler */
   gap: 2rem;
-  align-items: start;
 }
 
 @media (min-width: 901px) {
   .main-content-grid {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
