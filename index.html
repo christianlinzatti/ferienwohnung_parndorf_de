@@ -15,11 +15,16 @@
       <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
       <link rel="manifest" href="/site.webmanifest">
       <link rel="canonical" href="https://de.ferienwohnung-parndorf.at/">
-      <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+      <link rel="preload" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+       <link rel="preload" as="image" href="background_1.webp" imagesrcset="background_1.webp 1000w" imagesizes="100vw">
+       <link rel="preload" as="image" href="wohnzimmer.webp" imagesrcset="wohnzimmer.webp 1000w" imagesizes="100vw">
+
       <link rel="alternate" hreflang="de" href="https://de.ferien-wohnung-parndorf.at/">
       <link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/" />
       <link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/" />
       <link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/" />
+       <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+        <link rel="preconnect" href="https://unpkg.com" crossorigin>
       <meta property="og:type" content="website">
       <meta property="og:url" content="https://de.ferienwohnung-parndorf.at/">
       <meta property="og:title" content="Ferienwohnung Parndorf - Gemütliches Apartment in Top-Lage">
@@ -167,7 +172,7 @@
            }
          ]
       </script>
-      <script src="https://unpkg.com/lucide@latest"></script>
+      <script src="https://unpkg.com/lucide@latest" defer></script>
    </head>
    <body>
       <header>
@@ -723,13 +728,11 @@
       <div id="wa-toggle" class="whatsapp-btn" aria-label="WhatsApp Chat öffnen" data-aos="zoom-in">
          <a href="/whatsapp" data-link><img src="WhatsApp.svg" alt="WhatsApp" width="28" loading="lazy"></a>
       </div>
-      <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-      <script>
-         AOS.init({
-           duration: 1000,   // Dauer der Animation in ms
-           once: false,       // nur beim ersten Scrollen, nicht jedes Mal
-           offset: 80        // Startpunkt (px vor Sichtbarkeit)
-         });
-      </script>
+      <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js" defer></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    AOS.init();
+  });
+</script>
    </body>
 </html>

@@ -101,6 +101,12 @@ header {
   display: block;
 }
 
+@font-face {
+  font-family: 'Poppins';
+  src: url('poppins-v23-latin-regular.woff2') format('woff2');
+  font-display: swap;
+}
+
 .header-overlay {
   position: absolute;
   top: 0;
