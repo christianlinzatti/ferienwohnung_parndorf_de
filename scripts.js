@@ -567,42 +567,30 @@ if (header) {
   };
 
   s.onload = () => {
-    try {
-      window.AirbnbSuperhostWidget?.create('airbnb-superhost-widget-24131580', ROOM_ID);
-    } catch (err) {
-      console.error('AirbnbWidget.create() hat geworfen:', err);
+  try {
+    window.AirbnbSuperhostWidget?.create('airbnb-superhost-widget-24131580', ROOM_ID);
+  } catch (err) {
+    console.error('AirbnbWidget.create() hat geworfen:', err);
+    showStaticAirbnbBadge();
+    return;
+  }
+
+  let attempts = 0;
+  const maxAttempts = 8;
+  const checkInterval = 400;
+
+  const interval = setInterval(() => {
+    attempts++;
+    const hasMeaningfulChildren = airbnbWidgetContainer.children.length > 0 && !airbnbWidgetContainer.querySelector('.airbnb-fallback');
+
+    // Prüfen: Ist der Container immer noch leer → Fallback
+    if (!hasMeaningfulChildren && attempts >= maxAttempts) {
+      clearInterval(interval);
+      console.warn('Airbnb widget: kein Rendering innerhalb Timeout — zeige Fallback.');
       showStaticAirbnbBadge();
-      return;
     }
-
-    let attempts = 0;
-    const maxAttempts = 8;
-    const checkInterval = 400;
-
-    const interval = setInterval(() => {
-      attempts++;
-      const text = (airbnbWidgetContainer.innerText || '').trim().toLowerCase();
-      const hasMeaningfulChildren = airbnbWidgetContainer.children.length > 0 && !airbnbWidgetContainer.querySelector('.airbnb-fallback');
-
-      if (text.includes('failed to load') || text.includes('failed') || text.includes('error') || text.includes('nicht geladen')) {
-        console.warn('Airbnb widget: erkannter Fehlertext:', text);
-        clearInterval(interval);
-        showStaticAirbnbBadge();
-        return;
-      }
-
-      if (hasMeaningfulChildren && !text.includes('failed') && !text.includes('error')) {
-        clearInterval(interval);
-        return;
-      }
-
-      if (attempts >= maxAttempts) {
-        clearInterval(interval);
-        console.warn('Airbnb widget: kein Rendering innerhalb Timeout — zeige Fallback.');
-        showStaticAirbnbBadge();
-      }
-    }, checkInterval);
-  };
+  }, checkInterval);
+};
 
   document.head.appendChild(s);
 })();
