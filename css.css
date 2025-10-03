@@ -601,6 +601,19 @@ main {
   justify-content: center;
   gap: 10px;
   font-size: 1rem;
+  max-width: 100%;       /* niemals breiter als Bildschirm */
+  flex: 1 1 auto;        /* darf schrumpfen */
+  min-width: 0;          /* verhindert, dass flex-item das Layout sprengt */
+  text-align: center;    /* Text sauber umbrechen */
+  white-space: nowrap;   /* oder: normal, wenn Text umbrechen darf */
+}
+
+@media (max-width: 480px) {
+  .booking-btn, .airbnb-btn {
+    font-size: 0.9rem;
+    padding: 12px 18px;
+    white-space: normal;   /* Text darf umbrechen */
+  }
 }
 .airbnb-btn { background: var(--accent-airbnb); }
 
