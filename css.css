@@ -44,9 +44,6 @@ body {
   background: var(--background-light);
   color: var(--text-color);
   line-height: 1.6;
-  width: 100%;
-  overflow-x: hidden; /* Prevents horizontal scroll from animations */
-  overflow-y: auto;
 }
 
 .no-scroll {
@@ -293,7 +290,7 @@ nav a.active {
   gap: 8px;
 }
 
-html, body {
+html {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;  /* Nur horizontal verhindern */
