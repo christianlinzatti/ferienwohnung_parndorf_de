@@ -286,6 +286,7 @@ main {
   grid-template-columns: 1fr;
   gap: 2rem;
   align-items: start;
+  overflow: hidden; /* <-- DIES ist die neue, gezielte Lösung */
 }
 
 @media (min-width: 901px) {
