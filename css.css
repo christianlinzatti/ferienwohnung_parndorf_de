@@ -11,7 +11,7 @@
   --background-light: #f8f9fa;
   --text-color: #333;
   --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  --header-offset: 96px; /* For anchor scroll offset */
+  --header-offset: 250px; /* For anchor scroll offset */
 }
 
 @font-face {
@@ -44,6 +44,7 @@ body {
   background: var(--background-light);
   color: var(--text-color);
   line-height: 1.6;
+  padding-top: 250px;
 }
 
 .no-scroll {
@@ -349,10 +350,7 @@ img {
   opacity: 1;
 }
 
-/* --- 5. Main Content & Layout --- */
-main {
-      margin-top: 250px; /* gleiche Höhe wie der Header */
-}
+
 
 .main-content-grid {
   display: grid;
