@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
 };
 
 const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
+const originalPageTitle = document.title
 
 // Aktives Galerie-Mapping auswählen
 const galleriesActive = lang === "en" ? galleriesEn : galleries;
@@ -168,8 +169,8 @@ const updateUrlForCurrentImage = () => {
   history.replaceState({ popupScope: 'global' }, null, newUrl);
 
   // Seitentitel aktualisieren
-  const captionText = imageKey.replace(/_/g, " ");
-  document.title = `Ferienwohnung Parndorf – ${captionText}`;
+  //const captionText = imageKey.replace(/_/g, " ");
+  //document.title = `Ferienwohnung Parndorf – ${captionText}`;
 };
 
   const popupCaption = photoPopup?.querySelector(".popup-caption");
@@ -217,6 +218,7 @@ const renderGallery = () => {
   const closePhotoPopup = (updateHistory = true) => {
     photoPopup?.classList.remove('open');
     document.body.classList.remove('popup-is-open', 'no-scroll');
+    document.title = originalPageTitle;
     if (updateHistory) history.pushState(null, null, '/#main');
   };
 
