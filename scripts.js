@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const newDescription = translations[lang].metaDescription.replace('{caption}', caption);
 
     document.title = newTitle;
+
+    // *** KORREKTUR HIER ***
+    // Standard Meta-Description aktualisieren
     document.querySelector('meta[name="description"]')?.setAttribute('content', newDescription);
 
     // Open Graph Tags (Facebook, etc.)
@@ -66,9 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Setzt alle Meta-Tags auf ihre ursprünglichen Werte zurück.
    */
-  const resetMetaTags = () => {
+ const resetMetaTags = () => {
     document.title = originalPageTitle;
+
+    // *** KORREKTUR HIER ***
+    // Standard Meta-Description zurücksetzen
     if (originalMeta.description) document.querySelector('meta[name="description"]')?.setAttribute('content', originalMeta.description);
+
     if (originalMeta.ogTitle) document.querySelector('meta[property="og:title"]')?.setAttribute('content', originalMeta.ogTitle);
     if (originalMeta.ogDescription) document.querySelector('meta[property="og:description"]')?.setAttribute('content', originalMeta.ogDescription);
     if (originalMeta.ogImage) document.querySelector('meta[property="og:image"]')?.setAttribute('content', originalMeta.ogImage);
