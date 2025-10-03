@@ -294,10 +294,10 @@ main {
 
 @media (min-width: 901px) {
   .left-column {
-    grid-column: 2;         /* rechte Spalte */
+    grid-column: 1;         /* linke Spalte */
     display: flex;
-    flex-direction: column; /* stapeln untereinander */
-    gap: 2rem;              /* schöner Abstand */
+    flex-direction: column;
+    gap: 2rem;
   }
 }
 
