@@ -297,7 +297,7 @@ main {
 }
 
 .content-box {
-  background: white;
+  background: #f2f5f4;
   padding: clamp(1rem, 5vw, 2rem);
   border-radius: 15px;
   box-shadow: var(--box-shadow);
