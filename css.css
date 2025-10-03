@@ -22,8 +22,7 @@
 
 html {
   scroll-behavior: smooth;
-  width: 100%;
-  overflow-x: hidden;
+  overflow-x: hidden; /* Apply horizontal overflow blocking here */
 }
 
 body {
@@ -32,8 +31,7 @@ body {
   color: var(--text-color);
   line-height: 1.6;
   padding-top: var(--header-height);
-  width: 100%;
-  overflow-x: hidden;
+  /* The overflow-x rule is not needed here anymore */
 }
 
 /* Prevents background scroll when a popup or nav is open */
@@ -391,7 +389,7 @@ main {
 
 .dots-container {
   position: absolute;
-  bottom: 20px;
+  bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
