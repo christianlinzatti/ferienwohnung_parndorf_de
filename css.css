@@ -84,18 +84,21 @@ header {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
+  right: 0;
+  bottom: 0;
   opacity: 0;
-  transform: scale(1.1);
-  transition: opacity 1.5s ease-in-out, transform 8s linear;
+  transition: opacity 1s ease;
 }
 
 .header-slide.active {
   opacity: 1;
-  transform: scale(1);
+}
+
+.header-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .header-overlay {
@@ -358,8 +361,7 @@ main {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.05);
-  transition: transform 3s ease-in-out;
+  display: block;
 }
 
 .slide.active {

@@ -172,26 +172,38 @@
    <body>
       <header>
          <div class="header-slideshow">
-            <div class="header-slide" style="background-image: url('background_1.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_2.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_3.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_4.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_5.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_6.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_7.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_2.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_3.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_4.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_5.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_6.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_7.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_8.webp');"></div>
-            <div class="header-slide" style="background-image: url('background_9.webp');"></div>
+             <div class="header-slide">
+                <img src="background_1.webp" alt="Außenansicht" loading="eager">
+            </div>
+             <div class="header-slide">
+                <img src="background_2.webp" alt="Außenansicht" loading="lazy">
+            </div>
+             <div class="header-slide">
+                <img src="background_3.webp" alt="Außenansicht" loading="lazy">
+            </div>
+             <div class="header-slide">
+                <img src="background_4.webp" alt="Außenansicht" loading="lazy">
+            </div>
+             <div class="header-slide">
+                <img src="background_5.webp" alt="Außenansicht" loading="lazy">
+            </div>
+             <div class="header-slide">
+                <img src="background_6.webp" alt="Außenansicht" loading="lazy">
+            </div>
+             <div class="header-slide">
+                <img src="background_7.webp" alt="Außenansicht" loading="lazy">
+            </div>
+             <div class="header-slide">
+                <img src="background_8.webp" alt="Außenansicht" loading="lazy">
+            </div>
+             <div class="header-slide">
+                <img src="background_9.webp" alt="Außenansicht" loading="lazy">
+            </div>
          </div>
          <div class="header-overlay"></div>
          <div class="language-selector">
-            <a href="https://de.ferien-wohnung-parndorf.at/"><img src="https://flagcdn.com/de.svg" alt="Deutsch"></a>
-            <a href="https://en.ferien-wohnung-parndorf.at/"> <img src="https://flagcdn.com/gb.svg" alt="English"></a>
+            <a href="https://de.ferien-wohnung-parndorf.at/"><img src="https://flagcdn.com/de.svg" alt="Deutsch" loading="lazy"></a>
+            <a href="https://en.ferien-wohnung-parndorf.at/"> <img src="https://flagcdn.com/gb.svg" alt="English" loading="lazy"></a>
          </div>
          <button id="burger-toggle" class="burger-button" aria-label="Menü öffnen">☰</button>
          <nav class="main-nav" id="burger-menu">
@@ -232,9 +244,9 @@
             <div class="teasers">
                <span class="section-title">Einblicke</span>
                <div class="teaser-grid">
-                  <a href="/schlafzimmer/schlafzimmer" data-link><img src="/schlafzimmer.webp" alt="Schlafzimmer"></a>
-                  <a href="/kueche/kueche" data-link><img src="/kueche.webp" alt="Küche"></a>
-                  <a href="/terrasse/terrasse" data-link><img src="/terrasse.webp" alt="Terrasse"></a>
+                  <a href="/schlafzimmer/schlafzimmer" data-link><img src="/schlafzimmer.webp" alt="Schlafzimmer" loading="lazy" ></a>
+                  <a href="/kueche/kueche" data-link><img src="/kueche.webp" alt="Küche" loading="lazy"></a>
+                  <a href="/terrasse/terrasse" data-link><img src="/terrasse.webp" alt="Terrasse" loading="lazy"></a>
                </div>
             </div>
          </nav>
@@ -251,52 +263,52 @@
                   <h2 data-aos="zoom-in">Ihr gemütliches Apartment in Parndorf</h2>
                   <img src="Burgenland_Logo_NEU_grau_mit_claim_cmyk.webp"
                      alt="Burgenland die Sonnenseite Österreichs"
-                     data-aos="fade-right" data-aos-delay="250">
+                     data-aos="fade-right" data-aos-delay="250" loading="lazy">
                   <br />
                   <h2  data-aos="zoom-in">Fotos von der Unterkunft</h2>
                   <div id="fotos" class="slideshow-container" aria-roledescription="carousel">
                      <div class="slide">
-                        <img src="wohnzimmer.webp" alt="wohnzimmer" data-caption="Gemütliches Wohnzimmer mit bequemer Couch" />
+                        <img src="wohnzimmer.webp" alt="wohnzimmer" data-caption="Gemütliches Wohnzimmer mit bequemer Couch" loading="eager" />
                         <div class="slide-caption">Gemütliches Wohnzimmer mit bequemer Couch</div>
                      </div>
                      <div class="slide">
-                        <img src="schlafzimmer.webp" alt="schlafzimmer" data-caption="Schlafzimmer" />
+                        <img src="schlafzimmer.webp" alt="schlafzimmer" data-caption="Schlafzimmer" loading="lazy" />
                         <div class="slide-caption">Schlafzimmer</div>
                      </div>
                      <div class="slide">
-                        <img src="betten.webp" alt="schlafzimmer" data-caption="Betten" />
+                        <img src="betten.webp" alt="schlafzimmer" data-caption="Betten" loading="lazy" />
                         <div class="slide-caption">Betten</div>
                      </div>
                      <div class="slide">
-                        <img src="bett_kasten.webp" alt="schlafzimmer" data-caption="Bett Kasten" />
+                        <img src="bett_kasten.webp" alt="schlafzimmer" data-caption="Bett Kasten" loading="lazy" />
                         <div class="slide-caption">Bett Kasten</div>
                      </div>
                      <div class="slide">
-                        <img src="kueche.webp" alt="kueche" data-caption="Küche" />
+                        <img src="kueche.webp" alt="kueche" data-caption="Küche" loading="lazy" />
                         <div class="slide-caption">Küche</div>
                      </div>
                      <div class="slide">
-                        <img src="essbereich.webp" alt="kueche" data-caption="Essbereich" />
+                        <img src="essbereich.webp" alt="kueche" data-caption="Essbereich" loading="lazy" />
                         <div class="slide-caption">Essbereich</div>
                      </div>
                      <div class="slide">
-                        <img src="badezimmer.webp" alt="badezimmer" data-caption="Badezimmer" />
+                        <img src="badezimmer.webp" alt="badezimmer" data-caption="Badezimmer" loading="lazy" />
                         <div class="slide-caption">Badezimmer</div>
                      </div>
                      <div class="slide">
-                        <img src="wc.webp" alt="badezimmer" data-caption="WC" />
+                        <img src="wc.webp" alt="badezimmer" data-caption="WC" loading="lazy"  />
                         <div class="slide-caption">WC</div>
                      </div>
                      <div class="slide">
-                        <img src="terrasse.webp" alt="terrasse" data-caption="Terrasse" />
+                        <img src="terrasse.webp" alt="terrasse" data-caption="Terrasse" loading="lazy" />
                         <div class="slide-caption">Terrasse</div>
                      </div>
                      <div class="slide">
-                        <img src="garten.webp" alt="Garten" data-caption="Garten" />
+                        <img src="garten.webp" alt="Garten" data-caption="Garten" loading="lazy" />
                         <div class="slide-caption">Garten</div>
                      </div>
                      <div class="slide">
-                        <img src="eingangsbereich.webp" alt="eingangsbereich" data-caption="Eingangsbereich" />
+                        <img src="eingangsbereich.webp" alt="eingangsbereich" data-caption="Eingangsbereich" loading="lazy"/>
                         <div class="slide-caption">Eingangsbereich</div>
                      </div>
                      <button class="btn-prev" aria-label="Vorheriges Bild">❮</button>
@@ -371,9 +383,9 @@
             </aside>
             <aside class="reviews-section content-box fade-in" data-aos="fade-up" data-aos-delay="200">
                 <h2 id="review" data-aos="zoom-in">Auszeichnungen</h2>
-               <img src="3_Sonnen.webp" data-aos="fade-left" data-aos-delay="300" alt="3 Sonnen Auszeichnung vom Touristmusverband"/>
-               <img src="Logo_Private_Gastfreundschaft.webp" data-aos="fade-right" data-aos-delay="400" alt="Private Gastfreundschaft"/>
-               <img src="radfreundlich_Element_4.webp" data-aos="fade-left" data-aos-delay="500" alt="Radfreundlicher Betrieb"/>
+               <img src="3_Sonnen.webp" data-aos="fade-left" data-aos-delay="300" alt="3 Sonnen Auszeichnung vom Touristmusverband" loading="lazy"/>
+               <img src="Logo_Private_Gastfreundschaft.webp" data-aos="fade-right" data-aos-delay="400" alt="Private Gastfreundschaft" loading="lazy"/>
+               <img src="radfreundlich_Element_4.webp" data-aos="fade-left" data-aos-delay="500" alt="Radfreundlicher Betrieb" loading="lazy"/>
             </aside>
          </div>
          </div>
@@ -558,47 +570,47 @@
             </p>
             <div class="region-highlights">
                <div class="highlight-item" data-aos="fade-left" data-aos-delay="100">
-                  <img src="outlet.webp" alt="Shopping">
+                  <img src="outlet.webp" alt="Shopping" loading="lazy">
                   <h4>Für Shopping-Begeisterte & Genießer</h4>
                   <span class="highlight-text">Das berühmte <strong>Designer Outlet Parndorf</strong> liegt nur 2 km entfernt und lädt mit über 160 Shops zum ausgiebigen Einkaufen ein. In der Umgebung finden Sie zudem zahlreiche Heurige, Restaurants und Bäckereien, die Sie mit burgenländischen Schmankerln verwöhnen. Abends kann das Kino oder die Bowlinghalle besucht werden.</span>
                </div>
                <div class="highlight-item" data-aos="fade-right" data-aos-delay="200">
-                  <img src="see.webp" alt="Neusiedler See">
+                  <img src="see.webp" alt="Neusiedler See" loading="lazy">
                   <h4>Für Natur- & Aktivurlauber</h4>
                   <span class="highlight-text">Der <strong>Neusiedler See</strong> (8 km entfernt) ist ein Paradies für Wassersportler, Radfahrer und Naturliebhaber. Erkunden Sie die einzigartige Tier- und Pflanzenwelt im <strong>Nationalpark Neusiedler See-Seewinkel</strong> oder nutzen Sie die hervorragenden Radwege, die direkt durch die malerische Landschaft führen. Bei einer Bootsfahrt kann die Landschaft genossen werden.</span>
                </div>
                <div class="highlight-item" data-aos="fade-left" data-aos-delay="300">
-                  <img src="esterhazy.webp" alt="Schloss Esterházy">
+                  <img src="esterhazy.webp" alt="Schloss Esterházy" loading="lazy">
                   <h4>Für Kultur- & Städtereisende</h4>
                   <span class="highlight-text">Besuchen Sie das prunkvolle <strong>Schloss Esterházy</strong> in Eisenstadt, das nur etwa 20 km entfernt ist. Dank der exzellenten Bahnanbindung sind auch Tagesausflüge in die Metropolen <strong>Wien, Bratislava und Budapest</strong> bequem und einfach möglich.</span>
                </div>
                <div class="highlight-item" data-aos="fade-right" data-aos-delay="400">
-                  <img src="spazieren.webp" alt="Harachpark">
+                  <img src="spazieren.webp" alt="Harachpark" loading="lazy">
                   <h4>Parks</h4>
                   <span class="highlight-text">Besuchen Sie Bruck an der Leitha (ca. 7 km), der Barockgarten <strong>Harrachpark</strong> bietet sich für einen ausgedehnten Spaziergang an. Auch Ausflug zum <strong>Schloss Halbturn</strong> und <strong>Schloss Kittsee</strong> lohnt sich.</span>
                </div>
                <div class="highlight-item" data-aos="fade-left" data-aos-delay="500">
-                  <img src="wandern.webp" alt="Hundsheimer Berge">
+                  <img src="wandern.webp" alt="Hundsheimer Berge" loading="lazy">
                   <h4>Wandern</h4>
                   <span class="highlight-text">Die <strong>Hundsheimer Berge</strong> bei Hainburg (20 km entfernt) laden zum Wandern ein. Dort lohnt sich auch ein Besuch von der Römerstadt Carnuntum.</span>
                </div>
                <div class="highlight-item" data-aos="fade-right" data-aos-delay="600">
-                  <img src="theater.webp" alt="Kultursommer Parndorf">
+                  <img src="theater.webp" alt="Kultursommer Parndorf" loading="lazy">
                   <h4>Veranstaltungen</h4>
                   <span class="highlight-text">Der Parndorfer Kultursommer findet mit einem <strong>Theater</strong> vor der Kirche statt. Regelmäßig findet der <strong>Markt der Erde</strong> statt mit vielen Bio-Produkten aus der Region. Sehr beliebt ist das <strong>Dorffest</strong>, mit Aktivitäten der Vereine.</span>
                </div>
                <div class="highlight-item" data-aos="fade-left" data-aos-delay="700">
-                  <img src="dorfmuseum.webp" alt="Museum">
+                  <img src="dorfmuseum.webp" alt="Museum" loading="lazy">
                   <h4>Museen</h4>
                   <span class="highlight-text">Besucht das <strong>Dorfmuseum in Neudorf</strong> (5km entfernt) und das <strong>Dorfmuseum in Mönchhof.</strong></span>
                </div>
                <div class="highlight-item" data-aos="fade-right" data-aos-delay="800">
-                  <img src="familypark.webp" alt="Familypark">
+                  <img src="familypark.webp" alt="Familypark" loading="lazy">
                   <h4>Freizeitpark</h4>
                   <span class="highlight-text">Der <strong>Familypark</strong> in Sankt Margarethen bietet über 30 Fahrattraktionen.</span>
                </div>
                <div class="highlight-item" data-aos="fade-left" data-aos-delay="900">
-                  <img src="therme.webp" alt="Therme">
+                  <img src="therme.webp" alt="Therme" loading="lazy">
                   <h4>Therme</h4>
                   <span class="highlight-text">Die <strong>Therme in Frauenkirchen</strong> liegt am Rande des Nationalpaks Neusiedlersee-Seewinkel</span>
                </div>
@@ -634,7 +646,7 @@
                   <p>Um die Streetview-Ansicht anzuzeigen, ist Ihre Zustimmung zum Laden von Inhalten von Google Maps erforderlich. Dabei werden möglicherweise personenbezogene Daten an Google übermittelt.</p>
                   <button id="load-streetview-btn" class="booking-btn load-map-btn">Karte laden</button>
                </div>
-               <img src="streetview.webp" alt="Vorschau der Lage auf der Karte" class="map-preview-img">
+               <img src="streetview.webp" alt="Vorschau der Lage auf der Karte" class="map-preview-img" loading="lazy">
             </div>
             <div id="map-container" style="display: none;"></div>
             <div id="map-placeholder" role="region" data-aos="fade-right">
@@ -642,7 +654,7 @@
                   <p>Um die Karte anzuzeigen, ist Ihre Zustimmung zum Laden von Inhalten von Google Maps erforderlich. Dabei werden möglicherweise personenbezogene Daten an Google übermittelt.</p>
                   <button id="load-map-btn" class="booking-btn load-map-btn">Karte laden</button>
                </div>
-               <img src="map-preview.webp" alt="Vorschau der Lage auf der Karte" class="map-preview-img">
+               <img src="map-preview.webp" alt="Vorschau der Lage auf der Karte" class="map-preview-img" loading="lazy">
             </div>
             <div id="map" style="display: none;"></div>
          </section>
@@ -690,7 +702,7 @@
       <div id="wa-widget">
          <div id="wa-chatbox">
             <div class="wa-header">
-               <img src="gabi.webp" alt="Avatar" class="wa-avatar">
+               <img src="gabi.webp" alt="Avatar" class="wa-avatar" loading="lazy">
                <div>
                   <div class="wa-name">Gabi</div>
                   <div class="wa-status">Whatsapp</div>
@@ -709,7 +721,7 @@
          </div>
       </div>
       <div id="wa-toggle" class="whatsapp-btn" aria-label="WhatsApp Chat öffnen" data-aos="zoom-in">
-         <a href="/whatsapp" data-link><img src="WhatsApp.svg" alt="WhatsApp" width="28"></a>
+         <a href="/whatsapp" data-link><img src="WhatsApp.svg" alt="WhatsApp" width="28" loading="lazy"></a>
       </div>
       <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
       <script>
