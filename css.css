@@ -281,6 +281,7 @@ main {
   padding: clamp(1rem, 5vw, 2rem);
   border-radius: 15px;
   box-shadow: var(--box-shadow);
+  margin-top:30px;
 }
 
 .host-section {
