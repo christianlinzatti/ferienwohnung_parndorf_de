@@ -579,7 +579,7 @@ main {
 
 #wa-toggle {
   position: fixed;
-  bottom: 20px;
+  bottom: 90px;
   right: 20px;
   background-color: #25D366;
   width: 60px;
@@ -597,7 +597,7 @@ main {
 
 #wa-widget {
   position: fixed;
-  bottom: 150px;
+  bottom: 90px;
   right: 20px;
   width: 350px;
   max-width: 90vw;
