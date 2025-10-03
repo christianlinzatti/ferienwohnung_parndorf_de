@@ -304,6 +304,14 @@ main {
   margin-top:30px;
 }
 
+#airbnb-superhost-widget-24131580 {
+  min-height: 60px;   /* Platz reservieren */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: transparent; /* falls doch Text auftaucht, bleibt er unsichtbar */
+}
+
 .host-section {
   text-align: center;
   display: flex;
