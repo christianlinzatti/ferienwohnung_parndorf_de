@@ -283,6 +283,15 @@ main {
   }
 }
 
+@media (min-width: 901px) {
+  .right-column {
+    grid-column: 2;         /* rechte Spalte */
+    display: flex;
+    flex-direction: column; /* stapeln untereinander */
+    gap: 2rem;              /* schöner Abstand */
+  }
+}
+
 .content-box {
   background: white;
   padding: clamp(1rem, 5vw, 2rem);
