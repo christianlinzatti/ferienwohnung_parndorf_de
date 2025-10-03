@@ -1,8 +1,8 @@
 /* ======================================================= */
-/* ===         MASTER STYLESHEET (REFACTORED)          === */
+/* ===         MASTER STYLESHEET (REVISED)             === */
 /* ======================================================= */
 
-/* --- 1. Root Variables & Font Definitions --- */
+/* --- 1. Root Variables & Global Styles --- */
 :root {
   --primary-color: #004d40;
   --secondary-color: #00332c;
@@ -11,43 +11,34 @@
   --background-light: #f8f9fa;
   --text-color: #333;
   --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  --header-offset: 250px; /* For anchor scroll offset */
+  --header-height: 250px;
 }
 
-@font-face {
-  font-display: swap;
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 400;
-  src: url('poppins-v23-latin-regular.woff2') format('woff2');
-}
-@font-face {
-  font-display: swap;
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 600;
-  src: url('poppins-v23-latin-600.woff2') format('woff2');
-}
-@font-face {
-  font-display: swap;
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 700;
-  src: url('poppins-v23-latin-700.woff2') format('woff2');
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* --- 2. General Body & Typography Styles --- */
+html {
+  scroll-behavior: smooth;
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Poppins', sans-serif;
-  margin: 0;
   background: var(--background-light);
   color: var(--text-color);
   line-height: 1.6;
-  padding-top: 250px;
+  padding-top: var(--header-height);
+  width: 100%;
+  overflow-x: hidden;
 }
 
-.no-scroll {
-  overflow: hidden; /* Prevents background scroll when nav is open */
+/* Prevents background scroll when a popup or nav is open */
+body.popup-is-open, body.no-scroll {
+  overflow: hidden;
 }
 
 h1, h2, h3, h4 {
@@ -55,34 +46,31 @@ h1, h2, h3, h4 {
   color: var(--secondary-color);
 }
 
-/* Ensure anchor links aren't hidden behind the sticky header */
-[id] {
-  scroll-margin-top: var(--header-offset);
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
-/* --- 3. Header --- */
+/* Ensure anchor links aren't hidden behind the sticky header */
+[id] {
+  scroll-margin-top: var(--header-height);
+}
+
+/* --- 2. Header --- */
 header {
   position: fixed;
   top: 0;
-  z-index: 1000;
+  left: 0;
+  width: 100%;
+  height: var(--header-height);
   color: white;
-  padding: 40px 20px;
   text-align: center;
-  border-radius: 0 0 20px 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 20vh;
-  left: 0;           /* 🔥 hinzufügen */
-  width: 100%;       /* 🔥 hinzufügen */
-  height: 250px;             /* 🔥 feste Höhe reserviert, anpassbar */
-}
-
-header.sticky {
-  background-color: rgba(255,255,255,0.95);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  z-index: 900;
 }
 
 .header-slideshow {
@@ -92,7 +80,6 @@ header.sticky {
   width: 100%;
   height: 100%;
   z-index: 1;
-  overflow: hidden; /* 🔥 hinzufügen, falls Bilder zu groß sind */
 }
 
 .header-slide {
@@ -106,13 +93,6 @@ header.sticky {
   opacity: 0;
   transform: scale(1.1);
   transition: opacity 1.5s ease-in-out, transform 8s linear;
-  background-repeat: no-repeat; /* 🔥 hinzufügen */
-}
-
-header nav {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
 }
 
 .header-slide.active {
@@ -126,201 +106,27 @@ header nav {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to top, rgba(0, 51, 44, 0.65) 0%, transparent 50%);
+  background: linear-gradient(to top, rgba(0, 51, 44, 0.7) 0%, transparent 60%);
   z-index: 2;
 }
 
 .header-content {
   position: relative;
   z-index: 3;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
 
 header h1 {
   color: white;
-  font-size: 3em;
+  font-size: clamp(2.5rem, 6vw, 3rem);
   font-weight: 700;
-  margin: 0;
 }
 
 header p {
-  margin-top: 5px;
   color: #f0f0f0;
-  font-size: 1.3em;
+  font-size: clamp(1rem, 3vw, 1.3rem);
   font-style: italic;
-}
-
-/* --- 4. Navigation (Mobile & Desktop Off-Canvas) --- */
-.nav-toggle {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  z-index: 1100;
-}
-
-.menu-close {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-}
-.nav-toggle .hamburger {
-  display: block;
-  width: 28px;
-  height: 2px;
-  background: white;
-  position: relative;
-  border-radius: 2px;
-  transition: background 0.2s ease;
-}
-.nav-toggle .hamburger::before,
-.nav-toggle .hamburger::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  width: 28px;
-  height: 2px;
-  background: white;
-  border-radius: 2px;
-  transition: transform 0.25s ease, top 0.25s ease, opacity 0.2s ease;
-}
-.nav-toggle .hamburger::before { top: -8px; }
-.nav-toggle .hamburger::after  { top: 8px; }
-
-
-
-.nav-toggle.open .hamburger { background-color: transparent; }
-.nav-toggle.open .hamburger::before { transform: rotate(45deg); }
-.nav-toggle.open .hamburger::after { transform: rotate(-45deg) translateY(-1px) translateX(1px); }
-
-.main-nav {
-  position: fixed;
-  top: 0;
-  left: -100%;
-  right: 0;
-  width: 80%;
-  max-width: 100%;
-  height: 100%;
-    background-color: #00251a; /* satteres Dunkelgrün */
-  backdrop-filter: blur(5px);
-  transform: translateX(-100%);
-  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-  z-index: 900;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 80px 20px 20px;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.main-nav.open {
-  transform: translateX(0);
-  left: 0px;
-}
-
-.main-nav ul {
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-body.no-scroll {
-  overflow: hidden;  /* Gilt nur, wenn das Menü offen ist */
-  position: fixed;
-  width: 100%;  /* verhindert horizontalen Scrollbalken */
-}
-
-.main-nav li {
-  margin: 15px 0;
-}
-
-.main-nav a {
-  font-size: 1.4em;
-  color: #ffffff;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 8px;
-  transition: background 0.3s, color 0.3s;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-nav a.active {
-  border-bottom: 2px solid var(--accent-booking);
-  color: var(--accent-booking);
-  font-weight: bold;
-}
-
-.main-nav a:hover {
-  background: rgba(255,255,255,0.1);
-  color: var(--accent-booking); /* dein Blau */
-}
-
-.main-nav .section-title {
-  display: block;
-  margin: 20px 0 10px;
-  font-size: 0.9em;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #ddd;
-}
-
-.main-nav .teaser-grid img {
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 8px;
-}
-.main-nav .teaser-grid a:hover img {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-}
-
-.main-nav .teaser-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-html {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;  /* Nur horizontal verhindern */
-}
-
-/* Bilder responsiv */
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-}
-
-
-
-.submenu {
-  list-style: none;
-  padding-left: 20px;
-  margin: 5px 0;
-}
-.submenu li a {
-  font-size: 0.9em;
-}
-
-.icon-link {
-  display: inline-flex;
-  padding: 8px;
-  border-radius: 12px;
-  text-decoration: none;
-  align-items: center;
-  gap: 10px;
+  margin-top: 5px;
 }
 
 .language-selector {
@@ -342,49 +148,139 @@ img {
   opacity: 0.8;
 }
 
-.language-selector img:hover,
-.language-selector img.active {
+.language-selector img:hover {
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   opacity: 1;
 }
 
 
-
-.main-content-grid {
-  display: grid;
-  grid-template-columns: 1.5fr 0.5fr; /* zwei gleich breite Spalten */
-  gap: 2rem; /* Abstand zwischen den Spalten */
-  align-items: start;
-}
-
+/* --- 3. Navigation (Off-Canvas Menu) --- */
 .burger-button {
   position: absolute;
   top: 20px;
-  left: 20px;           /* 🔥 in die Ecke links oben */
+  left: 20px;
   background: transparent;
   border: none;
   font-size: 2rem;
   color: white;
   cursor: pointer;
-  z-index: 1100;        /* über dem Header-Bild */
+  z-index: 1001; /* Above header, below open nav */
+}
+
+.main-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: min(320px, 85vw);
+  height: 100vh;
+  background-color: #00251a;
+  z-index: 1100; /* Above everything except its own close button */
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.main-nav.open {
+  transform: translateX(0);
+  box-shadow: 5px 0 25px rgba(0,0,0,0.3);
 }
 
 .burger-close {
   position: absolute;
-  top: 20px;
-  right: 20px;          /* 🔥 in die Ecke rechts oben */
+  top: 15px;
+  right: 15px;
   background: transparent;
   border: none;
   font-size: 2rem;
   color: white;
   cursor: pointer;
-  z-index: 1200;
+  z-index: 1101; /* On top of the nav panel */
+}
+
+.main-nav ul {
+  list-style: none;
+  margin-bottom: 20px;
+}
+
+.main-nav .section-title {
+  display: block;
+  margin: 20px 0 10px;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #aaa;
+}
+
+.main-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  text-decoration: none;
+  font-size: 1.2rem;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.main-nav a:hover,
+.main-nav a.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #4dd0e1; /* A light, friendly blue-cyan */
+}
+
+.main-nav a i {
+  width: 20px;
+  height: 20px;
+}
+
+.teaser-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.teaser-grid img {
+  width: 100%;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.teaser-grid a:hover img {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+
+/* --- 4. Main Content & Layout --- */
+main {
+  padding: 2rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.main-content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 901px) {
+  .main-content-grid {
+    grid-template-columns: 2fr 1fr;
+  }
 }
 
 .content-box {
   background: white;
-  padding: 20px;
+  padding: clamp(1rem, 5vw, 2rem);
   border-radius: 15px;
   box-shadow: var(--box-shadow);
 }
@@ -394,27 +290,24 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1rem;
 }
 
 .host-section img {
   max-width: 150px;
-  margin-bottom: 10px;
 }
 
 .host-text {
   font-style: italic;
   color: #555;
-  margin-top: 10px;
 }
 
 .clickable-div {
   cursor: pointer;
   width: 100%;
-  display: block;
-  margin: 0 auto;
 }
 
-/* --- 6. Main Slideshow --- */
+/* --- 5. Main Slideshow --- */
 .slideshow-container {
   position: relative;
   max-width: 1100px;
@@ -428,10 +321,7 @@ img {
 
 .slide {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   opacity: 0;
   transition: opacity 1s ease-in-out;
   cursor: pointer;
@@ -442,7 +332,7 @@ img {
   height: 100%;
   object-fit: cover;
   transform: scale(1.05);
-  transition: transform 3s ease-in-out, opacity 1s ease-in-out;
+  transition: transform 3s ease-in-out;
 }
 
 .slide.active {
@@ -459,15 +349,14 @@ img {
   bottom: 0;
   left: 0;
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.6);
   color: white;
   text-align: center;
   padding: 15px;
   font-size: 1em;
   opacity: 0;
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 0.5s;
   z-index: 2;
-  box-sizing: border-box;
 }
 
 .slide.active .slide-caption {
@@ -479,7 +368,7 @@ img {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.5);
   color: white;
   font-size: 24px;
   border: none;
@@ -491,18 +380,10 @@ img {
   align-items: center;
   transition: background-color 0.3s;
   z-index: 2;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: translateY(-50%) scale(1); }
-  50% { transform: translateY(-50%) scale(1.05); }
-  100% { transform: translateY(-50%) scale(1); }
 }
 
 .btn-prev:hover, .btn-next:hover {
-  background-color: rgba(0,0,0,0.8);
-  animation: none;
+  background: rgba(0,0,0,0.8);
 }
 
 .btn-prev { left: 15px; }
@@ -510,18 +391,19 @@ img {
 
 .dots-container {
   position: absolute;
-  bottom: 40px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 10px;
   z-index: 2;
 }
+
 .dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(0,0,0,0.2);
   cursor: pointer;
   transition: background-color 0.3s;
@@ -530,92 +412,81 @@ img {
 .dot.active { background-color: var(--accent-booking); }
 
 
-/* --- 7. Sections (Highlights, Ausstattung, Region, FAQ, Map) --- */
+/* --- 6. Content Sections (Highlights, Ausstattung, Region, etc.) --- */
 .highlights, .ausstattung .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   margin-top: 20px;
 }
 
-.highlights .highlight-item, .ausstattung .item {
+.highlight-item, .ausstattung .item {
   background: white;
   border-radius: 12px;
   padding: 20px;
   text-align: center;
-  box-shadow: var(--box-shadow);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.highlights .highlight-item:hover, .ausstattung .item:hover {
+.highlight-item:hover, .ausstattung .item:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
 }
 
-.highlights .icon-wrapper, .ausstattung .icon-wrapper {
+.icon-wrapper {
   width: 70px;
   height: 70px;
   border-radius: 50%;
   background: var(--primary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   margin: 0 auto 15px;
 }
 
-.highlights .icon-wrapper svg {
-  width: 36px; height: 36px; stroke: white; fill: none;
-}
-.ausstattung .icon-wrapper .icon {
-  width: 40px; height: 40px; fill: white;
+.icon-wrapper svg {
+  width: 36px;
+  height: 36px;
+  stroke: white;
+  fill: white;
 }
 
-.highlights h4 { margin: 10px 0 5px; font-size: 1.1em; color: var(--secondary-color); }
+.highlight-item h4 { margin: 10px 0 5px; font-size: 1.1em; color: var(--secondary-color); }
 .ausstattung .item span { font-size: 1em; font-weight: 500; color: var(--text-color); }
 
 .region-highlights {
-    margin-top: 25px;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
+  margin-top: 25px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
 #region1 .highlight-item {
-  border-radius: 15px;
-  box-shadow: var(--box-shadow);
-  overflow: hidden;
-  background: #fff;
   padding: 0;
   display: flex;
   flex-direction: column;
 }
 #region1 .highlight-item img {
   width: 100%;
-  height: 160px;
+  height: 180px;
   object-fit: cover;
-  display: block;
+  border-radius: 15px 15px 0 0;
 }
 #region1 .highlight-item h4, #region1 .highlight-item .highlight-text {
-  padding: 5px 15px 15px 15px;
+  padding: 15px;
   color: var(--text-color);
 }
 #region1 .highlight-item h4 { padding-bottom: 5px; }
 
-
 .faq-item {
-  margin-bottom: 20px;
   border-bottom: 1px solid #eee;
-  padding-bottom: 15px;
+  padding: 15px 0;
 }
+.faq-item:last-child { border-bottom: none; }
 .faq-item h4 { margin-bottom: 5px; color: var(--primary-color); }
-.faq-item p { margin: 0; }
 
 .map-container {
-  margin-bottom: 20px;
   padding: 20px;
-  background: white;
-  border-radius: 15px;
-  box-shadow: var(--box-shadow);
 }
 
 #map-placeholder, #map-placeholder-streetview {
@@ -626,15 +497,13 @@ img {
   overflow: hidden;
   margin-top: 15px;
   background-color: #e9e9e9;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: grid;
+  place-items: center;
 }
 
-#map-placeholder-streetview iframe, #map {
+#map, #map-placeholder-streetview iframe {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
   border: 0;
@@ -649,25 +518,21 @@ img {
 
 .map-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   padding: 20px;
-  box-sizing: border-box;
   color: white;
   z-index: 2;
 }
-.map-overlay p { max-width: 500px; margin-bottom: 20px; font-size: 0.95em; color: #f0f0f0; }
+.map-overlay p { max-width: 500px; margin-bottom: 20px; }
 .load-map-btn { cursor: pointer; background-color: var(--primary-color); }
 
-/* --- 8. Buttons & CTAs --- */
+/* --- 7. Buttons & CTAs --- */
 .booking-buttons {
   margin-top: 20px;
   display: flex;
@@ -677,60 +542,56 @@ img {
 }
 
 .booking-btn, .airbnb-btn {
-  padding: 15px 20px;
-  border-radius: 20px;
+  padding: 15px 25px;
+  border-radius: 50px;
+  border: none;
   text-decoration: none;
   font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  transition: transform 0.2s, background-color 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
   background: var(--accent-booking);
   color: white;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  min-width: 160px;
+  font-size: 1rem;
 }
 .airbnb-btn { background: var(--accent-airbnb); }
-.booking-btn:hover, .airbnb-btn:hover { transform: translateY(-2px); opacity: 0.9; }
 
+.booking-btn:hover, .airbnb-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+/* --- 8. Floating Elements (CTA & WhatsApp) --- */
 .cta-floating {
   position: fixed;
   right: 1rem;
   bottom: 1rem;
-  display: none;
+  display: none; /* JS toggles to flex */
   flex-direction: column;
   gap: 0.5rem;
-  z-index: 1000;
+  z-index: 800;
 }
 
 .cta-floating.visible {
   display: flex;
 }
 
-
-.cta-floating.hiding {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(20px) translateX(40px);
-}
-
-/* --- 9. WhatsApp Widget --- */
 #wa-toggle {
   position: fixed;
-  bottom: 150px;
+  bottom: 20px;
   right: 20px;
   background-color: #25D366;
-  color: white;
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  z-index: 1000;
+  z-index: 850;
   transition: transform 0.2s ease;
 }
 #wa-toggle:hover { transform: scale(1.1); }
@@ -738,27 +599,26 @@ img {
 
 #wa-widget {
   position: fixed;
-  bottom: 160px;
+  bottom: 90px;
   right: 20px;
   width: 350px;
   max-width: 90vw;
   box-shadow: 0 5px 20px rgba(0,0,0,0.3);
   border-radius: 15px;
   overflow: hidden;
-  z-index: 10000;
-  font-family: Arial, sans-serif;
+  z-index: 850;
   display: none;
   flex-direction: column;
   background-color: #E5DDD5;
-  transform: translateY(20px);
   opacity: 0;
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  transform: translateY(20px);
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 #wa-widget.open {
   display: flex;
-  transform: translateY(0);
   opacity: 1;
+  transform: translateY(0);
 }
 
 #wa-chatbox .wa-header {
@@ -767,8 +627,9 @@ img {
   padding: 15px;
   display: flex;
   align-items: center;
+  gap: 10px;
 }
-#wa-chatbox .wa-avatar { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; border: 2px solid white; }
+#wa-chatbox .wa-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; }
 #wa-chatbox .wa-name { font-weight: bold; }
 #wa-chatbox .wa-status { font-size: 0.8em; opacity: 0.9; }
 #wa-close { margin-left: auto; cursor: pointer; font-size: 24px; font-weight: bold; }
@@ -788,7 +649,7 @@ img {
 #wa-form button { background-color: #128C7E; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s; }
 #wa-form button:hover { background-color: #075E54; }
 
-/* --- 10. Footer --- */
+/* --- 9. Footer --- */
 footer {
   background: var(--secondary-color);
   color: #ddd;
@@ -800,300 +661,156 @@ footer {
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 30px;
   justify-content: space-between;
 }
-.footer-content section { flex: 1; min-width: 250px; margin: 10px 0; }
+.footer-content section { flex: 1; min-width: 250px; }
 .footer-content h3 { color: white; border-bottom: 2px solid var(--primary-color); padding-bottom: 8px; margin-bottom: 15px; }
 .footer-content a { color: #eee; text-decoration: none; }
 .footer-content a:hover { text-decoration: underline; }
 
-/* --- 11. Popups / Modals (Fullscreen) --- */
-.popup-container, #photo-popup {
+/* --- 10. Photo Popup --- */
+#photo-popup {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
   display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
+  z-index: 2000;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.popup-container.open, #photo-popup.open { display: flex; opacity: 1; }
-
-.popup-img, #photo-popup .popup-images img {
-  width: auto; height: auto; max-width: 95vw; max-height: 90vh;
-  object-fit: contain; display: none;
-}
-
-.popup-img, #photo-popup .popup-images img.active { display: block; }
-
-.popup-container .popup-close, #photo-popup .popup-close {
-  position: fixed; top: 15px; right: 20px;
-  font-size: 3rem; color: white; background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 50%; width: 50px; height: 50px;
-  line-height: 50px; text-align: center; cursor: pointer;
-  z-index: 3002; transition: transform 0.2s, background-color 0.2s;
-}
-
-.popup-container .popup-close:hover, #photo-popup .popup-close:hover {
-  transform: scale(1.1); background-color: rgba(255, 0, 0, 0.7);
-}
-
-.popup-container .popup-prev, .popup-container .popup-next, #photo-popup .prev, #photo-popup .next {
-  position: fixed; top: 50%; transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.4); color: white; border: none;
-  border-radius: 50%; width: 50px; height: 50px; font-size: 2rem;
-  cursor: pointer; z-index: 3001; display: flex; align-items: center; justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.popup-container .popup-prev:hover, .popup-container .popup-next:hover, #photo-popup .prev:hover, #photo-popup .next:hover {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-.popup-container .popup-prev, #photo-popup .prev { left: 15px; }
-.popup-container .popup-next, #photo-popup .next { right: 15px; }
+#photo-popup.open { display: block; opacity: 1; }
 
 #photo-popup .popup-content {
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  max-width: 100%;
-  max-height: 100%;
-  overflow: visible;
-  position: static;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
 }
-
-
-
-
-/* --- 12. Media Queries & Responsive Design --- */
-
-/* Desktop Navigation */
-@media (min-width: 901px) {
-  .main-nav {
-    left: auto; /* Unset mobile 'left' */
-    right: 0;
-    width: min(380px, 90vw);
-    transform: translateX(100%);
-  }
-  .main-nav ul {
-    max-height: calc(100vh - 120px);
-    align-items: flex-start;
-  }
-  .main-nav a {
-   font-size: 1.3em;
-    }
-}
-
-@media (max-width: 600px) {
-  .main-content-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-content-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* Tablet & Smaller Desktop Layout */
-@media (max-width: 900px) {
-  .main-content-grid { grid-template-columns: 1fr !important; }
-  .btn-prev, .btn-next { width: 40px; height: 40px; font-size: 20px; }
-}
-
-/* Region Highlights Layout */
-@media (min-width: 768px) {
-  .region-highlights { grid-template-columns: repeat(3, 1fr); }
-  #wa-toggle { bottom: 150px; } /* Adjust WhatsApp button position on desktop */
-}
-
-/* Mobile Floating CTA */
-@media (max-width: 600px) {
-  #buchung { display:none; } /* Hide booking buttons in main content on small screens */
-  .cta-floating {
-    bottom: 15px; right: 50%; transform: translate(50%, 20px);
-    flex-direction: row; gap: 10px; width: 90%; justify-content: center;
-  }
-  .cta-floating.visible { transform: translate(50%, 0); }
-  .cta-floating.hiding { transform: translate(50%, 20px) scale(0.95); }
-}
-
 
 #photo-popup .popup-images {
   position: relative;
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden; /* verhindert doppelten Scroll */
 }
 
 #photo-popup .popup-images img {
-  /* Wichtig für die Überblendung */
   position: absolute;
-
-  /* Steuert das Ein- und Ausblenden */
-  opacity: 0;
-
-  /* Startet bei Normalgröße für den Zoom */
-  transform: scale(1);
-
-  /* Definiert die Dauer der Animationen */
-  transition:
-    opacity 0.4s ease-in-out,
-    transform 8s ease-in-out;
-
-  /* Alte Stile bleiben erhalten */
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  display: block; /* Ersetzt das alte display: none */
+  inset: 0;
   margin: auto;
+  width: auto;
+  height: auto;
+  max-width: 95vw;
+  max-height: 90vh;
+  object-fit: contain;
+  opacity: 0;
+  transform: scale(1);
+  transition: opacity 0.4s ease-in-out, transform 8s ease-in-out;
 }
 
 #photo-popup .popup-images img.active {
-  /* Macht das aktive Bild sichtbar */
   opacity: 1;
-
-  /* Startet den langsamen Zoom-Effekt */
   transform: scale(1.05);
 }
 
+#photo-popup .popup-close {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  font-size: 3rem;
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  line-height: 45px;
+  text-align: center;
+  cursor: pointer;
+  z-index: 2002;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+#photo-popup .popup-close:hover {
+  transform: scale(1.1);
+  background: rgba(255, 0, 0, 0.7);
+}
+
+#photo-popup .prev, #photo-popup .next {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 2001;
+  display: grid;
+  place-items: center;
+  transition: background-color 0.2s;
+}
+
+#photo-popup .prev:hover, #photo-popup .next:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+#photo-popup .prev { left: 15px; }
+#photo-popup .next { right: 15px; }
+
 #photo-popup .popup-caption {
   position: absolute;
-  bottom: 40px;              /* etwas über den Buttons */
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   max-width: 90%;
-  padding: 10px;
-  background: rgba(0,0,0,0.6);  /* halbtransparent */
+  padding: 10px 15px;
+  background: rgba(0,0,0,0.6);
   color: #fff;
-  font-size: 1rem;
-  line-height: 1.4;
   text-align: center;
   border-radius: 6px;
-  pointer-events: none;      /* Klicks gehen durch */
-  z-index: 2100;
+  pointer-events: none;
+  z-index: 2001;
 }
 
-/* Mobile: Caption kleiner */
+
+/* --- 11. Mobile-Specific Adjustments --- */
 @media (max-width: 600px) {
-  #photo-popup .popup-caption {
+  main {
+    padding: 1.5rem 0.5rem;
+  }
+  .booking-buttons {
+     display:none; /* Hide main booking buttons, floating CTA is used instead */
+  }
+  .cta-floating {
+    flex-direction: row;
+    gap: 10px;
+    width: 95%;
+    left: 50%;
+    bottom: 15px;
+    transform: translateX(-50%);
+    justify-content: center;
+  }
+  .cta-floating .booking-btn, .cta-floating .airbnb-btn {
+    flex: 1; /* Make buttons share space */
+  }
+
+  #wa-toggle {
+    bottom: 80px; /* Move WA toggle up to not collide with CTA */
+  }
+
+  #photo-popup .prev, #photo-popup .next {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+   #photo-popup .popup-caption {
     font-size: 0.9rem;
     padding: 8px 12px;
     bottom: 30px;
   }
 }
-
-
-/* Mobile: Caption kleiner */
-@media (max-width: 600px) {
-  #photo-popup .popup-caption {
-    font-size: 0.9rem;
-    padding: 8px 12px;
-    bottom: 30px;
-  }
-}
-
-
-#burger-menu {
-  padding: 20px;
-}
-
-#burger-menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 20px;
-}
-
-#burger-menu li {
-  margin: 10px 0;
-}
-
-#burger-menu a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: #fff !important;
-  font-size: 1.2rem;
-}
-
-#burger-menu i {
-  width: 20px;
-  height: 20px;
-}
-
-#burger-menu .section-title {
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #666;
-  text-transform: uppercase;
-  margin-top: 10px;
-  display: block;
-}
-
-.teasers .teaser-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.teasers img {
-  width: 100%;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-#burger-menu .cta {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-#burger-menu .btn-whatsapp,
-#burger-menu .btn-book {
-  text-align: center;
-  padding: 12px;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-#burger-menu .btn-whatsapp {
-  background: #25d366;
-  color: white;
-}
-
-#burger-menu .btn-book {
-  background: #ff5a5f;
-  color: white;
-}
-
-.lang-switch {
-  margin-top: 15px;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
-/* -> Sicherstellen, dass Links im mobilen Menü weiß sind */
-#main-nav #burger-menu a,
-.main-nav #burger-menu a {
-  color: white;
-}
-
-
-
-#burger-menu a:hover {
-  color: var(--accent-booking); /* schönes Blau aus deiner Farbpalette */
