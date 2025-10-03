@@ -276,12 +276,7 @@ main {
   }
 }
 
-@media (min-width: 901px) {
-  .host-section,
-  .reviews-section {
-    grid-column: 2; /* beide kommen in die rechte Spalte */
-  }
-}
+
 
 @media (min-width: 901px) {
   .right-column {
