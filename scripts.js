@@ -20,6 +20,167 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+// =========================================================
+// VERFÜGBARKEIT FORMULAR – Automatische Buttons (ohne Prüfen-Button)
+// =========================================================
+
+const form = document.getElementById("availability-form");
+const startInput = document.getElementById("start-date");
+const endInput = document.getElementById("end-date");
+const guestsInput = document.getElementById("guests");
+const nightsInput = document.getElementById("nights");
+const resultBox = document.getElementById("availability-result");
+const resultText = document.getElementById("result-text");
+const resultIcon = resultBox?.querySelector(".result-icon");
+const bookingBtn = document.querySelector(".booking-btn");
+const airbnbBtn = document.querySelector(".airbnb-btn");
+
+// Standardmäßig 2 Personen vorauswählen
+if (guestsInput) guestsInput.value = 2;
+
+// --- Übersetzungen ---
+const availabilityTexts = {
+  de: {
+    title: "Verfügbarkeit prüfen",
+    start: "Anreise",
+    end: "Abreise",
+    guests: "Personen",
+    nights: "Nächte",
+    ready: (n, g) =>
+      `✅ ${n} Nacht${n > 1 ? "e" : ""}, ${g} Person${g > 1 ? "en" : ""} — bereit zur Buchung!`,
+    invalid: "Bitte gültige Daten eingeben.",
+  },
+  en: {
+    title: "Check availability",
+    start: "Check-in",
+    end: "Check-out",
+    guests: "Guests",
+    nights: "Nights",
+    ready: (n, g) =>
+      `✅ ${n} night${n > 1 ? "s" : ""}, ${g} guest${g > 1 ? "s" : ""} — ready to book!`,
+    invalid: "Please enter valid dates.",
+  },
+};
+
+// Sprache anhand Domain bestimmen
+const t = availabilityTexts[lang];
+
+// Texte im Formular setzen
+document.getElementById("availability-title").textContent = t.title;
+document.getElementById("label-start").textContent = t.start;
+document.getElementById("label-end").textContent = t.end;
+document.getElementById("label-guests").textContent = t.guests;
+document.getElementById("label-nights").textContent = t.nights;
+
+// Mindestdatum = morgen
+const today = new Date();
+today.setDate(today.getDate() + 1)
+const todayStr = today.toISOString().split("T")[0];
+startInput.min = todayStr;
+endInput.min = todayStr;
+endInput.disabled = true;
+
+// Wenn Anreisedatum gewählt → Abreisedatum frühestens +1 Tag
+startInput.addEventListener("change", () => {
+  const startDate = new Date(startInput.value);
+  if (isNaN(startDate)) {
+    endInput.disabled = true;
+    return;
+  }
+  const minCheckout = new Date(startDate);
+  minCheckout.setDate(minCheckout.getDate() + 1);
+  endInput.min = minCheckout.toISOString().split("T")[0];
+  endInput.disabled = false;
+});
+
+// Nächte berechnen
+const calculateNights = () => {
+  const startDate = new Date(startInput.value);
+  const endDate = new Date(endInput.value);
+  if (isNaN(startDate) || isNaN(endDate) || endDate <= startDate) {
+    nightsInput.value = "";
+    return 0;
+  }
+  const diff = endDate - startDate;
+  const nights = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  nightsInput.value = nights;
+  return nights;
+};
+
+// Hauptfunktion: Eingaben prüfen & Buttons generieren
+const checkInputs = () => {
+  const nights = calculateNights();
+  const start = startInput.value;
+  const end = endInput.value;
+  const guests = guestsInput.value;
+  const valid = start && end && guests > 0 && nights > 0;
+
+  // Sprache bestimmen → passende Domains
+  const isEnglish = window.location.hostname.startsWith("en.");
+  const bookingDomain = isEnglish
+    ? "https://www.booking.com/hotel/at/ferienwohnung-parndorf.en-gb.html"
+    : "https://www.booking.com/hotel/at/ferienwohnung-parndorf.de.html";
+  const airbnbDomain = isEnglish
+    ? "https://www.airbnb.com"
+    : "https://www.airbnb.at";
+
+  [bookingBtn, airbnbBtn].forEach((btn) => {
+    if (!btn) return;
+    btn.style.display = valid ? "inline-flex" : "none";
+    btn.classList.toggle("disabled", !valid);
+
+    if (valid) {
+      // ✅ Booking.com-Link (ohne Tracking)
+      if (btn.classList.contains("booking-btn")) {
+        const params = new URLSearchParams({
+          checkin: start,
+          checkout: end,
+          group_adults: guests,
+          group_children: 0,
+          no_rooms: 1,
+          req_adults: guests,
+          req_children: 0,
+        }).toString();
+        btn.href = `${bookingDomain}?${params}`;
+      }
+
+      // ✅ Airbnb-Link (komplett mit Datum & Personen)
+      if (btn.classList.contains("airbnb-btn")) {
+        const params = new URLSearchParams({
+          numberOfGuests: guests,
+          checkin: start,
+          checkout: end,
+          numberOfAdults: guests,
+          guestCurrency: "EUR",
+          productId: "24131580",
+          isWorkTrip: "false",
+          numberOfChildren: 0,
+          numberOfInfants: 0,
+          numberOfPets: 0,
+        }).toString();
+        btn.href = `${airbnbDomain}/book/stays/24131580?${params}`;
+      }
+    }
+  });
+
+  // Ergebnisbox anzeigen/verstecken
+  if (valid) {
+    const icon = nights > 3 ? "✅" : "📅";
+    resultIcon.textContent = icon;
+    resultText.textContent = t.ready(nights, guests);
+    resultBox.hidden = false;
+    resultBox.classList.add("show");
+  } else {
+    resultBox.classList.remove("show");
+    resultBox.hidden = true;
+  }
+};
+
+// Eingaben überwachen
+[startInput, endInput, guestsInput].forEach((el) =>
+  el.addEventListener("input", checkInputs)
+);
+
   // =========================================================
   // METADATEN-HANDLING
   // =========================================================
@@ -606,6 +767,45 @@ if (header) {
   toggleSticky();
 }
 
+
+// =========================================================
+// Lazy Loading für Header-Bilder (verbesserte Version)
+// =========================================================
+const lazyHeaderSlides = document.querySelectorAll('.header-slide[data-bg]');
+
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const bgUrl = el.getAttribute('data-bg');
+        if (bgUrl) {
+          // Preload, um Sprünge zu vermeiden
+          const img = new Image();
+          img.src = bgUrl;
+          img.onload = () => {
+            el.style.backgroundImage = `url('${bgUrl}')`;
+            el.classList.add('loaded'); // optional für Fade-In
+          };
+          el.removeAttribute('data-bg');
+          obs.unobserve(el);
+        }
+      }
+    });
+  }, {
+    rootMargin: '300px',
+    threshold: 0.01
+  });
+
+  lazyHeaderSlides.forEach(slide => observer.observe(slide));
+} else {
+  // Fallback ohne IntersectionObserver
+  lazyHeaderSlides.forEach(el => {
+    const bgUrl = el.getAttribute('data-bg');
+    if (bgUrl) el.style.backgroundImage = `url('${bgUrl}')`;
+  });
+}
+
 // =========================================================
 // 6. Airbnb Widget
 // =========================================================
@@ -724,3 +924,4 @@ if (ctaFloating && topSentinel && bottomSentinel) {
   observer.observe(topSentinel);
   observer.observe(bottomSentinel);
 }
+
