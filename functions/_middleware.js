@@ -2,25 +2,24 @@ export async function onRequest(context) {
   const lang = context.request.headers.get("accept-language")?.toLowerCase() || "";
   const url = new URL(context.request.url);
 
-  // ✅ Wenn bereits auf der deutschen Subdomain → nichts tun
+  // Wenn bereits auf der deutschen Subdomain, liefere /de-Version
   if (url.hostname.startsWith("de.")) {
-    return context.next();
+    // Wenn jemand /de/... aufruft, korrigieren wir auf die Root der Subdomain
+    if (url.pathname.startsWith("/de")) {
+      const fixed = `https://de.ferienwohnung-parndorf.at${url.pathname.replace(/^\/de/, "")}`;
+      return Response.redirect(fixed, 301);
+    }
+    return context.next(); // alles andere -> /de/index.html laut _redirects
   }
 
-  // ✅ Wenn die aktuelle Seite bereits manuell /de/... im Pfad hat → auch nichts tun
-  if (url.pathname.startsWith("/de")) {
-    return context.next();
-  }
-
-  // ✅ Wenn Browser-Sprache deutsch → Weiterleitung auf deutsche Subdomain
+  // Wenn Browser deutsch spricht und wir NICHT auf der de.-Subdomain sind:
   if (lang.startsWith("de")) {
-    // Schleifen-Schutz: nur redirecten, wenn NICHT schon auf de.-Domain
     const target = `https://de.ferienwohnung-parndorf.at${url.pathname}`;
     if (url.href !== target) {
       return Response.redirect(target, 302);
     }
   }
 
-  // Standard: englische Seite
+  // Standard: Hauptseite (Englisch)
   return context.next();
 }
