@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Hilfsfunktionen
   const stripExt = s => s ? s.replace(/\.(jpe?g|png|webp)$/i, '') : '';
   const ensureRoot = s => s && s.startsWith('/') ? s : ('/' + s);
+  const IMAGE_BASE_PATH = "/assets/images/";
+
 
   // =========================================================
   // SPRACHEINSTELLUNGEN UND TEXTE
@@ -447,7 +449,7 @@ const resetMetaTags = () => {
 
   currentGalleryImages.forEach((src, idx) => {
     const img = document.createElement("img");
-    img.src = src.startsWith("/") ? src : "/" + src;
+    img.src = src.startsWith("/") ? src : IMAGE_BASE_PATH + src;
     img.alt = stripExt(src);
 
     const originalImg = findOriginalImgByBasename(src);
