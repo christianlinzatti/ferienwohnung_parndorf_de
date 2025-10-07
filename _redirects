@@ -1,3 +1,6 @@
-# Für SPA- oder One-Page-Unterseiten
-/*    /index.html   200
-/de/* /de/index.html 200
+# Subdomain de. → immer /de/index.html
+https://de.ferienwohnung-parndorf.at/*   /de/index.html   200
+
+# Standard-Routing
+/de/*   /de/index.html   200
+/*      /index.html      200
