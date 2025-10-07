@@ -538,15 +538,19 @@ const resetMetaTags = () => {
       }
 
       currentGalleryImages = galleriesActive[galleryKeyRaw].slice();
-      currentGalleryIndex = 0;
 
-      if (imageKeyRaw) {
-        currentGalleryImages = allImages.slice();
-        const matchIndex = currentGalleryImages.findIndex(s => stripExt(s).toLowerCase() === imageKeyRaw.toLowerCase());
-        if (matchIndex >= 0) currentGalleryIndex = matchIndex;
-      }
+      if (!imageKeyRaw) {
+      currentGalleryIndex = 0;
+    } else {
+      // 🧩 Wenn ein Bild angegeben ist (/wohnzimmer/wohnzimmer)
+      const matchIndex = currentGalleryImages.findIndex(
+        s => stripExt(s).toLowerCase() === imageKeyRaw.toLowerCase()
+      );
+      currentGalleryIndex = matchIndex >= 0 ? matchIndex : 0;
+    }
 
       openPhotoPopup();
+      return;
     } else {
       if (photoPopup?.classList.contains('open')) closePhotoPopup(false);
 
