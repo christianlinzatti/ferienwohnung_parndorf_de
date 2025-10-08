@@ -72,33 +72,37 @@ if (url.searchParams.get("debug") === "2") {
   }
 
 async function handleLangSubdomain(lang) {
-  if (!isNavigation) return next();
+    const prefix = `/${lang}`;
 
-  const prefix = `/${lang}`;
-  const path = url.pathname;
-  let candidatePath = "";
+    // 1. Wenn es KEINE Navigations-Anfrage ist (d.h. es ist ein Asset-Request: css, js, image),
+    // soll Pages den Asset-Fetch standardmäßig durchführen.
+    if (!isNavigation) {
+        // VERSUCHE den Asset-Fetch mit Prefix.
+        // Beispiel: Request für de.host/app.js -> /de/app.js
+        const assetResp = await safeFetchAsset(`${prefix}${url.pathname}`);
+        if (assetResp) return assetResp;
 
-  // 1. Pfad normalisieren: / -> /index.html
-  if (path === "/") {
-    candidatePath = `${prefix}/index.html`; // -> Beispiel: /de/index.html
+        // Wenn das Asset mit Prefix nicht existiert, gehe zum Pages-Handler (z.B. für globale Assets /app.js)
+        return next();
+    }
+
+    // 2. Navigations-Anfrage (text/html): Dies ist die eigentliche SPA-Route.
+    // Wir müssen IMMER die Haupt-Index-Datei der entsprechenden Sprache laden.
+
+    // Das ist die tatsächliche physische Datei im Deployment.
+    const spaIndexFile = `${prefix}/index.html`;
+
+    const resp = await safeFetchAsset(spaIndexFile);
+
+    if (resp) {
+      // WICHTIG: Pages serviert die SPA-Datei und das JavaScript übernimmt das Routing
+      return resp;
+    }
+
+    // Fallback: Wenn ASSETS.fetch fehlschlägt (sollte bei korrekter Struktur nicht passieren),
+    // dann übergebe an Cloudflare Pages' Standard-Handler (liefert wahrscheinlich /index.html oder 404).
+    return next();
   }
-  // 2. Pfad ist ein Ordner (z.B. /ueber-uns/) -> /ueber-uns/index.html
-  else if (path.endsWith("/")) {
-    candidatePath = `${prefix}${path}index.html`; // -> Beispiel: /de/ueber-uns/index.html
-  }
-  // 3. Pfad ist eine Datei oder ein Ordner ohne abschließenden Slash (z.B. /bild.jpg oder /ueber-uns)
-  else {
-    candidatePath = `${prefix}${path}`; // -> Beispiel: /de/bild.jpg
-  }
-
-  // Versuche, das Asset explizit abzurufen
-  const resp = await safeFetchAsset(candidatePath);
-
-  if (resp) return resp;
-
-  // Wenn nichts gefunden wird, Fallback auf den Standard-Pages-Handler (sehr wahrscheinlich /index.html)
-  return next();
-}
 
   if (host.startsWith("de.")) return handleLangSubdomain("de");
   if (host.startsWith("en.")) return handleLangSubdomain("en");
