@@ -16,13 +16,22 @@ export async function onRequest(context) {
     }, null, 2), { headers: { "Content-Type": "application/json" }});
   }
 
-  if (url.searchParams.get("debug") === "2") {
-  const r1 = await env.ASSETS.fetch("/de/index.html");
-  const r2 = await env.ASSETS.fetch("/index.html");
-  return new Response(JSON.stringify({
-    deIndex: r1.status,
-    rootIndex: r2.status
-  }), { headers: { "content-type": "application/json" } });
+if (url.searchParams.get("debug") === "2") {
+  let r1Status = "error", r2Status = "error";
+  try {
+    const r1 = await env.ASSETS.fetch("/de/index.html");
+    r1Status = r1 ? r1.status : "null";
+  } catch (e) {
+    r1Status = "exception";
+  }
+  try {
+    const r2 = await env.ASSETS.fetch("/index.html");
+    r2Status = r2 ? r2.status : "null";
+  } catch (e) {
+    r2Status = "exception";
+  }
+  return new Response(JSON.stringify({ deIndex: r1Status, rootIndex: r2Status }, null, 2),
+    { headers: { "content-type": "application/json" } });
 }
 
   // 1) Normalisiere: wenn kein Dateiname und kein Slash -> Slash anfügen
