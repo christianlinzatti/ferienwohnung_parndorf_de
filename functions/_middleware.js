@@ -1,21 +1,20 @@
 export async function onRequest(context) {
   const lang = context.request.headers.get("accept-language")?.toLowerCase() || "";
   const url = new URL(context.request.url);
+  const host = url.hostname;
 
-  // Slash am Ende erzwingen (optional, nur für SEO)
+  // ✅ Slash am Ende erzwingen (aber nur, wenn keine Datei gemeint ist)
   if (!url.pathname.endsWith("/") && !url.pathname.includes(".")) {
     url.pathname += "/";
     return Response.redirect(url.href, 301);
   }
 
-  const host = url.hostname;
-
-  // Wenn bereits auf de. oder en. → nichts tun
+  // ✅ Wenn bereits auf Sprach-Subdomain → keine Umleitung
   if (host.startsWith("de.") || host.startsWith("en.")) {
     return context.next();
   }
 
-  // Sprachweiterleitung nur für Hauptdomain
+  // ✅ Nur Hauptdomain umleiten (ferienwohnung-parndorf.at)
   if (host === "ferienwohnung-parndorf.at" || host === "www.ferienwohnung-parndorf.at") {
     if (lang.startsWith("de")) {
       return Response.redirect(`https://de.ferienwohnung-parndorf.at${url.pathname}`, 302);
@@ -24,6 +23,6 @@ export async function onRequest(context) {
     }
   }
 
-  // Standard: normal weiter
+  // Standardverhalten (sollte nie nötig sein)
   return context.next();
 }
