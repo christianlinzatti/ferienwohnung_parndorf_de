@@ -1,21 +1,6 @@
-# --- Canonical Redirects ---
-https://www.ferienwohnung-parndorf.at/*        https://ferienwohnung-parndorf.at/:splat        301
-https://www.de.ferienwohnung-parndorf.at/*     https://de.ferienwohnung-parndorf.at/:splat     301
-https://www.en.ferienwohnung-parndorf.at/*     https://en.ferienwohnung-parndorf.at/:splat     301
-
-# /index.html → /
-/index.html                                    /                                               301
-/de/index.html                                 /de/                                            301
-/en/index.html                                 /en/                                            301
-
-# Root ohne Slash → mit Slash
-https://ferienwohnung-parndorf.at              https://ferienwohnung-parndorf.at/              301
-https://de.ferienwohnung-parndorf.at           https://de.ferienwohnung-parndorf.at/           301
-https://en.ferienwohnung-parndorf.at           https://en.ferienwohnung-parndorf.at/           301
-
-# --- SPA Routing ---
-https://de.ferienwohnung-parndorf.at/*         /de/index.html                                  200
-https://en.ferienwohnung-parndorf.at/*         /en/index.html                                  200
-/de/*                                          /de/index.html                                  200
-/en/*                                          /en/index.html                                  200
-/*                                              /index.html                                    200
+/index.html             /                             301
+/de/index.html          /de/                          301
+/en/index.html          /en/                          301
+/de/*                   /de/index.html                200
+/en/*                   /en/index.html                200
+/*                     /index.html                   200
