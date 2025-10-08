@@ -16,6 +16,15 @@ export async function onRequest(context) {
     }, null, 2), { headers: { "Content-Type": "application/json" }});
   }
 
+  if (url.searchParams.get("debug") === "2") {
+  const r1 = await env.ASSETS.fetch("/de/index.html");
+  const r2 = await env.ASSETS.fetch("/index.html");
+  return new Response(JSON.stringify({
+    deIndex: r1.status,
+    rootIndex: r2.status
+  }), { headers: { "content-type": "application/json" } });
+}
+
   // 1) Normalisiere: wenn kein Dateiname und kein Slash -> Slash anfügen
   if (!url.pathname.endsWith("/") && !url.pathname.includes(".")) {
     url.pathname += "/";
