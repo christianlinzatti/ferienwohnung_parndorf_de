@@ -1,9 +1,3 @@
-# --- Canonical cleanup ---
-/index.html   /       301
-/de/index.html /de/   301
-/en/index.html /en/   301
-
-# --- SPA / directory rewrites ---
 /de/*  /de/index.html  200
 /en/*  /en/index.html  200
 /*     /index.html     200
