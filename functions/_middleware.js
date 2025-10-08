@@ -16,22 +16,7 @@ export async function onRequest(context) {
     }, null, 2), { headers: { "Content-Type": "application/json" }});
   }
 
- // NEUER Debug 2 (Nur zum Testen)
-if (url.searchParams.get("debug") === "2") {
-    const internalUrl = new URL(request.url);
-    internalUrl.hostname = host.replace("de.", "").replace("en.", ""); // Stelle sicher, dass du die Root-URL verwendest
-
-    let r1Status = "error";
-    internalUrl.pathname = "/de/index.html";
-    try {
-        const r1 = await fetch(internalUrl.toString());
-        r1Status = r1.status;
-    } catch (e) {
-        r1Status = "exception_fetch";
-    }
-    return new Response(JSON.stringify({ deIndexFetch: r1Status }, null, 2),
-      { headers: { "content-type": "application/json" } });
-}
+  // Debug 2 wird entfernt, da env.ASSETS.fetch eine Exception wirft.
 
   // 1) Normalisiere: wenn kein Dateiname und kein Slash -> Slash anfügen
   if (!url.pathname.endsWith("/") && !url.pathname.includes(".")) {
@@ -42,7 +27,7 @@ if (url.searchParams.get("debug") === "2") {
   // 2) Bot-Erkennung
   const isBot = /(bot|crawl|spider|slurp|bing|yandex|duckduckgo|baiduspider|sogou)/i.test(ua);
 
-  // Helper: sichere Asset-Fetches (fängt Fehler)
+  // Helper: sichere Asset-Fetches (Beibehalten, aber wird in der Hauptlogik vermieden)
   async function safeFetchAsset(path) {
     if (!env || !env.ASSETS || typeof env.ASSETS.fetch !== "function") {
       console.error("safeFetchAsset: ASSETS binding missing");
@@ -50,9 +35,11 @@ if (url.searchParams.get("debug") === "2") {
     }
     try {
       const resp = await env.ASSETS.fetch(path);
+      // Wir suchen nach der Datei selbst, 404 bedeutet, sie existiert nicht.
       if (resp && resp.status !== 404) return resp;
       return null;
     } catch (err) {
+      // WICHTIG: Die Exception ist das Problem. Wir fangen sie, aber vermeiden den Aufruf später.
       console.error("safeFetchAsset: env.ASSETS.fetch failed for", path, err);
       return null;
     }
@@ -65,55 +52,47 @@ if (url.searchParams.get("debug") === "2") {
   if (host === "ferienwohnung-parndorf.at" || host === "www.ferienwohnung-parndorf.at") {
     if (!isBot && isNavigation) {
       const target = primaryLang === "de" ? "de.ferienwohnung-parndorf.at" : "en.ferienwohnung-parndorf.at";
-      // Verwende 302 für Sprache, damit Browser die Sprache bei Änderungen neu prüfen
       return Response.redirect(`https://${target}${url.pathname}`, 302);
     }
     // Bots oder nicht-Navigation-Requests gehen an next() und Pages serviert Root-Inhalt
     return next();
   }
 
-  // 4) Handler für Subdomains (Minimalistisches SPA-Fallback)
+  // 4) Handler für Subdomains (Rewrite-Strategie für SPA)
   async function handleLangSubdomain(lang) {
     const prefix = `/${lang}`;
 
-    // WICHTIG: Assets (JS/CSS/Bilder) übergeben wir IMMER an Cloudflare Pages.
-    // Sie sollen ohne Prefix geladen werden (z.B. /app.js).
+    // WICHTIG: Assets (JS/CSS/Bilder) übergeben wir IMMER an Pages.
+    // Sie müssen ohne Prefix geladen werden (z.B. /app.js).
     if (!isNavigation) {
       return next();
     }
 
-    // 1. Ziel-Pfad der SPA-Index-Datei definieren.
+    // Für Navigationsanfragen (SPA-Routing):
+    // Da wir die ASSETS-Exception haben, können wir die Datei nicht direkt laden.
+    // Wir nutzen das Pages-interne Rewrite, um den korrekten Pfad zu erzwingen.
+
+    // 1. Ziel-Pfad der SPA-Index-Datei definieren: /de/index.html
     const spaIndexFile = `${prefix}/index.html`;
 
-    // 2. Interne URL für den Fetch erstellen: Nutze den eigenen Host und den korrigierten Pfad.
-    // Beispiel: https://de.ferienwohnung-parndorf.at/de/index.html
-    // WICHTIG: Hier verwenden wir NICHT env.ASSETS, sondern den globalen fetch.
-    const internalUrl = new URL(request.url);
-    internalUrl.pathname = spaIndexFile;
+    // 2. Erstelle eine URL, die nur auf die Index-Datei zeigt, unabhängig vom aktuellen Pfad.
+    const rewriteUrl = new URL(request.url);
 
-    try {
-      // 3. Datei intern fetchen. Dies sollte die Asset-Exception umgehen.
-      const resp = await fetch(internalUrl.toString(), {
-        // Option, um interne Anfragen an den Pages Origin zu senden.
-        // Das kann notwendig sein, um Caching oder interne Regeln zu umgehen.
-        cf: { host: url.hostname }
-      });
+    // WICHTIG: Pages' SPA-Logik benötigt den Ordner-Pfad, um korrekt zu routen.
+    // Wir müssen den Pfad zu /de/ (oder /en/) umschreiben, damit Pages das /de/index.html findet.
+    // Jede Navigationsanfrage auf der Subdomain MUSS auf /lang/index.html umschreiben,
+    // aber wir probieren zuerst den reinen Ordner-Rewrite.
 
-      if (resp.ok || resp.status === 404) {
-        // Wenn erfolgreich oder 404, senden wir die Antwort zurück.
-        // Bei 404 kann Pages ggf. den Standard-Fallback (Root /index.html) verwenden.
-        // Wenn die Datei existiert (200), wird sie direkt geliefert.
-        return resp;
-      }
+    // Rewrite auf /de/ oder /en/ (der Ordner, der die index.html enthält)
+    rewriteUrl.pathname = prefix + "/"; // Beispiel: /de/
 
-    } catch (e) {
-      console.error(`Direkt-Fetch für ${spaIndexFile} auf ${internalUrl.toString()} fehlgeschlagen:`, e);
-      // Im Falle eines Fehlers muss der Worker an Pages übergeben.
-      return next();
-    }
+    // Erstelle eine neue Anfrage mit dem umgeschriebenen Pfad.
+    // Dies sollte Pages zwingen, den SPA-Fallback für den /de/ Ordner zu triggern.
+    const modifiedRequest = new Request(rewriteUrl.toString(), request);
 
-    // Fallback auf Pages, wenn Fetch fehlschlägt
-    return next();
+    // Übergib die modifizierte Anfrage an den nächsten Handler (Cloudflare Pages).
+    // Pages sieht die Anfrage als "de.host/de/" und serviert /de/index.html (SPA Fallback).
+    return next(modifiedRequest);
   }
 
   // Hier wird die Logik angewendet:
@@ -124,4 +103,6 @@ if (url.searchParams.get("debug") === "2") {
     return handleLangSubdomain("en");
   }
 
-// Die schließende Klammer } gehört zu "export async function onRequest(context) {"
+  // Fallback
+  return next();
+}
