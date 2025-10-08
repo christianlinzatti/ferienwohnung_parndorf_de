@@ -60,16 +60,58 @@ if (url.searchParams.get("debug") === "2") {
   }
 
   // Robustes Parsing des bevorzugten Spracheintrags
-  const primaryLang = (langHeader.split(",")[0] || "").split(";")[0].trim().split("-")[0];
+    const primaryLang = (langHeader.split(",")[0] || "").split(";")[0].trim().split("-")[0];
 
   // 3) Root domain -> redirect je nach Browser-Sprache (Bots bleiben auf Root)
   if (host === "ferienwohnung-parndorf.at" || host === "www.ferienwohnung-parndorf.at") {
     if (!isBot && isNavigation) {
       const target = primaryLang === "de" ? "de.ferienwohnung-parndorf.at" : "en.ferienwohnung-parndorf.at";
+      // Verwende 302 für Sprache, damit Browser die Sprache bei Änderungen neu prüfen
       return Response.redirect(`https://${target}${url.pathname}`, 302);
     }
+    // Bots oder nicht-Navigation-Requests gehen an next() und Pages serviert Root-Inhalt
     return next();
   }
+
+  // 4) Handler für Subdomains (Minimalistisches SPA-Fallback)
+  async function handleLangSubdomain(lang) {
+    if (!isNavigation) {
+      // WICHTIG: Assets (JS/CSS/Bilder) übergeben wir IMMER an Cloudflare Pages.
+      // Pages ist besser darin, Pfade aufzulösen (z.B. /bild.jpg oder /de/bild.jpg).
+      return next();
+    }
+
+    // Für Navigationsanfragen (SPA-Routing):
+
+    // Die physische Datei, die immer geladen werden muss (unabhängig von der URL).
+    const spaIndexFile = `/${lang}/index.html`;
+
+    // Teste den Asset-Fetch nur für die Index-Datei.
+    const resp = await safeFetchAsset(spaIndexFile);
+
+    if (resp) {
+      // Wenn gefunden, liefere die Index-Datei aus.
+      return resp;
+    }
+
+    // Fallback: Sollte nur bei Fehlkonfiguration des ASSETS Bindings eintreten.
+    console.error(`SPA Index ${spaIndexFile} konnte nicht geladen werden.`)
+    return next();
+  }
+
+  // Hier wird die Logik angewendet:
+  if (host.startsWith("de.")) {
+    // Erzwinge /de/index.html für alle Routen auf der de. Subdomain
+    return handleLangSubdomain("de");
+  }
+  if (host.startsWith("en.")) {
+    // Erzwinge /en/index.html für alle Routen auf der en. Subdomain
+    return handleLangSubdomain("en");
+  }
+
+  // Fallback
+  return next();
+}
 
 async function handleLangSubdomain(lang) {
     const prefix = `/${lang}`;
