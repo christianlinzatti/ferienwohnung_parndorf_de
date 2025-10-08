@@ -1,11 +1,9 @@
-# Remove /index.html from URLs
-/index.html / 301
-/de/index.html /de/ 301
-/en/index.html /en/ 301
+# --- Canonical cleanup ---
+/index.html   /       301
+/de/index.html /de/   301
+/en/index.html /en/   301
 
-# Language subdirectories
-/de/* /de/index.html 200!
-/en/* /en/index.html 200!
-
-# Default fallback
-/* /index.html 200!
+# --- SPA / directory rewrites ---
+/de/*  /de/index.html  200
+/en/*  /en/index.html  200
+/*     /index.html     200
