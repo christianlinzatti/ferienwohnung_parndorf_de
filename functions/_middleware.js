@@ -16,23 +16,22 @@ export async function onRequest(context) {
     }, null, 2), { headers: { "Content-Type": "application/json" }});
   }
 
-  if (url.searchParams.get("debug") === "2") {
-    let r1Status = "error", r2Status = "error";
+ // NEUER Debug 2 (Nur zum Testen)
+if (url.searchParams.get("debug") === "2") {
+    const internalUrl = new URL(request.url);
+    internalUrl.hostname = host.replace("de.", "").replace("en.", ""); // Stelle sicher, dass du die Root-URL verwendest
+
+    let r1Status = "error";
+    internalUrl.pathname = "/de/index.html";
     try {
-      const r1 = await env.ASSETS.fetch("/de/index.html");
-      r1Status = r1 ? r1.status : "null";
+        const r1 = await fetch(internalUrl.toString());
+        r1Status = r1.status;
     } catch (e) {
-      r1Status = "exception";
+        r1Status = "exception_fetch";
     }
-    try {
-      const r2 = await env.ASSETS.fetch("/index.html");
-      r2Status = r2 ? r2.status : "null";
-    } catch (e) {
-      r2Status = "exception";
-    }
-    return new Response(JSON.stringify({ deIndex: r1Status, rootIndex: r2Status }, null, 2),
+    return new Response(JSON.stringify({ deIndexFetch: r1Status }, null, 2),
       { headers: { "content-type": "application/json" } });
-  }
+}
 
   // 1) Normalisiere: wenn kein Dateiname und kein Slash -> Slash anfügen
   if (!url.pathname.endsWith("/") && !url.pathname.includes(".")) {
@@ -74,33 +73,47 @@ export async function onRequest(context) {
   }
 
   // 4) Handler für Subdomains (Minimalistisches SPA-Fallback)
-async function handleLangSubdomain(lang) {
+  async function handleLangSubdomain(lang) {
     const prefix = `/${lang}`;
 
     // WICHTIG: Assets (JS/CSS/Bilder) übergeben wir IMMER an Cloudflare Pages.
-    // Die Basis-Assets liegen nicht unter /de/ oder /en/ und sollen standardmäßig geladen werden.
+    // Sie sollen ohne Prefix geladen werden (z.B. /app.js).
     if (!isNavigation) {
       return next();
     }
 
-    // Für Navigationsanfragen (SPA-Routing):
-    // Wenn der Pfad bereits mit dem Prefix beginnt, lassen wir die Anfrage durch Pages auflösen.
-    // Das dient zur Sicherheit, obwohl es theoretisch nicht passieren sollte.
-    if (url.pathname.startsWith(prefix)) {
-        return next();
+    // 1. Ziel-Pfad der SPA-Index-Datei definieren.
+    const spaIndexFile = `${prefix}/index.html`;
+
+    // 2. Interne URL für den Fetch erstellen: Nutze den eigenen Host und den korrigierten Pfad.
+    // Beispiel: https://de.ferienwohnung-parndorf.at/de/index.html
+    // WICHTIG: Hier verwenden wir NICHT env.ASSETS, sondern den globalen fetch.
+    const internalUrl = new URL(request.url);
+    internalUrl.pathname = spaIndexFile;
+
+    try {
+      // 3. Datei intern fetchen. Dies sollte die Asset-Exception umgehen.
+      const resp = await fetch(internalUrl.toString(), {
+        // Option, um interne Anfragen an den Pages Origin zu senden.
+        // Das kann notwendig sein, um Caching oder interne Regeln zu umgehen.
+        cf: { host: url.hostname }
+      });
+
+      if (resp.ok || resp.status === 404) {
+        // Wenn erfolgreich oder 404, senden wir die Antwort zurück.
+        // Bei 404 kann Pages ggf. den Standard-Fallback (Root /index.html) verwenden.
+        // Wenn die Datei existiert (200), wird sie direkt geliefert.
+        return resp;
+      }
+
+    } catch (e) {
+      console.error(`Direkt-Fetch für ${spaIndexFile} auf ${internalUrl.toString()} fehlgeschlagen:`, e);
+      // Im Falle eines Fehlers muss der Worker an Pages übergeben.
+      return next();
     }
 
-    // URL Rewrite: Ändere den internen Pfad, OHNE den Browser umzuleiten.
-    // Beispiel: /ueber-uns wird zu /de/ueber-uns
-    const rewriteUrl = new URL(request.url);
-    rewriteUrl.pathname = `${prefix}${url.pathname}`;
-
-    // Erstelle eine neue Anfrage mit dem umgeschriebenen Pfad.
-    const modifiedRequest = new Request(rewriteUrl.toString(), request);
-
-    // Übergib die modifizierte Anfrage an den nächsten Handler (Cloudflare Pages).
-    // Pages wird die Datei /de/index.html servieren, da es sich um eine SPA handelt.
-    return next(modifiedRequest);
+    // Fallback auf Pages, wenn Fetch fehlschlägt
+    return next();
   }
 
   // Hier wird die Logik angewendet:
@@ -111,7 +124,4 @@ async function handleLangSubdomain(lang) {
     return handleLangSubdomain("en");
   }
 
-  // Fallback
-  return next();
-}
 // Die schließende Klammer } gehört zu "export async function onRequest(context) {"
