@@ -75,35 +75,34 @@ export async function onRequest(context) {
 
   // 4) Handler für Subdomains (Minimalistisches SPA-Fallback)
   async function handleLangSubdomain(lang) {
+    const prefix = `/${lang}`;
+
+    // WICHTIG: Assets (JS/CSS/Bilder) übergeben wir IMMER an Cloudflare Pages.
     if (!isNavigation) {
-      // WICHTIG: Assets (JS/CSS/Bilder) übergeben wir IMMER an Cloudflare Pages.
       return next();
     }
 
-    // Für Navigationsanfragen (SPA-Routing):
-    // Die physische Datei, die immer geladen werden muss (unabhängig von der URL).
-    const spaIndexFile = `/${lang}/index.html`;
-
-    // Teste den Asset-Fetch nur für die Index-Datei.
-    const resp = await safeFetchAsset(spaIndexFile);
-
-    if (resp) {
-      // Wenn gefunden, liefere die Index-Datei aus.
-      return resp;
+    // Wenn der Pfad bereits mit dem Prefix beginnt, lassen wir ihn durch Pages auflösen.
+    // Das sollte nicht passieren, da die Subdomain das Prefix impliziert.
+    if (url.pathname.startsWith(prefix)) {
+        return next();
     }
 
-    // Fallback: Sollte nur bei Fehlkonfiguration des ASSETS Bindings eintreten.
-    console.error(`SPA Index ${spaIndexFile} konnte nicht geladen werden.`)
-    return next();
+    // Für Navigationsanfragen (SPA-Routing):
+    // Wir bauen einen neuen internen Pfad (z.B. /de/seite-a) und leiten den Browser dorthin um (301).
+    url.pathname = `${prefix}${url.pathname}`;
+
+    // Verwende einen 301, um Pages zu zwingen, die neue Pfadstruktur zu verwenden.
+    // Dies löst den Load der SPA-Datei /de/index.html indirekt über Pages' Routing aus.
+    // NOTE: Das Ziel ist NICHT die externe URL, sondern ein interner Pfad, der die korrekte Seite lädt.
+    return Response.redirect(url.href, 301);
   }
 
   // Hier wird die Logik angewendet:
   if (host.startsWith("de.")) {
-    // Erzwinge /de/index.html für alle Routen auf der de. Subdomain
     return handleLangSubdomain("de");
   }
   if (host.startsWith("en.")) {
-    // Erzwinge /en/index.html für alle Routen auf der en. Subdomain
     return handleLangSubdomain("en");
   }
 
