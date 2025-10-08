@@ -74,28 +74,33 @@ export async function onRequest(context) {
   }
 
   // 4) Handler für Subdomains (Minimalistisches SPA-Fallback)
-  async function handleLangSubdomain(lang) {
+async function handleLangSubdomain(lang) {
     const prefix = `/${lang}`;
 
     // WICHTIG: Assets (JS/CSS/Bilder) übergeben wir IMMER an Cloudflare Pages.
+    // Die Basis-Assets liegen nicht unter /de/ oder /en/ und sollen standardmäßig geladen werden.
     if (!isNavigation) {
       return next();
     }
 
-    // Wenn der Pfad bereits mit dem Prefix beginnt, lassen wir ihn durch Pages auflösen.
-    // Das sollte nicht passieren, da die Subdomain das Prefix impliziert.
+    // Für Navigationsanfragen (SPA-Routing):
+    // Wenn der Pfad bereits mit dem Prefix beginnt, lassen wir die Anfrage durch Pages auflösen.
+    // Das dient zur Sicherheit, obwohl es theoretisch nicht passieren sollte.
     if (url.pathname.startsWith(prefix)) {
         return next();
     }
 
-    // Für Navigationsanfragen (SPA-Routing):
-    // Wir bauen einen neuen internen Pfad (z.B. /de/seite-a) und leiten den Browser dorthin um (301).
-    url.pathname = `${prefix}${url.pathname}`;
+    // URL Rewrite: Ändere den internen Pfad, OHNE den Browser umzuleiten.
+    // Beispiel: /ueber-uns wird zu /de/ueber-uns
+    const rewriteUrl = new URL(request.url);
+    rewriteUrl.pathname = `${prefix}${url.pathname}`;
 
-    // Verwende einen 301, um Pages zu zwingen, die neue Pfadstruktur zu verwenden.
-    // Dies löst den Load der SPA-Datei /de/index.html indirekt über Pages' Routing aus.
-    // NOTE: Das Ziel ist NICHT die externe URL, sondern ein interner Pfad, der die korrekte Seite lädt.
-    return Response.redirect(url.href, 301);
+    // Erstelle eine neue Anfrage mit dem umgeschriebenen Pfad.
+    const modifiedRequest = new Request(rewriteUrl.toString(), request);
+
+    // Übergib die modifizierte Anfrage an den nächsten Handler (Cloudflare Pages).
+    // Pages wird die Datei /de/index.html servieren, da es sich um eine SPA handelt.
+    return next(modifiedRequest);
   }
 
   // Hier wird die Logik angewendet:
