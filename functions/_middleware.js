@@ -71,17 +71,34 @@ if (url.searchParams.get("debug") === "2") {
     return next();
   }
 
-  // 4) Handler für Subdomains (vermeidet doppeltes Prefix)
-  async function handleLangSubdomain(lang) {
-    if (!isNavigation) return next(); // Asset (css/js/image) requests weiterreichen
-    const prefix = `/${lang}`;
-    const candidate = url.pathname.startsWith(prefix) ? url.pathname : `${prefix}${url.pathname}`;
-    // Versuche candidate, dann index fallback
-    const resp = await safeFetchAsset(candidate) || await safeFetchAsset(`${prefix}/`);
-    if (resp) return resp;
-    // Wenn nichts gefunden oder ASSETS fehlt → next() (Pages serviert normal)
-    return next();
+async function handleLangSubdomain(lang) {
+  if (!isNavigation) return next();
+
+  const prefix = `/${lang}`;
+  const path = url.pathname;
+  let candidatePath = "";
+
+  // 1. Pfad normalisieren: / -> /index.html
+  if (path === "/") {
+    candidatePath = `${prefix}/index.html`; // -> Beispiel: /de/index.html
   }
+  // 2. Pfad ist ein Ordner (z.B. /ueber-uns/) -> /ueber-uns/index.html
+  else if (path.endsWith("/")) {
+    candidatePath = `${prefix}${path}index.html`; // -> Beispiel: /de/ueber-uns/index.html
+  }
+  // 3. Pfad ist eine Datei oder ein Ordner ohne abschließenden Slash (z.B. /bild.jpg oder /ueber-uns)
+  else {
+    candidatePath = `${prefix}${path}`; // -> Beispiel: /de/bild.jpg
+  }
+
+  // Versuche, das Asset explizit abzurufen
+  const resp = await safeFetchAsset(candidatePath);
+
+  if (resp) return resp;
+
+  // Wenn nichts gefunden wird, Fallback auf den Standard-Pages-Handler (sehr wahrscheinlich /index.html)
+  return next();
+}
 
   if (host.startsWith("de.")) return handleLangSubdomain("de");
   if (host.startsWith("en.")) return handleLangSubdomain("en");
