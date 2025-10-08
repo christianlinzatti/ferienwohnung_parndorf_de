@@ -60,38 +60,22 @@ export async function onRequest(context) {
 
   // 4) Handler für Subdomains (Rewrite-Strategie für SPA)
   async function handleLangSubdomain(lang) {
-    const prefix = `/${lang}`;
-
-    // WICHTIG: Assets (JS/CSS/Bilder) übergeben wir IMMER an Pages.
-    // Sie müssen ohne Prefix geladen werden (z.B. /app.js).
+    // Assets (JS/CSS/Bilder etc.) werden direkt durchgelassen.
+    // Das !isNavigation prüft, ob es sich um eine Seitenanfrage handelt.
     if (!isNavigation) {
       return next();
     }
 
-    // Für Navigationsanfragen (SPA-Routing):
-    // Da wir die ASSETS-Exception haben, können wir die Datei nicht direkt laden.
-    // Wir nutzen das Pages-interne Rewrite, um den korrekten Pfad zu erzwingen.
+    // Für Navigationsanfragen (der eigentliche Seitenaufruf):
+    // Wir bauen eine neue URL, die direkt auf die richtige index.html im Unterordner zeigt.
+    const targetPath = `/${lang}/index.html`;
+    const rewriteUrl = new URL(targetPath, request.url);
 
-    // 1. Ziel-Pfad der SPA-Index-Datei definieren: /de/index.html
-    const spaIndexFile = `${prefix}/index.html`;
-
-    // 2. Erstelle eine URL, die nur auf die Index-Datei zeigt, unabhängig vom aktuellen Pfad.
-    const rewriteUrl = new URL(request.url);
-
-    // WICHTIG: Pages' SPA-Logik benötigt den Ordner-Pfad, um korrekt zu routen.
-    // Wir müssen den Pfad zu /de/ (oder /en/) umschreiben, damit Pages das /de/index.html findet.
-    // Jede Navigationsanfrage auf der Subdomain MUSS auf /lang/index.html umschreiben,
-    // aber wir probieren zuerst den reinen Ordner-Rewrite.
-
-    // Rewrite auf /de/ oder /en/ (der Ordner, der die index.html enthält)
-    rewriteUrl.pathname = prefix + "/"; // Beispiel: /de/
-
-    // Erstelle eine neue Anfrage mit dem umgeschriebenen Pfad.
-    // Dies sollte Pages zwingen, den SPA-Fallback für den /de/ Ordner zu triggern.
+    // Erstelle eine neue Anfrage mit der umgeschriebenen URL.
+    // Cloudflare Pages erhält nun eine explizite Anweisung, welche Datei zu laden ist.
     const modifiedRequest = new Request(rewriteUrl.toString(), request);
 
     // Übergib die modifizierte Anfrage an den nächsten Handler (Cloudflare Pages).
-    // Pages sieht die Anfrage als "de.host/de/" und serviert /de/index.html (SPA Fallback).
     return next(modifiedRequest);
   }
 
