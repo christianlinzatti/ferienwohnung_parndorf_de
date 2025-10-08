@@ -16,23 +16,23 @@ export async function onRequest(context) {
     }, null, 2), { headers: { "Content-Type": "application/json" }});
   }
 
-if (url.searchParams.get("debug") === "2") {
-  let r1Status = "error", r2Status = "error";
-  try {
-    const r1 = await env.ASSETS.fetch("/de/index.html");
-    r1Status = r1 ? r1.status : "null";
-  } catch (e) {
-    r1Status = "exception";
+  if (url.searchParams.get("debug") === "2") {
+    let r1Status = "error", r2Status = "error";
+    try {
+      const r1 = await env.ASSETS.fetch("/de/index.html");
+      r1Status = r1 ? r1.status : "null";
+    } catch (e) {
+      r1Status = "exception";
+    }
+    try {
+      const r2 = await env.ASSETS.fetch("/index.html");
+      r2Status = r2 ? r2.status : "null";
+    } catch (e) {
+      r2Status = "exception";
+    }
+    return new Response(JSON.stringify({ deIndex: r1Status, rootIndex: r2Status }, null, 2),
+      { headers: { "content-type": "application/json" } });
   }
-  try {
-    const r2 = await env.ASSETS.fetch("/index.html");
-    r2Status = r2 ? r2.status : "null";
-  } catch (e) {
-    r2Status = "exception";
-  }
-  return new Response(JSON.stringify({ deIndex: r1Status, rootIndex: r2Status }, null, 2),
-    { headers: { "content-type": "application/json" } });
-}
 
   // 1) Normalisiere: wenn kein Dateiname und kein Slash -> Slash anfügen
   if (!url.pathname.endsWith("/") && !url.pathname.includes(".")) {
@@ -60,7 +60,7 @@ if (url.searchParams.get("debug") === "2") {
   }
 
   // Robustes Parsing des bevorzugten Spracheintrags
-    const primaryLang = (langHeader.split(",")[0] || "").split(";")[0].trim().split("-")[0];
+  const primaryLang = (langHeader.split(",")[0] || "").split(";")[0].trim().split("-")[0];
 
   // 3) Root domain -> redirect je nach Browser-Sprache (Bots bleiben auf Root)
   if (host === "ferienwohnung-parndorf.at" || host === "www.ferienwohnung-parndorf.at") {
@@ -77,12 +77,10 @@ if (url.searchParams.get("debug") === "2") {
   async function handleLangSubdomain(lang) {
     if (!isNavigation) {
       // WICHTIG: Assets (JS/CSS/Bilder) übergeben wir IMMER an Cloudflare Pages.
-      // Pages ist besser darin, Pfade aufzulösen (z.B. /bild.jpg oder /de/bild.jpg).
       return next();
     }
 
     // Für Navigationsanfragen (SPA-Routing):
-
     // Die physische Datei, die immer geladen werden muss (unabhängig von der URL).
     const spaIndexFile = `/${lang}/index.html`;
 
@@ -112,43 +110,4 @@ if (url.searchParams.get("debug") === "2") {
   // Fallback
   return next();
 }
-
-async function handleLangSubdomain(lang) {
-    const prefix = `/${lang}`;
-
-    // 1. Wenn es KEINE Navigations-Anfrage ist (d.h. es ist ein Asset-Request: css, js, image),
-    // soll Pages den Asset-Fetch standardmäßig durchführen.
-    if (!isNavigation) {
-        // VERSUCHE den Asset-Fetch mit Prefix.
-        // Beispiel: Request für de.host/app.js -> /de/app.js
-        const assetResp = await safeFetchAsset(`${prefix}${url.pathname}`);
-        if (assetResp) return assetResp;
-
-        // Wenn das Asset mit Prefix nicht existiert, gehe zum Pages-Handler (z.B. für globale Assets /app.js)
-        return next();
-    }
-
-    // 2. Navigations-Anfrage (text/html): Dies ist die eigentliche SPA-Route.
-    // Wir müssen IMMER die Haupt-Index-Datei der entsprechenden Sprache laden.
-
-    // Das ist die tatsächliche physische Datei im Deployment.
-    const spaIndexFile = `${prefix}/index.html`;
-
-    const resp = await safeFetchAsset(spaIndexFile);
-
-    if (resp) {
-      // WICHTIG: Pages serviert die SPA-Datei und das JavaScript übernimmt das Routing
-      return resp;
-    }
-
-    // Fallback: Wenn ASSETS.fetch fehlschlägt (sollte bei korrekter Struktur nicht passieren),
-    // dann übergebe an Cloudflare Pages' Standard-Handler (liefert wahrscheinlich /index.html oder 404).
-    return next();
-  }
-
-  if (host.startsWith("de.")) return handleLangSubdomain("de");
-  if (host.startsWith("en.")) return handleLangSubdomain("en");
-
-  // Fallback
-  return next();
-}
+// Die schließende Klammer } gehört zu "export async function onRequest(context) {"
