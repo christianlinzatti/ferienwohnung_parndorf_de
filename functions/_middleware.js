@@ -1,3 +1,4 @@
+// functions/_middleware.js
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
@@ -16,7 +17,7 @@ export async function onRequest(context) {
     return Response.redirect(url.href, 301);
   }
 
-  // 2️⃣ Rootdomain → Sprachweiterleitung (außer Bots)
+  // 2️⃣ Rootdomain → Sprachweiterleitung
   if (host === "ferienwohnung-parndorf.at" || host === "www.ferienwohnung-parndorf.at") {
     if (!isBot && isNavigation) {
       const isGerman = /\bde\b/.test(langHeader);
@@ -28,23 +29,20 @@ export async function onRequest(context) {
     return context.next();
   }
 
-  // 3️⃣ Sprach-Subdomains: Dateien korrekt laden
+  // 3️⃣ Sprach-Subdomains: Dateien intern aus /de oder /en holen,
+  //     aber URL unverändert lassen
   const serveLang = async (langFolder) => {
-    let path = url.pathname;
+    let internalPath = url.pathname;
 
-    // doppelte Präfixe vermeiden
-    if (path.startsWith(`/${langFolder}/`)) {
-      path = path.replace(`/${langFolder}`, "");
+    // Für die Subdomain / nur die index.html aus dem Sprachordner laden
+    if (internalPath === "/" || internalPath === "") {
+      internalPath = "/index.html";
     }
 
-    // Root oder leer → index.html
-    if (path === "/" || path === "") {
-      path = "/index.html";
-    }
-
-    const fileUrl = new URL(`/${langFolder}${path}`, url.origin);
+    const fileUrl = new URL(`/${langFolder}${internalPath}`, url.origin);
     const resp = await env.ASSETS.fetch(fileUrl);
 
+    // Fallback auf index.html, falls Seite fehlt
     if (resp.status === 404) {
       const fallbackUrl = new URL(`/${langFolder}/index.html`, url.origin);
       return env.ASSETS.fetch(fallbackUrl);
