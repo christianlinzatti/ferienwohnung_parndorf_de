@@ -8,48 +8,41 @@ export async function onRequest(context) {
   const isBot = /(bot|crawl|spider|slurp|bing|yandex|duckduckgo|baiduspider|sogou|google)/i.test(ua);
   const isNavigation = request.headers.get("accept")?.includes("text/html");
 
-  // --- 1️⃣ Rootdomain → Sprachweiterleitung (außer Bots)
+  // --- 1️⃣ Rootdomain → Sprachbasierte Weiterleitung
   if (host === "ferienwohnung-parndorf.at" || host === "www.ferienwohnung-parndorf.at") {
     if (!isBot && isNavigation) {
       const isGerman = /\bde\b/.test(langHeader);
       const target = isGerman
         ? "de.ferienwohnung-parndorf.at"
         : "en.ferienwohnung-parndorf.at";
-      return Response.redirect(`https://${target}${url.pathname}`, 302);
+
+      // Immer zur Subdomain-Root weiterleiten
+      return Response.redirect(`https://${target}/`, 301);
     }
-    // Bots sehen die normale Startseite (für SEO / Backlinks)
+    // Bots dürfen Root-Domain sehen (SEO)
     return env.ASSETS.fetch(request);
   }
 
-  // --- 2️⃣ Deutsche Subdomain: direkt /index.html im Root ausliefern
+  // --- 2️⃣ Deutsche Subdomain: Root-Dateien laden
   if (host.startsWith("de.")) {
-    // Alles direkt aus dem Hauptverzeichnis laden
-    const fileUrl = new URL(url.pathname, url.origin);
-    const resp = await env.ASSETS.fetch(fileUrl);
-
-    // Fallback auf index.html
+    const resp = await env.ASSETS.fetch(new URL(url.pathname, url.origin));
     if (resp.status === 404) {
-      const fallbackUrl = new URL("/index.html", url.origin);
-      return env.ASSETS.fetch(fallbackUrl);
+      return env.ASSETS.fetch(new URL("/index.html", url.origin));
     }
     return resp;
   }
 
-  // --- 3️⃣ Englische Subdomain: /en/...-Ordner ausliefern
+  // --- 3️⃣ Englische Subdomain: /en/...-Ordner laden
   if (host.startsWith("en.")) {
     let path = url.pathname;
     if (path === "/" || path === "") path = "/index.html";
-
-    const fileUrl = new URL(`/en${path}`, url.origin);
-    const resp = await env.ASSETS.fetch(fileUrl);
-
+    const resp = await env.ASSETS.fetch(new URL(`/en${path}`, url.origin));
     if (resp.status === 404) {
-      const fallbackUrl = new URL("/en/index.html", url.origin);
-      return env.ASSETS.fetch(fallbackUrl);
+      return env.ASSETS.fetch(new URL("/en/index.html", url.origin));
     }
     return resp;
   }
 
-  // --- 4️⃣ Default: normale Auslieferung
+  // --- 4️⃣ Standard: normale Auslieferung
   return env.ASSETS.fetch(request);
 }
