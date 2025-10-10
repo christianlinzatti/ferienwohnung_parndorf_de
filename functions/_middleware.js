@@ -8,7 +8,7 @@ export async function onRequest(context) {
   const isBot = /(bot|crawl|spider|slurp|bing|yandex|duckduckgo|baiduspider|sogou|google)/i.test(ua);
   const isNavigation = request.headers.get("accept")?.includes("text/html");
 
-  // --- 1️⃣ Rootdomain → Weiterleitung je nach Sprache
+  // --- 1️⃣ Rootdomain → Weiterleitung anhand Sprache
   if (host === "ferienwohnung-parndorf.at" || host === "www.ferienwohnung-parndorf.at") {
     if (!isBot && isNavigation) {
       const isGerman = /(de|de-at|de-de|de-ch)/i.test(langHeader);
@@ -17,23 +17,28 @@ export async function onRequest(context) {
         : "https://en.ferienwohnung-parndorf.at/";
       return Response.redirect(target, 302);
     }
-    // Bots sehen normale Rootseite (für SEO)
     return env.ASSETS.fetch(request);
   }
 
-  // --- 2️⃣ Deutsche Subdomain → statische Auslieferung
+  // --- 2️⃣ Deutsche Subdomain → Dateien aus /de/ Ordner laden
   if (host.startsWith("de.")) {
-    const path = url.pathname === "/" ? "/index.html" : url.pathname;
-    const resp = await env.ASSETS.fetch(new URL(path, url.origin));
+    let path = url.pathname;
+    if (path === "/" || path === "") path = "/index.html";
+
+    // Dateien aus /de/ laden
+    const resp = await env.ASSETS.fetch(new URL(`/de${path}`, url.origin));
     if (resp.status === 404) {
-      return env.ASSETS.fetch(new URL("/index.html", url.origin));
+      // Fallback auf /de/index.html
+      return env.ASSETS.fetch(new URL("/de/index.html", url.origin));
     }
     return resp;
   }
 
-  // --- 3️⃣ Englische Subdomain → statische Auslieferung
+  // --- 3️⃣ Englische Subdomain → Dateien aus /en/ Ordner laden
   if (host.startsWith("en.")) {
-    const path = url.pathname === "/" ? "/index.html" : url.pathname;
+    let path = url.pathname;
+    if (path === "/" || path === "") path = "/index.html";
+
     const resp = await env.ASSETS.fetch(new URL(`/en${path}`, url.origin));
     if (resp.status === 404) {
       return env.ASSETS.fetch(new URL("/en/index.html", url.origin));
@@ -41,6 +46,6 @@ export async function onRequest(context) {
     return resp;
   }
 
-  // --- 4️⃣ Standard → Weitergabe an statische Dateien
+  // --- 4️⃣ Standard → normale Auslieferung
   return env.ASSETS.fetch(request);
 }
