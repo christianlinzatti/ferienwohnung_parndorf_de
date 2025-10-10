@@ -8,7 +8,7 @@ export async function onRequest(context) {
   const isBot = /(bot|crawl|spider|slurp|bing|yandex|duckduckgo|baiduspider|sogou|google)/i.test(ua);
   const isNavigation = request.headers.get("accept")?.includes("text/html");
 
-  // --- 1️⃣ Rootdomain → Weiterleitung anhand Sprache
+  // --- 1️⃣ Rootdomain → Weiterleitung nach Sprache
   if (host === "ferienwohnung-parndorf.at" || host === "www.ferienwohnung-parndorf.at") {
     if (!isBot && isNavigation) {
       const isGerman = /(de|de-at|de-de|de-ch)/i.test(langHeader);
@@ -20,25 +20,42 @@ export async function onRequest(context) {
     return env.ASSETS.fetch(request);
   }
 
-  // --- 2️⃣ Deutsche Subdomain → Dateien aus /de/ Ordner laden
+  // --- 2️⃣ Deutsche Subdomain → Inhalte aus /de/
   if (host.startsWith("de.")) {
     let path = url.pathname;
-    if (path === "/" || path === "") path = "/index.html";
 
-    // Dateien aus /de/ laden
+    // 🚫 falls jemand /de/... aufruft → redirect auf /
+    if (path.startsWith("/de/")) {
+      return Response.redirect(`https://${host}/`, 301);
+    }
+
+    // ✅ assets direkt aus /assets/ ausliefern
+    if (path.startsWith("/assets/")) {
+      return env.ASSETS.fetch(new URL(path, url.origin));
+    }
+
+    if (path === "/" || path === "") path = "/index.html";
     const resp = await env.ASSETS.fetch(new URL(`/de${path}`, url.origin));
     if (resp.status === 404) {
-      // Fallback auf /de/index.html
       return env.ASSETS.fetch(new URL("/de/index.html", url.origin));
     }
     return resp;
   }
 
-  // --- 3️⃣ Englische Subdomain → Dateien aus /en/ Ordner laden
+  // --- 3️⃣ Englische Subdomain → Inhalte aus /en/
   if (host.startsWith("en.")) {
     let path = url.pathname;
-    if (path === "/" || path === "") path = "/index.html";
 
+    if (path.startsWith("/en/")) {
+      return Response.redirect(`https://${host}/`, 301);
+    }
+
+    // ✅ assets direkt aus /assets/ ausliefern
+    if (path.startsWith("/assets/")) {
+      return env.ASSETS.fetch(new URL(path, url.origin));
+    }
+
+    if (path === "/" || path === "") path = "/index.html";
     const resp = await env.ASSETS.fetch(new URL(`/en${path}`, url.origin));
     if (resp.status === 404) {
       return env.ASSETS.fetch(new URL("/en/index.html", url.origin));
@@ -46,6 +63,6 @@ export async function onRequest(context) {
     return resp;
   }
 
-  // --- 4️⃣ Standard → normale Auslieferung
+  // --- 4️⃣ Default → normale Auslieferung
   return env.ASSETS.fetch(request);
 }
