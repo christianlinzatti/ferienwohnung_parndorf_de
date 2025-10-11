@@ -559,10 +559,13 @@ const resetMetaTags = () => {
   }
 };
 
-  const openPhotoPopup = () => {
+    const openPhotoPopup = (updateUrl = false) => {
     if (currentGalleryImages.length === 0) return;
     renderGallery();
-    updateUrlForCurrentImage();
+    // Nur die URL aktualisieren, wenn explizit gefordert (z.B. bei Initialaufruf mit Bild)
+    if (updateUrl) {
+      updateUrlForCurrentImage();
+    }
     photoPopup?.classList.add('open');
     document.body.classList.add('popup-is-open', 'no-scroll');
   };
@@ -628,6 +631,8 @@ const resetMetaTags = () => {
       }
 
       currentGalleryImages = galleriesActive[galleryKeyRaw].slice();
+       const shouldUpdateUrl = !!imageKeyRaw;
+
 
       if (!imageKeyRaw) {
       currentGalleryIndex = 0;
@@ -639,7 +644,7 @@ const resetMetaTags = () => {
       currentGalleryIndex = matchIndex >= 0 ? matchIndex : 0;
     }
 
-      openPhotoPopup();
+      openPhotoPopup(shouldUpdateUrl);
       return;
     } else {
       if (photoPopup?.classList.contains('open')) closePhotoPopup(false);
@@ -694,15 +699,7 @@ const resetMetaTags = () => {
       if (!hrefPath.startsWith('/')) hrefPath = '/' + hrefPath;
     }
 
-    const galleryKeys = Object.keys(galleriesActive);
-    const cleanHref = hrefPath.replace(/^\/+|\/+$/g, "").split('#')[0];
-    if (galleryKeys.includes(cleanHref) && !hrefAttr.endsWith('/')) {
-  const firstImage = galleriesActive[cleanHref][0];
-  const firstKey = firstImage ? stripExt(firstImage) : null;
-  if (firstKey) {
-    hrefPath = `/${cleanHref}/${firstKey}`;
-  }
-}
+
 
     history.pushState(null, null, hrefPath);
     handleRoute(false);
