@@ -921,7 +921,7 @@ if ('IntersectionObserver' in window) {
     airbnbWidgetContainer.innerHTML = `
       <a href="https://www.airbnb.at/rooms/${ROOM_ID}" target="_blank" rel="noopener noreferrer"
          class="airbnb-fallback" aria-label="Airbnb Listing öffnen" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;cursor:pointer;">
-        <img src="super.webp"
+        <img src="/assets/images/super.webp"
            alt="Airbnb Superhost"
            style="max-width:444px; cursor:pointer;" />
       </a>
