@@ -803,6 +803,9 @@ if (header) {
   toggleSticky();
 }
 
+window.addEventListener('blur', () => clearInterval(slideInterval));
+window.addEventListener('focus', () => startInterval());
+
 
 // =========================================================
 // Lazy Loading für Header-Bilder (verbesserte Version)
