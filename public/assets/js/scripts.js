@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
   let slideInterval;
-      const startInterval = () => slideInterval = setInterval(nextSlide, 5000);
+      
 
 
 
@@ -407,6 +407,7 @@ const resetMetaTags = () => {
 
     const nextSlide = () => showSlide((currentIndex + 1) % slides.length);
     const prevSlide = () => showSlide((currentIndex - 1 + slides.length) % slides.length);
+    const startInterval = () => slideInterval = setInterval(nextSlide, 5000);
 
     const resetInterval = () => { clearInterval(slideInterval); startInterval(); };
 
