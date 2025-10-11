@@ -198,6 +198,22 @@ const checkInputs = () => {
     description: document.querySelector('meta[name="description"]')?.content
   };
 
+  const updateCanonicalTag = (newUrl) => {
+  const head = document.head;
+  let canonical = head.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.setAttribute('rel', 'canonical');
+    head.appendChild(canonical);
+  }
+
+  // Falls newUrl relativ ist → in absolute URL umwandeln
+  const absUrl = new URL(newUrl, window.location.origin).href;
+  canonical.setAttribute('href', absUrl);
+
+  console.log('[meta] Canonical aktualisiert ->', absUrl);
+};
+
   /**
    * Aktualisiert die Meta-Tags der Seite basierend auf dem aktiven Bild.
    * @param {string} imageUrl - Die URL des Bildes.
@@ -469,6 +485,8 @@ const resetMetaTags = () => {
     if (popupCaption) popupCaption.textContent = captionText;
     console.log('[gallery] activeImg:', { src: activeImg.src, captionText });
     updateMetaTagsForImage(activeImg.src, captionText);
+    updateCanonicalTag(window.location.pathname);
+
   } else {
     console.warn('[gallery] kein activeImg gefunden — MetaUpdate übersprungen');
   }
@@ -486,6 +504,8 @@ const resetMetaTags = () => {
     photoPopup?.classList.remove('open');
     document.body.classList.remove('popup-is-open', 'no-scroll');
     resetMetaTags();
+    updateCanonicalTag(window.location.pathname);
+
     if (updateHistory) history.pushState(null, null, '/#main');
   };
 
@@ -510,6 +530,7 @@ const resetMetaTags = () => {
   // Router-Logik (robust)
   // =========================================================
   const handleRoute = (isInitial = false) => {
+    updateCanonicalTag(window.location.pathname);
     const rawPath = window.location.pathname || "";
     const cleaned = rawPath.replace(/^\/+|\/+$/g, "");
     const hash = (window.location.hash || "").replace(/^#/, "");
