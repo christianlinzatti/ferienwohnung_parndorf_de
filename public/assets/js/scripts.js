@@ -198,7 +198,7 @@ const checkInputs = () => {
     description: document.querySelector('meta[name="description"]')?.content
   };
 
-  const updateCanonicalTag = (newUrl) => {
+ const updateCanonicalTag = (newUrl) => {
   const head = document.head;
   let canonical = head.querySelector('link[rel="canonical"]');
   if (!canonical) {
@@ -207,10 +207,13 @@ const checkInputs = () => {
     head.appendChild(canonical);
   }
 
-  // Falls newUrl relativ ist → in absolute URL umwandeln
-  const absUrl = new URL(newUrl, window.location.origin).href;
-  canonical.setAttribute('href', absUrl);
+  // Hostname + Sprache automatisch bestimmen
+  const langPrefix = window.location.hostname.startsWith("en.")
+    ? "https://en.ferienwohnung-parndorf.at"
+    : "https://de.ferienwohnung-parndorf.at";
 
+  const absUrl = langPrefix + newUrl.replace(/\/+$/, "") + "/";
+  canonical.setAttribute('href', absUrl);
   console.log('[meta] Canonical aktualisiert ->', absUrl);
 };
 
@@ -258,6 +261,8 @@ const checkInputs = () => {
   if (fullImageUrl) setMeta('meta[property="og:image"]', fullImageUrl);
   setMeta('meta[property="twitter:title"]', newTitle);
   setMeta('meta[property="twitter:description"]', newDescription);
+    setMeta('meta[property="og:url"]', window.location.href);
+setMeta('meta[name="twitter:url"]', window.location.href);
   if (fullImageUrl) setMeta('meta[property="twitter:image"]', fullImageUrl);
 
   console.log('[meta] gesetzt ->', document.querySelector('meta[name="description"]')?.content);
@@ -274,6 +279,8 @@ const resetMetaTags = () => {
   if (originalMeta.twitterTitle) document.querySelector('meta[property="twitter:title"]')?.setAttribute('content', originalMeta.twitterTitle);
   if (originalMeta.twitterDescription) document.querySelector('meta[property="twitter:description"]')?.setAttribute('content', originalMeta.twitterDescription);
   if (originalMeta.twitterImage) document.querySelector('meta[property="twitter:image"]')?.setAttribute('content', originalMeta.twitterImage);
+  updateCanonicalTag(window.location.pathname);
+
 
   console.log('[meta] zurückgesetzt ->', document.querySelector('meta[name="description"]')?.content);
 };
@@ -689,6 +696,8 @@ const resetMetaTags = () => {
   if (window.lucide) {
     lucide.createIcons();
   }
+  updateCanonicalTag(window.location.pathname);
+
 
 }); // DOMContentLoaded end
 
