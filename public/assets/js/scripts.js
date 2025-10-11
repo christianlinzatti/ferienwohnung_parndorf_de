@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const IMAGE_BASE_PATH = "/assets/images/";
     const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
 
-    const galleriesActive = lang === "en" ? galleriesEn : galleries;
+    
   let slideInterval;
       const startInterval = () => slideInterval = setInterval(nextSlide, 5000);
 
@@ -28,6 +28,7 @@ const galleries = {
     terrace: ["terrasse.webp", "garten.webp"],
     entrance: ["eingangsbereich.webp"],
   };
+  const galleriesActive = lang === "en" ? galleriesEn : galleries;
 
   // Aktives Galerie-Mapping auswählen
   // =========================================================
