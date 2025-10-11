@@ -266,7 +266,7 @@ const checkInputs = () => {
   } else {
     // deutsche Seite: passendes englisches Mapping suchen
     for (const [en, imgs] of Object.entries(galleriesEn)) {
-      const de = Object.keys(galleries).find(k => galleries[de][0] === imgs[0]);
+      const de = Object.keys(galleries).find(k => galleries[k][0] === imgs[0]);
       if (de === currentKey) {
         deKey = de;
         enKey = en;
