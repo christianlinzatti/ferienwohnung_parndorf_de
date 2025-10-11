@@ -3,12 +3,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const stripExt = s => s ? s.replace(/\.(jpe?g|png|webp)$/i, '') : '';
   const ensureRoot = s => s && s.startsWith('/') ? s : ('/' + s);
   const IMAGE_BASE_PATH = "/assets/images/";
+    const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
+
+    const galleriesActive = lang === "en" ? galleriesEn : galleries;
+  let slideInterval;
+      const startInterval = () => slideInterval = setInterval(nextSlide, 5000);
 
 
+
+const galleries = {
+    kueche: ["kueche.webp", "essbereich.webp"],
+    schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
+    wohnzimmer: ["wohnzimmer.webp"],
+    badezimmer: ["badezimmer.webp", "wc.webp"],
+    terrasse: ["terrasse.webp", "garten.webp"],
+    eingangsbereich: ["eingangsbereich.webp"],
+  };
+
+  const galleriesEn = {
+    kitchen: ["kueche.webp", "essbereich.webp"],
+    bedroom: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
+    livingroom: ["wohnzimmer.webp"],
+    bathroom: ["badezimmer.webp", "wc.webp"],
+    terrace: ["terrasse.webp", "garten.webp"],
+    entrance: ["eingangsbereich.webp"],
+  };
+
+  // Aktives Galerie-Mapping auswählen
   // =========================================================
   // SPRACHEINSTELLUNGEN UND TEXTE
   // =========================================================
-  const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
 
   // Zentraler Ort für alle übersetzbaren Texte
   const translations = {
@@ -217,6 +241,56 @@ const checkInputs = () => {
   console.log('[meta] Canonical aktualisiert ->', absUrl);
 };
 
+  const updateAlternateLinks = (currentPath = window.location.pathname) => {
+  const head = document.head;
+  head.querySelectorAll('link[rel="alternate"]').forEach(el => el.remove());
+
+  const isEnglish = window.location.hostname.startsWith("en.");
+  const currentKey = currentPath.replace(/^\/+|\/+$/g, "").split("/")[0];
+
+  // passendes Gegenstück finden
+  let deKey = null;
+  let enKey = null;
+
+  if (isEnglish) {
+    // englische Seite: passendes deutsches Mapping suchen
+    for (const [de, imgs] of Object.entries(galleries)) {
+      const en = Object.keys(galleriesEn).find(k => galleriesEn[k][0] === imgs[0]);
+      if (en === currentKey) {
+        deKey = de;
+        enKey = en;
+        break;
+      }
+    }
+  } else {
+    // deutsche Seite: passendes englisches Mapping suchen
+    for (const [en, imgs] of Object.entries(galleriesEn)) {
+      const de = Object.keys(galleries).find(k => galleries[de][0] === imgs[0]);
+      if (de === currentKey) {
+        deKey = de;
+        enKey = en;
+        break;
+      }
+    }
+  }
+
+  const deUrl = `https://de.ferienwohnung-parndorf.at/${deKey || "highlights"}/`;
+  const enUrl = `https://en.ferienwohnung-parndorf.at/${enKey || "highlights"}/`;
+
+  const linkDe = document.createElement("link");
+  linkDe.rel = "alternate";
+  linkDe.hreflang = "de";
+  linkDe.href = deUrl;
+
+  const linkEn = document.createElement("link");
+  linkEn.rel = "alternate";
+  linkEn.hreflang = "en";
+  linkEn.href = enUrl;
+
+  head.append(linkDe, linkEn);
+  console.log("[meta] alternate links gesetzt:", { deUrl, enUrl });
+};
+
   /**
    * Aktualisiert die Meta-Tags der Seite basierend auf dem aktiven Bild.
    * @param {string} imageUrl - Die URL des Bildes.
@@ -280,6 +354,8 @@ const resetMetaTags = () => {
   if (originalMeta.twitterDescription) document.querySelector('meta[property="twitter:description"]')?.setAttribute('content', originalMeta.twitterDescription);
   if (originalMeta.twitterImage) document.querySelector('meta[property="twitter:image"]')?.setAttribute('content', originalMeta.twitterImage);
   updateCanonicalTag(window.location.pathname);
+  updateAlternateLinks(window.location.pathname);
+
 
 
   console.log('[meta] zurückgesetzt ->', document.querySelector('meta[name="description"]')?.content);
@@ -303,26 +379,7 @@ const resetMetaTags = () => {
     "eingangsbereich.webp"
   ];
 
-  const galleries = {
-    kueche: ["kueche.webp", "essbereich.webp"],
-    schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
-    wohnzimmer: ["wohnzimmer.webp"],
-    badezimmer: ["badezimmer.webp", "wc.webp"],
-    terrasse: ["terrasse.webp", "garten.webp"],
-    eingangsbereich: ["eingangsbereich.webp"],
-  };
-
-  const galleriesEn = {
-    kitchen: ["kueche.webp", "essbereich.webp"],
-    bedroom: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
-    livingroom: ["wohnzimmer.webp"],
-    bathroom: ["badezimmer.webp", "wc.webp"],
-    terrace: ["terrasse.webp", "garten.webp"],
-    entrance: ["eingangsbereich.webp"],
-  };
-
-  // Aktives Galerie-Mapping auswählen
-  const galleriesActive = lang === "en" ? galleriesEn : galleries;
+  
 
 
   // =========================================================
@@ -336,7 +393,7 @@ const resetMetaTags = () => {
     const dotsContainer = mainSlideshowContainer.querySelector('.dots-container');
 
     let currentIndex = 0;
-    let slideInterval;
+    
 
     const showSlide = (index) => {
       if (!slides[index] || !dotsContainer.children[index]) return;
@@ -350,7 +407,6 @@ const resetMetaTags = () => {
     const nextSlide = () => showSlide((currentIndex + 1) % slides.length);
     const prevSlide = () => showSlide((currentIndex - 1 + slides.length) % slides.length);
 
-    const startInterval = () => slideInterval = setInterval(nextSlide, 5000);
     const resetInterval = () => { clearInterval(slideInterval); startInterval(); };
 
     // Klick auf Slides → Router öffnen
@@ -492,7 +548,9 @@ const resetMetaTags = () => {
     if (popupCaption) popupCaption.textContent = captionText;
     console.log('[gallery] activeImg:', { src: activeImg.src, captionText });
     updateMetaTagsForImage(activeImg.src, captionText);
-    updateCanonicalTag(window.location.pathname);
+    updateAlternateLinks(window.location.pathname);
+
+    
 
   } else {
     console.warn('[gallery] kein activeImg gefunden — MetaUpdate übersprungen');
@@ -512,6 +570,8 @@ const resetMetaTags = () => {
     document.body.classList.remove('popup-is-open', 'no-scroll');
     resetMetaTags();
     updateCanonicalTag(window.location.pathname);
+    updateAlternateLinks(window.location.pathname);
+
 
     if (updateHistory) history.pushState(null, null, '/#main');
   };
@@ -697,6 +757,8 @@ const resetMetaTags = () => {
     lucide.createIcons();
   }
   updateCanonicalTag(window.location.pathname);
+  updateAlternateLinks(window.location.pathname);
+
 
 
 }); // DOMContentLoaded end
