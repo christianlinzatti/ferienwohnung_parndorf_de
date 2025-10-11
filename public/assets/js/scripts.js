@@ -627,13 +627,13 @@ const resetMetaTags = () => {
 
     const galleryKeys = Object.keys(galleriesActive);
     const cleanHref = hrefPath.replace(/^\/+|\/+$/g, "").split('#')[0];
-    if (galleryKeys.includes(cleanHref)) {
-      const firstImage = galleriesActive[cleanHref][0];
-      const firstKey = firstImage ? stripExt(firstImage) : null;
-      if (firstKey) {
-        hrefPath = `/${cleanHref}/${firstKey}`;
-      }
-    }
+    if (galleryKeys.includes(cleanHref) && !hrefAttr.endsWith('/')) {
+  const firstImage = galleriesActive[cleanHref][0];
+  const firstKey = firstImage ? stripExt(firstImage) : null;
+  if (firstKey) {
+    hrefPath = `/${cleanHref}/${firstKey}`;
+  }
+}
 
     history.pushState(null, null, hrefPath);
     handleRoute(false);
