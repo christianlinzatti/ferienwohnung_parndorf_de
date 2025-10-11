@@ -761,6 +761,9 @@ const resetMetaTags = () => {
   updateCanonicalTag(window.location.pathname);
   updateAlternateLinks(window.location.pathname);
 
+  window.addEventListener('blur', () => clearInterval(slideInterval));
+window.addEventListener('focus', () => startInterval());
+
 
 
 }); // DOMContentLoaded end
@@ -867,8 +870,7 @@ if (header) {
   toggleSticky();
 }
 
-window.addEventListener('blur', () => clearInterval(slideInterval));
-window.addEventListener('focus', () => startInterval());
+
 
 
 // =========================================================
