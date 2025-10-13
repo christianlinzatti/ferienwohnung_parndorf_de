@@ -22,7 +22,6 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden; /* Apply horizontal overflow blocking here */
 }
 
 body {
@@ -32,6 +31,11 @@ body {
   line-height: 1.6;
   padding-top: var(--header-height);
   /* The overflow-x rule is not needed here anymore */
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* Prevents background scroll when a popup or nav is open */
@@ -843,21 +847,21 @@ footer {
 
 /* --- 11. Mobile-Specific Adjustments --- */
 @media (max-width: 600px) {
-  main {
-    padding: 1.5rem 0.5rem;
-  }
   .cta-floating {
     flex-direction: row;
     gap: 10px;
-    width: 95%;
-    left: 50%;
     bottom: 15px;
-    transform: translateX(-50%);
+
+    /* NEU: Robuster und moderner */
+    position: fixed;
+    inset: auto 1rem 1rem 1rem; /* Oben, Rechts, Unten, Links */
+    width: auto;
+    margin: auto;
+
+    transform: none; /* Nicht mehr nötig */
     justify-content: center;
   }
-  .cta-floating .booking-btn-float, .cta-floating .airbnb-btn-float {
-    flex: 1; /* Make buttons share space */
-  }
+}
 
   #wa-toggle {
     bottom: 80px; /* Move WA toggle up to not collide with CTA */
