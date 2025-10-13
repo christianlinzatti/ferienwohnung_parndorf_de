@@ -3,12 +3,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const stripExt = s => s ? s.replace(/\.(jpe?g|png|webp)$/i, '') : '';
   const ensureRoot = s => s && s.startsWith('/') ? s : ('/' + s);
   const IMAGE_BASE_PATH = "/assets/images/";
+    const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
+
+    
+  let slideInterval;
+      
 
 
+
+const galleries = {
+    kueche: ["kueche.webp", "essbereich.webp"],
+    schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
+    wohnzimmer: ["wohnzimmer.webp"],
+    badezimmer: ["badezimmer.webp", "wc.webp"],
+    terrasse: ["terrasse.webp", "garten.webp"],
+    eingangsbereich: ["eingangsbereich.webp"],
+  };
+
+  const galleriesEn = {
+    kitchen: ["kueche.webp", "essbereich.webp"],
+    bedroom: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
+    livingroom: ["wohnzimmer.webp"],
+    bathroom: ["badezimmer.webp", "wc.webp"],
+    terrace: ["terrasse.webp", "garten.webp"],
+    entrance: ["eingangsbereich.webp"],
+  };
+  const galleriesActive = lang === "en" ? galleriesEn : galleries;
+
+  // Aktives Galerie-Mapping auswählen
   // =========================================================
   // SPRACHEINSTELLUNGEN UND TEXTE
   // =========================================================
-  const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
 
   // Zentraler Ort für alle übersetzbaren Texte
   const translations = {
@@ -198,6 +223,75 @@ const checkInputs = () => {
     description: document.querySelector('meta[name="description"]')?.content
   };
 
+ const updateCanonicalTag = (newUrl) => {
+  const head = document.head;
+  let canonical = head.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.setAttribute('rel', 'canonical');
+    head.appendChild(canonical);
+  }
+
+  // Hostname + Sprache automatisch bestimmen
+  const langPrefix = window.location.hostname.startsWith("en.")
+    ? "https://en.ferienwohnung-parndorf.at"
+    : "https://de.ferienwohnung-parndorf.at";
+
+  const absUrl = langPrefix + newUrl.replace(/\/+$/, "") + "/";
+  canonical.setAttribute('href', absUrl);
+  console.log('[meta] Canonical aktualisiert ->', absUrl);
+};
+
+  const updateAlternateLinks = (currentPath = window.location.pathname) => {
+  const head = document.head;
+  head.querySelectorAll('link[rel="alternate"]').forEach(el => el.remove());
+
+  const isEnglish = window.location.hostname.startsWith("en.");
+  const currentKey = currentPath.replace(/^\/+|\/+$/g, "").split("/")[0];
+
+  // passendes Gegenstück finden
+  let deKey = null;
+  let enKey = null;
+
+  if (isEnglish) {
+    // englische Seite: passendes deutsches Mapping suchen
+    for (const [de, imgs] of Object.entries(galleries)) {
+      const en = Object.keys(galleriesEn).find(k => galleriesEn[k][0] === imgs[0]);
+      if (en === currentKey) {
+        deKey = de;
+        enKey = en;
+        break;
+      }
+    }
+  } else {
+    // deutsche Seite: passendes englisches Mapping suchen
+    for (const [en, imgs] of Object.entries(galleriesEn)) {
+      const de = Object.keys(galleries).find(k => galleries[k][0] === imgs[0]);
+      if (de === currentKey) {
+        deKey = de;
+        enKey = en;
+        break;
+      }
+    }
+  }
+
+  const deUrl = `https://de.ferienwohnung-parndorf.at/${deKey || "highlights"}/`;
+  const enUrl = `https://en.ferienwohnung-parndorf.at/${enKey || "highlights"}/`;
+
+  const linkDe = document.createElement("link");
+  linkDe.rel = "alternate";
+  linkDe.hreflang = "de";
+  linkDe.href = deUrl;
+
+  const linkEn = document.createElement("link");
+  linkEn.rel = "alternate";
+  linkEn.hreflang = "en";
+  linkEn.href = enUrl;
+
+  head.append(linkDe, linkEn);
+  console.log("[meta] alternate links gesetzt:", { deUrl, enUrl });
+};
+
   /**
    * Aktualisiert die Meta-Tags der Seite basierend auf dem aktiven Bild.
    * @param {string} imageUrl - Die URL des Bildes.
@@ -242,6 +336,8 @@ const checkInputs = () => {
   if (fullImageUrl) setMeta('meta[property="og:image"]', fullImageUrl);
   setMeta('meta[property="twitter:title"]', newTitle);
   setMeta('meta[property="twitter:description"]', newDescription);
+    setMeta('meta[property="og:url"]', window.location.href);
+setMeta('meta[name="twitter:url"]', window.location.href);
   if (fullImageUrl) setMeta('meta[property="twitter:image"]', fullImageUrl);
 
   console.log('[meta] gesetzt ->', document.querySelector('meta[name="description"]')?.content);
@@ -258,6 +354,10 @@ const resetMetaTags = () => {
   if (originalMeta.twitterTitle) document.querySelector('meta[property="twitter:title"]')?.setAttribute('content', originalMeta.twitterTitle);
   if (originalMeta.twitterDescription) document.querySelector('meta[property="twitter:description"]')?.setAttribute('content', originalMeta.twitterDescription);
   if (originalMeta.twitterImage) document.querySelector('meta[property="twitter:image"]')?.setAttribute('content', originalMeta.twitterImage);
+  updateCanonicalTag(window.location.pathname);
+  updateAlternateLinks(window.location.pathname);
+
+
 
   console.log('[meta] zurückgesetzt ->', document.querySelector('meta[name="description"]')?.content);
 };
@@ -280,26 +380,7 @@ const resetMetaTags = () => {
     "eingangsbereich.webp"
   ];
 
-  const galleries = {
-    kueche: ["kueche.webp", "essbereich.webp"],
-    schlafzimmer: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
-    wohnzimmer: ["wohnzimmer.webp"],
-    badezimmer: ["badezimmer.webp", "wc.webp"],
-    terrasse: ["terrasse.webp", "garten.webp"],
-    eingangsbereich: ["eingangsbereich.webp"],
-  };
-
-  const galleriesEn = {
-    kitchen: ["kueche.webp", "essbereich.webp"],
-    bedroom: ["schlafzimmer.webp", "betten.webp", "bett_kasten.webp"],
-    livingroom: ["wohnzimmer.webp"],
-    bathroom: ["badezimmer.webp", "wc.webp"],
-    terrace: ["terrasse.webp", "garten.webp"],
-    entrance: ["eingangsbereich.webp"],
-  };
-
-  // Aktives Galerie-Mapping auswählen
-  const galleriesActive = lang === "en" ? galleriesEn : galleries;
+  
 
 
   // =========================================================
@@ -313,7 +394,7 @@ const resetMetaTags = () => {
     const dotsContainer = mainSlideshowContainer.querySelector('.dots-container');
 
     let currentIndex = 0;
-    let slideInterval;
+    
 
     const showSlide = (index) => {
       if (!slides[index] || !dotsContainer.children[index]) return;
@@ -326,8 +407,8 @@ const resetMetaTags = () => {
 
     const nextSlide = () => showSlide((currentIndex + 1) % slides.length);
     const prevSlide = () => showSlide((currentIndex - 1 + slides.length) % slides.length);
-
     const startInterval = () => slideInterval = setInterval(nextSlide, 5000);
+
     const resetInterval = () => { clearInterval(slideInterval); startInterval(); };
 
     // Klick auf Slides → Router öffnen
@@ -469,15 +550,22 @@ const resetMetaTags = () => {
     if (popupCaption) popupCaption.textContent = captionText;
     console.log('[gallery] activeImg:', { src: activeImg.src, captionText });
     updateMetaTagsForImage(activeImg.src, captionText);
+    updateAlternateLinks(window.location.pathname);
+
+    
+
   } else {
     console.warn('[gallery] kein activeImg gefunden — MetaUpdate übersprungen');
   }
 };
 
-  const openPhotoPopup = () => {
+    const openPhotoPopup = (updateUrl = false) => {
     if (currentGalleryImages.length === 0) return;
     renderGallery();
-    updateUrlForCurrentImage();
+    // Nur die URL aktualisieren, wenn explizit gefordert (z.B. bei Initialaufruf mit Bild)
+    if (updateUrl) {
+      updateUrlForCurrentImage();
+    }
     photoPopup?.classList.add('open');
     document.body.classList.add('popup-is-open', 'no-scroll');
   };
@@ -486,6 +574,10 @@ const resetMetaTags = () => {
     photoPopup?.classList.remove('open');
     document.body.classList.remove('popup-is-open', 'no-scroll');
     resetMetaTags();
+    updateCanonicalTag(window.location.pathname);
+    updateAlternateLinks(window.location.pathname);
+
+
     if (updateHistory) history.pushState(null, null, '/#main');
   };
 
@@ -510,6 +602,7 @@ const resetMetaTags = () => {
   // Router-Logik (robust)
   // =========================================================
   const handleRoute = (isInitial = false) => {
+    updateCanonicalTag(window.location.pathname);
     const rawPath = window.location.pathname || "";
     const cleaned = rawPath.replace(/^\/+|\/+$/g, "");
     const hash = (window.location.hash || "").replace(/^#/, "");
@@ -538,6 +631,8 @@ const resetMetaTags = () => {
       }
 
       currentGalleryImages = galleriesActive[galleryKeyRaw].slice();
+       const shouldUpdateUrl = !!imageKeyRaw;
+
 
       if (!imageKeyRaw) {
       currentGalleryIndex = 0;
@@ -549,7 +644,7 @@ const resetMetaTags = () => {
       currentGalleryIndex = matchIndex >= 0 ? matchIndex : 0;
     }
 
-      openPhotoPopup();
+      openPhotoPopup(shouldUpdateUrl);
       return;
     } else {
       if (photoPopup?.classList.contains('open')) closePhotoPopup(false);
@@ -604,15 +699,7 @@ const resetMetaTags = () => {
       if (!hrefPath.startsWith('/')) hrefPath = '/' + hrefPath;
     }
 
-    const galleryKeys = Object.keys(galleriesActive);
-    const cleanHref = hrefPath.replace(/^\/+|\/+$/g, "").split('#')[0];
-    if (galleryKeys.includes(cleanHref)) {
-      const firstImage = galleriesActive[cleanHref][0];
-      const firstKey = firstImage ? stripExt(firstImage) : null;
-      if (firstKey) {
-        hrefPath = `/${cleanHref}/${firstKey}`;
-      }
-    }
+
 
     history.pushState(null, null, hrefPath);
     handleRoute(false);
@@ -668,6 +755,13 @@ const resetMetaTags = () => {
   if (window.lucide) {
     lucide.createIcons();
   }
+  updateCanonicalTag(window.location.pathname);
+  updateAlternateLinks(window.location.pathname);
+
+  window.addEventListener('blur', () => clearInterval(slideInterval));
+window.addEventListener('focus', () => startInterval());
+
+
 
 }); // DOMContentLoaded end
 
@@ -774,6 +868,8 @@ if (header) {
 }
 
 
+
+
 // =========================================================
 // Lazy Loading für Header-Bilder (verbesserte Version)
 // =========================================================
@@ -825,7 +921,7 @@ if ('IntersectionObserver' in window) {
     airbnbWidgetContainer.innerHTML = `
       <a href="https://www.airbnb.at/rooms/${ROOM_ID}" target="_blank" rel="noopener noreferrer"
          class="airbnb-fallback" aria-label="Airbnb Listing öffnen" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;cursor:pointer;">
-        <img src="super.webp"
+        <img src="/assets/images/super.webp"
            alt="Airbnb Superhost"
            style="max-width:444px; cursor:pointer;" />
       </a>

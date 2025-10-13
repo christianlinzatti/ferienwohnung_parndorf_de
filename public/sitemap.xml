@@ -7,39 +7,76 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
   </url>
   <url>
-    <loc>https://de.ferienwohnung-parndorf.at/wohnzimmer/wohnzimmer</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/wohnzimmer/wohnzimmer"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/livingroom/livingroom"/>
+    <loc>https://de.ferienwohnung-parndorf.at/wohnzimmer</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/wohnzimmer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/livingroom"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
   </url>
   <url>
-    <loc>https://de.ferienwohnung-parndorf.at/schlafzimmer/schlafzimmer</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/schlafzimmer/schlafzimmer"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/bedroom/bedroom"/>
+    <loc>https://de.ferienwohnung-parndorf.at/schlafzimmer</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/schlafzimmer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/bedroom"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
   </url>
   <url>
-    <loc>https://de.ferienwohnung-parndorf.at/kueche/kueche</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/kueche/kueche"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/kitchen/kitchen"/>
+    <loc>https://de.ferienwohnung-parndorf.at/kueche</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/kueche"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/kitchen"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
   </url>
   <url>
-    <loc>https://de.ferienwohnung-parndorf.at/badezimmer/badezimmer</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/badezimmer/badezimmer"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/bathroom/bathroom"/>
+    <loc>https://de.ferienwohnung-parndorf.at/badezimmer</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/badezimmer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/bathroom"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
   </url>
   <url>
-    <loc>https://de.ferienwohnung-parndorf.at/terrasse/terrasse</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/terrasse/terrasse"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/terrace/terrace"/>
+    <loc>https://de.ferienwohnung-parndorf.at/terrasse</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/terrasse"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/terrace"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
   </url>
   <url>
-    <loc>https://de.ferienwohnung-parndorf.at/eingangsbereich/eingangsbereich</loc>
-    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/eingangsbereich/eingangsbereich"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/entrance/entrance"/>
+    <loc>https://de.ferienwohnung-parndorf.at/eingangsbereich</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/eingangsbereich"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/entrance"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
+  </url>
+
+  <url>
+    <loc>https://en.ferienwohnung-parndorf.at/livingroom</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/wohnzimmer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/livingroom"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
+  </url>
+  <url>
+    <loc>https://en.ferienwohnung-parndorf.at/bedroom</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/schlafzimmer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/bedroom"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
+  </url>
+  <url>
+    <loc>https://en.ferienwohnung-parndorf.at/kitchen</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/kueche"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/kitchen"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
+  </url>
+  <url>
+    <loc>https://en.ferienwohnung-parndorf.at/bathroom</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/badezimmer"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/bathroom"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
+  </url>
+  <url>
+    <loc>https://en.ferienwohnung-parndorf.at/terrace</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/terrasse"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/terrace"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
+  </url>
+  <url>
+    <loc>https://en.ferienwohnung-parndorf.at/entrance</loc>
+    <xhtml:link rel="alternate" hreflang="de" href="https://de.ferienwohnung-parndorf.at/eingangsbereich"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://en.ferienwohnung-parndorf.at/entrance"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://ferienwohnung-parndorf.at/"/>
   </url>
 </urlset>

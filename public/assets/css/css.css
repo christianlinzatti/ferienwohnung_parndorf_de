@@ -483,6 +483,14 @@ main {
   fill: white;
 }
 
+.icon-wrapper i[data-lucide] {
+  width: 36px;          /* gleiche Größe wie bisher */
+  height: 36px;
+  stroke: white;         /* Linienfarbe */
+  stroke-width: 1.8;
+  fill: none;            /* Lucide ist standardmäßig Outline – bleibt clean */
+}
+
 .highlight-item h4 { margin: 10px 0 5px; font-size: 1.1em; color: var(--secondary-color); }
 .ausstattung .item span { font-size: 1em; font-weight: 500; color: var(--text-color); }
 
