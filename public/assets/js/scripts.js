@@ -810,23 +810,22 @@ if (headerSlides.length > 1) {
 
 document.getElementById('load-streetview-btn')?.addEventListener('click', function () {
   const container = document.getElementById('map-placeholder-streetview');
-  const mapSection = document.getElementById('map-placeholder'); // Karte-Container
 
+  // Entfernt nur das Overlay & Vorschaubild im Streetview-Container
+  container.querySelectorAll('.map-overlay, img')?.forEach(el => el.remove());
+
+  // Neues Iframe erzeugen
   const iframe = document.createElement('iframe');
   iframe.src = "https://www.google.com/maps/embed?pb=!4v1759240459840!6m8!1m7!1s2npPsX99OT31Kcon7JxnWQ!2m2!1d48.00060897249904!2d16.8641309679439!3f5.598648!4f0!5f0.7820865974627469";
+  iframe.loading = "lazy";
+  iframe.allowFullscreen = true;
+  iframe.referrerPolicy = "no-referrer-when-downgrade";
   iframe.style.border = "0";
   iframe.width = "100%";
   iframe.height = "400";
-  iframe.allowFullscreen = true;
-  iframe.loading = "lazy";
-  iframe.referrerPolicy = "no-referrer-when-downgrade";
 
-  // vorheriges Overlay / Bild löschen
-  container.innerHTML = '';
+  // In Container einfügen
   container.appendChild(iframe);
-
-  // Karte leicht ausblenden, damit Streetview oben bleibt
-  mapSection?.classList.add('map-hidden');
 });
 
 // Karte laden
