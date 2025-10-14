@@ -808,9 +808,10 @@ if (headerSlides.length > 1) {
 
 
 
-// Streetview laden
 document.getElementById('load-streetview-btn')?.addEventListener('click', function () {
   const container = document.getElementById('map-placeholder-streetview');
+  const mapSection = document.getElementById('map-placeholder'); // Karte-Container
+
   const iframe = document.createElement('iframe');
   iframe.src = "https://www.google.com/maps/embed?pb=!4v1759240459840!6m8!1m7!1s2npPsX99OT31Kcon7JxnWQ!2m2!1d48.00060897249904!2d16.8641309679439!3f5.598648!4f0!5f0.7820865974627469";
   iframe.style.border = "0";
@@ -820,8 +821,12 @@ document.getElementById('load-streetview-btn')?.addEventListener('click', functi
   iframe.loading = "lazy";
   iframe.referrerPolicy = "no-referrer-when-downgrade";
 
-  container.innerHTML = ''; // nur dieses Placeholder leeren
+  // vorheriges Overlay / Bild löschen
+  container.innerHTML = '';
   container.appendChild(iframe);
+
+  // Karte leicht ausblenden, damit Streetview oben bleibt
+  mapSection?.classList.add('map-hidden');
 });
 
 // Karte laden
