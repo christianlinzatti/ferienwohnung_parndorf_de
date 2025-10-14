@@ -6,10 +6,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const lang = window.location.hostname.startsWith("en.") ? "en" : "de";
 
     
+const mainSlideshowContainer = document.querySelector('.slideshow-container');
+  if (!mainSlideshowContainer) return;
+
+  const slides = mainSlideshowContainer.querySelectorAll('.slide');
+  const btnPrev = mainSlideshowContainer.querySelector('.btn-prev');
+  const btnNext = mainSlideshowContainer.querySelector('.btn-next');
+  const dotsContainer = mainSlideshowContainer.querySelector('.dots-container');
+
   let slideInterval;
-   function startInterval() {
-  slideInterval = setInterval(nextSlide, 5000);
-}
+  let currentIndex = 0;
+
+  function showSlide(index) {
+    if (!slides[index] || !dotsContainer.children[index]) return;
+    mainSlideshowContainer.querySelector('.slide.active')?.classList.remove('active');
+    dotsContainer.querySelector('.dot.active')?.classList.remove('active');
+    currentIndex = index;
+    slides[currentIndex].classList.add('active');
+    dotsContainer.children[currentIndex].classList.add('active');
+  }
+
+  function nextSlide() { showSlide((currentIndex + 1) % slides.length); }
+  function prevSlide() { showSlide((currentIndex - 1 + slides.length) % slides.length); }
+
+  function startInterval() { if (slideInterval) return; // vermeidet Doppel-Intervalle
+  slideInterval = setInterval(nextSlide, 5000); }
+  function resetInterval() { clearInterval(slideInterval);
+  slideInterval = null;
+  startInterval(); }
+  window.startInterval = startInterval;
+window.resetInterval = resetInterval;
+
+  // Navigation-Buttons
+  btnNext?.addEventListener('click', () => { nextSlide(); resetInterval(); });
+  btnPrev?.addEventListener('click', () => { prevSlide(); resetInterval(); });
+
+  // Initial anzeigen und starten
+  showSlide(0);
+  startInterval();
 
 
 
@@ -388,29 +422,15 @@ const resetMetaTags = () => {
   // =========================================================
   // 1. Slideshow (nur Vorschau)
   // =========================================================
-  const mainSlideshowContainer = document.querySelector('.slideshow-container');
   if (mainSlideshowContainer) {
     const slides = mainSlideshowContainer.querySelectorAll('.slide');
     const btnPrev = mainSlideshowContainer.querySelector('.btn-prev');
     const btnNext = mainSlideshowContainer.querySelector('.btn-next');
     const dotsContainer = mainSlideshowContainer.querySelector('.dots-container');
 
-    let currentIndex = 0;
-    
 
-    const showSlide = (index) => {
-      if (!slides[index] || !dotsContainer.children[index]) return;
-      mainSlideshowContainer.querySelector('.slide.active')?.classList.remove('active');
-      dotsContainer.querySelector('.dot.active')?.classList.remove('active');
-      currentIndex = index;
-      slides[currentIndex].classList.add('active');
-      dotsContainer.children[currentIndex].classList.add('active');
-    };
 
-    const nextSlide = () => showSlide((currentIndex + 1) % slides.length);
-    const prevSlide = () => showSlide((currentIndex - 1 + slides.length) % slides.length);
 
-    const resetInterval = () => { clearInterval(slideInterval); startInterval(); };
 
     // Klick auf Slides → Router öffnen
     slides.forEach((slide, i) => {
