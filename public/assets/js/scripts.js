@@ -846,7 +846,7 @@ if (loadMapBtn && mapPlaceholder && mapContainer) {
     const infoWindow = new google.maps.InfoWindow({
       content: `
         <div style="max-width:280px; font-family:'Poppins',sans-serif;">
-          <h3 style="margin:0 0 5px;color:#004d40;">Ferienwohnung Parndorf</h3>
+          <h3 style="margin:0 0 5px;color:#004d40;"><a href="https://www.google.com/maps/place/Ferienwohnung+Parndorf/" target="_blank" rel="noopener noreferrer">Ferienwohnung Parndorf</a></h3>
           <p style="margin:0 0 10px;font-size:14px;">Obere Wunkau 38, 7111 Parndorf</p>
           <a href="https://www.google.com/maps/dir/?api=1&destination=Ferienwohnung+Parndorf"
              target="_blank" rel="noopener noreferrer"
