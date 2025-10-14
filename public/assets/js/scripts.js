@@ -785,8 +785,8 @@ if (headerSlides.length > 1) {
 
 // Streetview laden
 document.getElementById('load-streetview-btn')?.addEventListener('click', function () {
-  var container = document.getElementById('map-placeholder-streetview');
-  var iframe = document.createElement('iframe');
+  const container = document.getElementById('map-placeholder-streetview');
+  const iframe = document.createElement('iframe');
   iframe.src = "https://www.google.com/maps/embed?pb=!4v1759240459840!6m8!1m7!1s2npPsX99OT31Kcon7JxnWQ!2m2!1d48.00060897249904!2d16.8641309679439!3f5.598648!4f0!5f0.7820865974627469";
   iframe.style.border = "0";
   iframe.width = "100%";
@@ -795,61 +795,59 @@ document.getElementById('load-streetview-btn')?.addEventListener('click', functi
   iframe.loading = "lazy";
   iframe.referrerPolicy = "no-referrer-when-downgrade";
 
-  container.innerHTML = '';  // Overlay + Bild entfernen
+  container.innerHTML = ''; // nur dieses Placeholder leeren
   container.appendChild(iframe);
 });
 
 // Karte laden
-// --- DSGVO-KONFORME GOOGLE MAPS LOGIK ---
-    const loadMapBtn = document.getElementById('load-map-btn');
-    const mapPlaceholder = document.getElementById('map-placeholder');
-    const mapContainer = document.getElementById('map');
+const loadMapBtn = document.getElementById('load-map-btn');
+const mapPlaceholder = document.getElementById('map-placeholder');
+const mapContainer = document.getElementById('map');
 
-    if (loadMapBtn && mapPlaceholder && mapContainer) {
-        // Die `initMap` Funktion muss global verfügbar sein für den Google Maps Callback
-        window.initMap = () => {
-            const location = { lat: 48.0007115, lng: 16.8640465 };
-            const map = new google.maps.Map(mapContainer, {
-                zoom: 15,
-                center: location,
-                disableDefaultUI: true,
-                mapId: "1f521e152f97485fa96f0a37" // Beispiel Map ID
-            });
-            const contentString = `
-              <div style="max-width:280px; font-family: 'Poppins', sans-serif;">
-                <h3 style="margin: 0 0 5px; color: #004d40;">Ferienwohnung Parndorf</h3>
-                <p style="margin: 0 0 10px; font-size: 14px;">Obere Wunkau 38, 7111 Parndorf</p>
-                <p style="margin-top:10px; font-size: 14px;">
-                  <a href="https://www.google.com/maps/dir/?api=1&destination=Ferienwohnung+Parndorf"
-                     target="_blank" rel="noopener noreferrer"
-                     style="color: #0071c2; text-decoration: none; font-weight: bold;">
-                    Route planen
-                  </a>
-                </p>
-              </div>`;
-            const infowindow = new google.maps.InfoWindow({ content: contentString });
-            const marker = new google.maps.marker.AdvancedMarkerElement({
-                position: location,
-                map: map,
-                title: "Ferienwohnung Parndorf",
-            });
-            marker.addListener("click", () => infowindow.open(map, marker));
-            infowindow.open(map, marker);
-            mapPlaceholder.style.display = 'none';
-            mapContainer.style.display = 'block';
-        };
+if (loadMapBtn && mapPlaceholder && mapContainer) {
+  window.initMap = () => {
+    const location = { lat: 48.0007115, lng: 16.8640465 };
+    const map = new google.maps.Map(mapContainer, {
+      zoom: 15,
+      center: location,
+      disableDefaultUI: true,
+      mapId: "1f521e152f97485fa96f0a37"
+    });
 
-        loadMapBtn.addEventListener('click', () => {
-            if (!window.google || !window.google.maps) {
-                const script = document.createElement('script');
-                // Ersetzen Sie "DEIN_API_KEY" durch Ihren echten Google Maps API Key
-                script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAj3BUffMoTz7XsXEjJvnO-CBQq9oDQ4AA&callback=initMap&v=beta&libraries=marker`;
-                script.async = true;
-                document.head.appendChild(script);
-                loadMapBtn.disabled = true;
-            }
-        });
+    const infoWindow = new google.maps.InfoWindow({
+      content: `
+        <div style="max-width:280px; font-family:'Poppins',sans-serif;">
+          <h3 style="margin:0 0 5px;color:#004d40;">Ferienwohnung Parndorf</h3>
+          <p style="margin:0 0 10px;font-size:14px;">Obere Wunkau 38, 7111 Parndorf</p>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=Ferienwohnung+Parndorf"
+             target="_blank" rel="noopener noreferrer"
+             style="color:#0071c2;text-decoration:none;font-weight:bold;">Route planen</a>
+        </div>`
+    });
+
+    const marker = new google.maps.marker.AdvancedMarkerElement({
+      position: location,
+      map,
+      title: "Ferienwohnung Parndorf",
+    });
+
+    marker.addListener("click", () => infoWindow.open(map, marker));
+    infoWindow.open(map, marker);
+
+    // nur die Karten-Vorschau ausblenden – Streetview bleibt
+    mapPlaceholder.querySelector('.map-overlay')?.remove();
+  };
+
+  loadMapBtn.addEventListener('click', () => {
+    if (!window.google || !window.google.maps) {
+      const script = document.createElement('script');
+      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAj3BUffMoTz7XsXEjJvnO-CBQq9oDQ4AA&callback=initMap&v=beta&libraries=marker";
+      script.async = true;
+      document.head.appendChild(script);
+      loadMapBtn.disabled = true;
     }
+  });
+}
 
 // =========================================================
 // 5. Sticky Header beim Scrollen
