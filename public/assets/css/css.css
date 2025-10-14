@@ -20,9 +20,6 @@
   padding: 0;
 }
 
-html {
-  scroll-behavior: smooth;
-}
 
 body {
   font-family: 'Poppins', sans-serif;
@@ -36,6 +33,23 @@ body {
 html, body {
   overflow-x: hidden;
   width: 100%;
+}
+
+html {
+  scroll-snap-type: y proximity;
+}
+section {
+  scroll-snap-align: start;
+}
+
+header.sticky {
+  /* Aktiviert GPU-Beschleunigung → flüssiger beim Scrollen */
+  will-change: transform;
+  transform: translateZ(0);
+
+  /* Optional: leichtes, modernes Shadow-Tuning für bessere Tiefe */
+  transition: box-shadow 0.2s ease, background-color 0.3s ease;
+  backface-visibility: hidden;
 }
 
 /* Prevents background scroll when a popup or nav is open */

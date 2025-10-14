@@ -632,7 +632,11 @@ const resetMetaTags = () => {
       const targetEl = document.getElementById(hash);
       if (targetEl) {
         if (!isInitial) {
-          targetEl.scrollIntoView({ behavior: "smooth" });
+          const offset = header?.offsetHeight || 0;
+const top = targetEl.getBoundingClientRect().top + window.pageYOffset - offset;
+window.requestAnimationFrame(() => {
+  window.scrollTo({ top, behavior: 'smooth' });
+});
         }
         return;
       }
@@ -882,7 +886,9 @@ if (header) {
       header.classList.remove('sticky');
     }
   };
-  window.addEventListener('scroll', toggleSticky);
+  window.addEventListener('scroll', () => {
+  window.requestAnimationFrame(toggleSticky);
+});
   toggleSticky();
 }
 
