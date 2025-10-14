@@ -648,7 +648,7 @@ main {
 
 #wa-toggle {
   position: fixed;
-  bottom: 150px;
+  bottom: 150px !important;
   right: 20px;
   background-color: #25D366;
   width: 60px;
