@@ -1,4 +1,68 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+
+
+
+const scrollSpyNav = document.querySelector('.scroll-spy');
+  const spyLinks = document.querySelectorAll('.scroll-spy-link');
+
+  // Alle Sektionen, die beobachtet werden sollen
+  const sections = document.querySelectorAll('section[id]');
+
+  if (!scrollSpyNav || spyLinks.length === 0 || sections.length === 0) {
+    return; // Funktion abbrechen, wenn Elemente fehlen
+  }
+
+  // Die Scroll-Spy Navigation erst nach dem Header einblenden
+  const headerHeight = document.querySelector('header')?.offsetHeight || 250;
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > headerHeight) {
+      scrollSpyNav.classList.add('visible');
+    } else {
+      scrollSpyNav.classList.remove('visible');
+    }
+  });
+
+  // Intersection Observer für die Sektionen
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute('id');
+        const activeLink = document.querySelector(`.scroll-spy-link[href="#${id}"]`);
+
+        // Alle anderen Links deaktivieren
+        spyLinks.forEach(link => link.classList.remove('active'));
+
+        // Den korrekten Link aktivieren
+        if (activeLink) {
+          activeLink.classList.add('active');
+        }
+      }
+    });
+  }, {
+    rootMargin: '-50% 0px -50% 0px', // Aktiviert, wenn die Sektion in der Mitte des Bildschirms ist
+    threshold: 0
+  });
+
+  // Jede Sektion dem Observer hinzufügen
+  sections.forEach(section => {
+    observer.observe(section);
+  });
+
+  // Sanftes Scrollen bei Klick auf einen Punkt
+  spyLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href');
+      const targetElement = document.querySelector(targetId);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+
+
   // Hilfsfunktionen
   const stripExt = s => s ? s.replace(/\.(jpe?g|png|webp)$/i, '') : '';
   const ensureRoot = s => s && s.startsWith('/') ? s : ('/' + s);
@@ -239,10 +303,11 @@ const checkInputs = () => {
   }
 };
 
-// Eingaben überwachen
-[startInput, endInput, guestsInput].forEach((el) =>
-  el.addEventListener("input", checkInputs)
-);
+// DURCH diesen:
+const form = document.getElementById("availability-form");
+if (form) {
+  form.addEventListener("input", checkInputs);
+}
 
   // =========================================================
   // METADATEN-HANDLING
@@ -740,10 +805,10 @@ window.requestAnimationFrame(() => {
       }
 
       const burgerMenu = document.querySelector(".main-nav");
-      if(burgerMenu?.classList.contains("open")) {
-        burgerMenu.classList.remove("open");
-        document.body.classList.remove("no-scroll");
-      }
+      // Ruft jetzt direkt die zentrale Funktion auf
+      if (burgerMenu?.classList.contains("open")) {
+        closeBurgerMenu();
+      }s
     }
   });
 
@@ -754,6 +819,18 @@ window.requestAnimationFrame(() => {
   const burgerClose = document.getElementById("burger-close");
   const burgerMenu = document.querySelector(".main-nav");
 
+// NEU: Zentrale Funktion zum Schließen des Menüs
+  function closeBurgerMenu() {
+    if (burgerMenu?.classList.contains("open")) {
+      burgerMenu.classList.remove("open");
+      // Nur no-scroll entfernen, wenn das Foto-Popup nicht gleichzeitig offen ist
+      if (!document.body.classList.contains('popup-is-open')) {
+        document.body.classList.remove("no-scroll");
+      }
+    }
+  }
+
+
   if (burgerToggle && burgerMenu) {
     burgerToggle.addEventListener("click", () => {
         burgerMenu.classList.add("open");
@@ -761,21 +838,39 @@ window.requestAnimationFrame(() => {
     });
   }
 
-  if (burgerClose && burgerMenu) {
-    burgerClose.addEventListener("click", () => {
-        burgerMenu.classList.remove("open");
-        document.body.classList.remove("no-scroll");
+ if (burgerToggle && burgerMenu) {
+    burgerToggle.addEventListener("click", () => {
+      burgerMenu.classList.add("open");
+      document.body.classList.add("no-scroll");
     });
   }
 
-  if(burgerMenu) {
-      burgerMenu.querySelectorAll("a[data-link]").forEach(link => {
-        link.addEventListener("click", () => {
-          burgerMenu.classList.remove("open");
-          document.body.classList.remove("no-scroll");
-        });
-      });
+  // Bestehende Events verwenden jetzt die neue Funktion
+  if (burgerClose) {
+    burgerClose.addEventListener("click", closeBurgerMenu);
   }
+
+  if (burgerMenu) {
+    burgerMenu.querySelectorAll("a[data-link]").forEach(link => {
+      link.addEventListener("click", closeBurgerMenu);
+    });
+  }
+
+  // NEU: Schließt das Menü, wenn außerhalb geklickt wird
+  document.addEventListener('click', (e) => {
+    // Prüfen, ob das Menü überhaupt offen ist
+    if (!burgerMenu.classList.contains('open')) {
+      return;
+    }
+
+    // Prüfen, ob der Klick weder das Menü selbst noch der Öffnen-Button war
+    const isClickInsideMenu = burgerMenu.contains(e.target);
+    const isClickOnToggle = burgerToggle.contains(e.target);
+
+    if (!isClickInsideMenu && !isClickOnToggle) {
+      closeBurgerMenu();
+    }
+  });
 
   if (window.lucide) {
     lucide.createIcons();
@@ -1056,3 +1151,59 @@ if (ctaFloating && topSentinel && bottomSentinel) {
   observer.observe(bottomSentinel);
 }
 
+/* ========================================================= */
+/* ===         12. SCROLL-SPY NAVIGATION                 === */
+/* ========================================================= */
+
+.scroll-spy {
+  position: fixed;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  z-index: 950; /* Unter dem Menü, aber über dem Inhalt */
+  display: none; /* Wird per JS sichtbar gemacht, wenn gescrollt wird */
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.scroll-spy.visible {
+  display: block;
+  opacity: 1;
+}
+
+.scroll-spy ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scroll-spy-link {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background-color: rgba(0, 51, 44, 0.3); /* Angepasste Farbe */
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.scroll-spy-link:hover {
+  background-color: var(--primary-color);
+  transform: scale(1.3);
+}
+
+.scroll-spy-link.active {
+  background-color: var(--accent-booking); /* Akzentfarbe für Aktivität */
+  transform: scale(1.5);
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
+/* Auf kleinen Bildschirmen ausblenden, um Platz zu sparen */
+@media (max-width: 900px) {
+  .scroll-spy {
+    display: none !important;
+  }
+}
