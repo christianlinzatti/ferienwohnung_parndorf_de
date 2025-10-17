@@ -1063,7 +1063,7 @@ if (loadMapBtn && mapPlaceholder && mapContainer) {
     infoWindow.open(map, marker);
 
     // nur die Karten-Vorschau ausblenden – Streetview bleibt
-    mapPlaceholder.querySelector('.map-overlay')?.remove();
+    mapPlaceholder.style.display = 'none';
   };
 
   loadMapBtn.addEventListener('click', () => {
