@@ -881,6 +881,84 @@ window.requestAnimationFrame(() => {
 window.addEventListener('focus', () => startInterval());
 
 
+// =========================================================
+// 🔗 AUTOMATISCHE BREADCRUMBS + SCHEMA.ORG GENERATOR
+// =========================================================
+const breadcrumbContainer = document.getElementById("breadcrumbs");
+if (breadcrumbContainer) {
+  // --- Schritt 1: URL-Pfade bestimmen ---
+  const pathParts = window.location.pathname
+    .replace(/^\/+|\/+$/g, "")
+    .split("/")
+    .filter(Boolean);
+
+  const baseUrl = window.location.origin;
+  let cumulativePath = "";
+  let breadcrumbHTML = `<a href="/">Startseite</a>`;
+
+  // --- Schritt 2: Titel aus Navigation oder URL generieren ---
+  const linkTitles = {};
+  document.querySelectorAll('a[data-link]').forEach(a => {
+    const href = a.getAttribute('href')?.replace(/^\/+|\/+$/g, "");
+    const text = a.textContent.trim();
+    if (href && text) linkTitles[href.toLowerCase()] = text;
+  });
+
+  const breadcrumbItems = [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Startseite",
+      "item": `${baseUrl}/`
+    }
+  ];
+
+  // --- Schritt 3: Breadcrumbs aufbauen ---
+  pathParts.forEach((part, i) => {
+    cumulativePath += "/" + part;
+    const key = cumulativePath.replace(/^\/+/, "").toLowerCase();
+
+    // Sprechenden Titel suchen oder fallback aus URL
+    const label = linkTitles[key] ||
+      part.replace(/[-_]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+
+    const isLast = i === pathParts.length - 1;
+    if (isLast) {
+      breadcrumbHTML += ` <span>› ${label}</span>`;
+    } else {
+      breadcrumbHTML += ` <span>›</span> <a href="${cumulativePath}/">${label}</a>`;
+    }
+
+    breadcrumbItems.push({
+      "@type": "ListItem",
+      "position": i + 2,
+      "name": label,
+      "item": `${baseUrl}${cumulativePath}/`
+    });
+  });
+
+  // --- Schritt 4: HTML + JSON-LD ins Dokument einfügen ---
+  breadcrumbContainer.innerHTML = breadcrumbHTML;
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": breadcrumbItems
+  };
+
+  const oldScript = document.getElementById("breadcrumb-schema");
+  if (oldScript) oldScript.remove();
+
+  const script = document.createElement("script");
+  script.type = "application/ld+json";
+  script.id = "breadcrumb-schema";
+  script.textContent = JSON.stringify(schema, null, 2);
+  document.head.appendChild(script);
+
+  console.log("[schema] Breadcrumbs automatisch generiert:", schema);
+}
+
+
 
 }); // DOMContentLoaded end
 
