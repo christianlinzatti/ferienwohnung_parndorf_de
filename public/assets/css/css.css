@@ -27,17 +27,10 @@ body {
   color: var(--text-color);
   line-height: 1.6;
   padding-top: var(--header-height);
-  /* The overflow-x rule is not needed here anymore */
+  overflow-x: hidden; /* Diese Zeile ist entscheidend */
 }
 
-html {
-  overflow-x: hidden;
-}
 
-body {
-  overflow-x: hidden;
-  width: 100%;
-}
 
 html {
   scroll-snap-type: y proximity;
