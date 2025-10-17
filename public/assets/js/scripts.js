@@ -303,8 +303,7 @@ const checkInputs = () => {
   }
 };
 
-// DURCH diesen:
-const form = document.getElementById("availability-form");
+
 if (form) {
   form.addEventListener("input", checkInputs);
 }
