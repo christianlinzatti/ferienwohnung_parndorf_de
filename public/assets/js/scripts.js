@@ -881,82 +881,109 @@ window.requestAnimationFrame(() => {
 window.addEventListener('focus', () => startInterval());
 
 
-// =========================================================
-// 🔗 AUTOMATISCHE BREADCRUMBS + SCHEMA.ORG GENERATOR
-// =========================================================
-const breadcrumbContainer = document.getElementById("breadcrumbs");
-if (breadcrumbContainer) {
-  // --- Schritt 1: URL-Pfade bestimmen ---
+(function generateMultilangUnifiedSchema() {
+  const hostname = window.location.hostname;
+  const lang = hostname.startsWith("en.") ? "en" : "de";
+  const baseUrl = window.location.origin;
+
+  // --- 1️⃣ Aktuelle Pfade und Titel aus Navigation ---
   const pathParts = window.location.pathname
     .replace(/^\/+|\/+$/g, "")
     .split("/")
     .filter(Boolean);
 
-  const baseUrl = window.location.origin;
-  let cumulativePath = "";
-  let breadcrumbHTML = `<a href="/">Startseite</a>`;
-
-  // --- Schritt 2: Titel aus Navigation oder URL generieren ---
   const linkTitles = {};
-  document.querySelectorAll('a[data-link]').forEach(a => {
-    const href = a.getAttribute('href')?.replace(/^\/+|\/+$/g, "");
+  document.querySelectorAll("a[data-link]").forEach(a => {
+    const href = a.getAttribute("href")?.replace(/^\/+|\/+$/g, "");
     const text = a.textContent.trim();
     if (href && text) linkTitles[href.toLowerCase()] = text;
   });
 
+  // --- 2️⃣ Sprachübergreifende Bezeichnungen ---
+  const titles = {
+    wohnzimmer: { de: "Wohnzimmer", en: "Living Room" },
+    schlafzimmer: { de: "Schlafzimmer", en: "Bedroom" },
+    kueche: { de: "Küche", en: "Kitchen" },
+    badezimmer: { de: "Badezimmer", en: "Bathroom" },
+    terrasse: { de: "Terrasse", en: "Terrace" },
+    eingangsbereich: { de: "Eingangsbereich", en: "Entrance" },
+    ausstattung: { de: "Ausstattung", en: "Facilities" },
+    anfahrt: { de: "Anfahrt", en: "Directions" },
+    kontakt: { de: "Kontakt", en: "Contact" },
+    highlights: { de: "Highlights", en: "Highlights" }
+  };
+
+  // --- 3️⃣ BreadcrumbList erzeugen ---
   const breadcrumbItems = [
     {
       "@type": "ListItem",
       "position": 1,
-      "name": "Startseite",
+      "name": {
+        "@value": lang === "en" ? "Home" : "Startseite",
+        "@language": lang
+      },
       "item": `${baseUrl}/`
     }
   ];
 
-  // --- Schritt 3: Breadcrumbs aufbauen ---
+  let cumulativePath = "";
   pathParts.forEach((part, i) => {
     cumulativePath += "/" + part;
-    const key = cumulativePath.replace(/^\/+/, "").toLowerCase();
+    const key = part.toLowerCase();
 
-    // Sprechenden Titel suchen oder fallback aus URL
-    const label = linkTitles[key] ||
-      part.replace(/[-_]/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+    const labelDe = linkTitles[key] || titles[key]?.de || part;
+    const labelEn = titles[key]?.en || labelDe;
 
-    const isLast = i === pathParts.length - 1;
-    if (isLast) {
-      breadcrumbHTML += ` <span>› ${label}</span>`;
-    } else {
-      breadcrumbHTML += ` <span>›</span> <a href="${cumulativePath}/">${label}</a>`;
-    }
+    const localizedName = {
+      "@value": lang === "en" ? labelEn : labelDe,
+      "@language": lang
+    };
 
     breadcrumbItems.push({
       "@type": "ListItem",
       "position": i + 2,
-      "name": label,
+      "name": localizedName,
       "item": `${baseUrl}${cumulativePath}/`
     });
   });
 
-  // --- Schritt 4: HTML + JSON-LD ins Dokument einfügen ---
-  breadcrumbContainer.innerHTML = breadcrumbHTML;
-
-  const schema = {
+  const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": breadcrumbItems
   };
 
-  const oldScript = document.getElementById("breadcrumb-schema");
-  if (oldScript) oldScript.remove();
+  // --- 4️⃣ Bestehendes Schema (LodgingBusiness) suchen ---
+  const existingScripts = Array.from(
+    document.querySelectorAll('script[type="application/ld+json"]')
+  );
 
-  const script = document.createElement("script");
-  script.type = "application/ld+json";
-  script.id = "breadcrumb-schema";
-  script.textContent = JSON.stringify(schema, null, 2);
-  document.head.appendChild(script);
+  let combinedSchemas = [];
 
-  console.log("[schema] Breadcrumbs automatisch generiert:", schema);
-}
+  for (const script of existingScripts) {
+    try {
+      const json = JSON.parse(script.textContent);
+      if (Array.isArray(json)) combinedSchemas.push(...json);
+      else combinedSchemas.push(json);
+    } catch {
+      console.warn("[schema] Fehler beim Lesen eines JSON-LD-Blocks – ignoriert.");
+    }
+  }
+
+  // --- 5️⃣ Zusammenführen ---
+  const hasBreadcrumb = combinedSchemas.some(s => s["@type"] === "BreadcrumbList");
+  if (!hasBreadcrumb) combinedSchemas.push(breadcrumbSchema);
+
+  // --- 6️⃣ Alles ersetzen ---
+  existingScripts.forEach(s => s.remove());
+  const unifiedScript = document.createElement("script");
+  unifiedScript.type = "application/ld+json";
+  unifiedScript.id = "unified-schema";
+  unifiedScript.textContent = JSON.stringify(combinedSchemas, null, 2);
+  document.head.appendChild(unifiedScript);
+
+  console.log(`[schema] Mehrsprachiges kombiniertes Schema (${lang}) erstellt:`, combinedSchemas);
+})();
 
 
 

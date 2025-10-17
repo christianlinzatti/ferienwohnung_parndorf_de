@@ -1153,20 +1153,3 @@ footer {
     display: none !important;
   }
 }
-
-/* --- Breadcrumbs --- */
-.breadcrumbs {
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-  color: var(--secondary-color);
-}
-.breadcrumbs a {
-  color: var(--primary-color);
-  text-decoration: none;
-}
-.breadcrumbs a:hover {
-  text-decoration: underline;
-}
-.breadcrumbs span {
-  color: #777;
-}
