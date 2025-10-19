@@ -1180,7 +1180,7 @@ footer {
   right: 190%; /* Etwas Abstand zum Punkt schaffen */
 }
 html, body {
-  width: 100%;
   overflow-x: hidden;
-  overscroll-behavior-x: none; /* verhindert Wischen nach links/rechts auf Mobilgeräten */
+  overflow-y: auto; /* erzwingt nur einen Scrollbalken */
+  height: 100%;
 }
