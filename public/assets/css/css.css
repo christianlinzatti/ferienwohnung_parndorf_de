@@ -1192,23 +1192,4 @@ html, body {
   overscroll-behavior-x: none; /* verhindert Wischen nach links/rechts auf Mobilgeräten */
 }
 
-header,
-.main-nav,
-.cta-floating,
-#wa-widget,
-#wa-toggle {
-  position: fixed;
-  left: 0;
-  right: 0;
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-/* Optional (wenn irgendwo 100vw statt 100% verwendet wird) */
-*[style*="100vw"],
-*[class*="container"],
-*[class*="wrapper"] {
-  max-width: 100%;
-  overflow-x: clip; /* moderner Ersatz für hidden (spart Repaints) */
-}
 
