@@ -1179,7 +1179,6 @@ footer {
   visibility: visible;
   right: 190%; /* Etwas Abstand zum Punkt schaffen */
 }
-
 html, body {
   width: 100%;
   overflow-x: hidden;
