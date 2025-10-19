@@ -1212,23 +1212,3 @@ header,
   overflow-x: clip; /* moderner Ersatz für hidden (spart Repaints) */
 }
 
-@media (max-width: 900px) {
-  .scroll-spy {
-    display: flex !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    transform: none !important;
-    padding: 0.4rem 0 !important;
-    background: rgba(255,255,255,0.95) !important;
-    box-shadow: 0 -6px 18px rgba(0,0,0,0.08) !important;
-    z-index: 999 !important;
-    opacity: 1 !important;
-  }
-
-  .scroll-spy ul { display:flex !important; justify-content:space-around; gap:8px; padding:0 8px; }
-  .scroll-spy-link { width:44px; height:44px; border-radius:12px; min-width:44px; min-height:44px; }
-  .scroll-spy .tooltip { display:none !important; }
-}
