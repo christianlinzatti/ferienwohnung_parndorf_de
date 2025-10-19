@@ -1182,5 +1182,17 @@ footer {
 html, body {
   overflow-x: hidden;
   overflow-y: auto; /* erzwingt nur einen Scrollbalken */
-  height: 100%;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: auto;  /* erlaubt Scrollen */
+  min-height: 100vh; /* verhindert weißes Nichts */
+  padding-top: var(--header-height);
+  background: var(--background-light);
 }
