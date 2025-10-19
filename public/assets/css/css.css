@@ -1145,12 +1145,6 @@ footer {
   border: 1px solid rgba(0,0,0,0.2);
 }
 
-/* Auf kleinen Bildschirmen ausblenden, um Platz zu sparen */
-@media (max-width: 900px) {
-  .scroll-spy {
-    display: none !important;
-  }
-}
 
 /* css.css - Ergänzung für Scroll-Spy */
 
