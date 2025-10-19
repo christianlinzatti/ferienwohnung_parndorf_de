@@ -919,7 +919,7 @@ footer {
     padding: 8px 12px;
     bottom: 30px;
   }
-}
+
 
 /* ========================================================= */
 /* ===   SCHÖNES VERFÜGBARKEITSFORMULAR + ERGEBNISFELD   === */
@@ -1185,5 +1185,3 @@ html, body {
   overflow-x: hidden;
   overscroll-behavior-x: none; /* verhindert Wischen nach links/rechts auf Mobilgeräten */
 }
-
-
