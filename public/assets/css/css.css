@@ -198,11 +198,11 @@ header p {
 
 .nav-overlay {
   position: fixed;
-  inset: 0; /* top, right, bottom, left: 0 */
-  background: rgba(0, 0, 0, 0.4); /* dunkler Schleier */
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  z-index: 9998;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45); /* halbtransparentes Schwarz */
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9998; /* unter dem Menü */
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -213,31 +213,30 @@ header p {
   pointer-events: all;
 }
 
-/* Seitliches Menü */
+/* === BURGER-MENÜ selbst === */
 .main-nav {
   position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;
-  width: min(320px, 85vw);     /* NICHT 100%, wie du wolltest */
-  background: rgba(0, 37, 26, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 9999;
+  height: 100vh;                 /* immer volle Höhe */
+  width: min(320px, 85vw);       /* fixe Breite */
+  background: #00251a;           /* undurchsichtig → kein Blur auf Inhalt */
+  color: white;
+  z-index: 9999;                 /* über Overlay */
   transform: translateX(-100%);
   transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   display: flex;
   flex-direction: column;
   padding: 25px;
-  overflow: hidden; /* kein Scrollbalken */
-  box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3);
+  overflow: hidden;              /* kein Scrollbalken */
+  box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
 }
 
 .main-nav.open {
   transform: translateX(0);
 }
 
-/* Navigationselemente */
+/* === MENÜ LINKS === */
 .main-nav a {
   color: white;
   text-decoration: none;
@@ -253,6 +252,11 @@ header p {
   color: #4dd0e1;
 }
 
+/* === BODY darf beim offenen Menü nicht scrollen === */
+body.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
 
 
 .burger-close {
