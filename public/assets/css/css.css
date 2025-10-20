@@ -1197,3 +1197,30 @@ body {
   padding-top: var(--header-height);
   background: var(--background-light);
 }
+
+html {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-y: visible !important;
+  overflow-x: hidden;
+  height: auto;
+  min-height: 100vh;
+}
+
+/* Verhindert Scrollleisten in fixierten Elementen */
+.main-nav,
+.scroll-spy,
+header,
+#photo-popup {
+  overflow: visible !important;
+}
+
+/* Popup-Sonderfall */
+body.popup-is-open,
+body.no-scroll {
+  overflow: hidden !important;
+  height: 100vh;
+}
