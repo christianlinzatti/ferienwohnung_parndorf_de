@@ -1306,9 +1306,17 @@ body.no-scroll {
 }
 
 
-#map-placeholder + #map-placeholder-streetview {
-  margin-top: 0; /* kein extra Abstand zwischen den beiden */
+
+.map-container {
+  gap: 0.5rem; /* oder 0, je nach gewünschtem Abstand */
 }
+
+#map-placeholder,
+#map-placeholder-streetview {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 
 
 #map-placeholder {
