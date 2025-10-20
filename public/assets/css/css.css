@@ -196,18 +196,19 @@ header p {
   width: min(320px, 85vw);
   height: 100vh;
   background-color: #00251a;
-  z-index: 1100; /* Above everything except its own close button */
+  z-index: 1100;
   transform: translateX(-100%);
   transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   display: flex;
   flex-direction: column;
   padding: 20px;
-  overflow-y: auto;
+  overflow-y: hidden;     /* <--- HIER */
 }
 
 .main-nav.open {
   transform: translateX(0);
   box-shadow: 5px 0 25px rgba(0,0,0,0.3);
+  overflow-y: auto;       /* <--- Nur sichtbar, wenn offen */
 }
 
 .burger-close {
@@ -1108,6 +1109,7 @@ footer {
   display: none; /* Wird per JS sichtbar gemacht, wenn gescrollt wird */
   opacity: 0;
   transition: opacity 0.4s ease;
+  overflow: visible !important; /* keine eigene Scrollbar */
 }
 
 .scroll-spy.visible {
@@ -1180,19 +1182,18 @@ footer {
   right: 190%; /* Etwas Abstand zum Punkt schaffen */
 }
 html, body {
+ margin: 0;
+  padding: 0;
   overflow-x: hidden;
-  overflow-y: auto; /* erzwingt nur einen Scrollbalken */
 }
 
 html {
-  overflow-x: hidden;
-  scroll-behavior: smooth;
+  overflow-y: auto;
 }
 
 body {
-  overflow-x: hidden;
-  overflow-y: auto;  /* erlaubt Scrollen */
-  min-height: 100vh; /* verhindert weißes Nichts */
+  overflow-y: visible;
+  min-height: 100vh;
   padding-top: var(--header-height);
   background: var(--background-light);
 }
