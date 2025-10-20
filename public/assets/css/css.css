@@ -200,7 +200,7 @@ header p {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.55);
-  z-index: 9998; /* unter dem Menü */
+  z-index: 10005;
   opacity: 0;
   pointer-events: none; /* verhindert Klicks solange unsichtbar */
   transition: opacity 0.28s ease;
