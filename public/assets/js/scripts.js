@@ -841,6 +841,13 @@ window.requestAnimationFrame(() => {
   overlay.className = 'nav-overlay';
   document.body.appendChild(overlay);
 
+  let navOverlay = document.querySelector('.nav-overlay');
+if (!navOverlay) {
+  navOverlay = document.createElement('div');
+  navOverlay.classList.add('nav-overlay');
+  document.body.appendChild(navOverlay);
+}
+
   function openMenu() {
   burgerMenu.classList.remove('closing');
   burgerMenu.classList.add('open');
