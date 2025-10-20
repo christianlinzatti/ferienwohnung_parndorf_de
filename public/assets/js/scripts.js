@@ -1081,6 +1081,11 @@ document.getElementById('load-streetview-btn')?.addEventListener('click', functi
 
   // In Container einfügen
   container.appendChild(iframe);
+
+
+ document.getElementById('map-placeholder-streetview').classList.add('loaded');
+});
+  
 });
 
 // Karte laden
