@@ -274,9 +274,6 @@ body.no-scroll {
   animation: menuSlideOut 0.35s ease forwards;
 }
 
-.main-nav.open a {
-  cursor: pointer; /* zeigt wieder den Hand-Cursor */
-}
 
 /* Keyframes */
 @keyframes menuSlideIn {
