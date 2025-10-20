@@ -837,6 +837,26 @@ window.requestAnimationFrame(() => {
   const burgerClose = document.getElementById("burger-close");
   const burgerMenu = document.querySelector(".main-nav");
 
+  let overlay = document.createElement('div');
+  overlay.className = 'nav-overlay';
+  document.body.appendChild(overlay);
+
+  function openMenu() {
+    burgerMenu.classList.add('open');
+    overlay.classList.add('visible');
+    document.body.classList.add('no-scroll');
+  }
+
+  function closeMenu() {
+    burgerMenu.classList.remove('open');
+    overlay.classList.remove('visible');
+    document.body.classList.remove('no-scroll');
+  }
+
+  burgerToggle?.addEventListener('click', openMenu);
+  burgerClose?.addEventListener('click', closeMenu);
+  overlay.addEventListener('click', closeMenu);
+
 // NEU: Zentrale Funktion zum Schließen des Menüs
   function closeBurgerMenu() {
     if (burgerMenu?.classList.contains("open")) {

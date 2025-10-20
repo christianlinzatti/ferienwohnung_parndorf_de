@@ -189,38 +189,61 @@ header p {
   z-index: 1001; /* Above header, below open nav */
 }
 
+
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.nav-overlay {
+  position: fixed;
+  inset: 0; /* top, right, bottom, left: 0 */
+  background: rgba(0, 0, 0, 0.4); /* dunkler Schleier */
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 9998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.nav-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Seitliches Menü */
 .main-nav {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
   height: 100vh;
+  width: min(320px, 85vw);     /* NICHT 100%, wie du wolltest */
+  background: rgba(0, 37, 26, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 9999;
-  background: rgba(0, 37, 26, 0.85); /* halbtransparentes dunkles Grün */
-  backdrop-filter: blur(10px);       /* Weichzeichner-Effekt */
-  -webkit-backdrop-filter: blur(10px); /* für Safari */
   transform: translateX(-100%);
   transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: 20px;
+  padding: 25px;
   overflow: hidden; /* kein Scrollbalken */
+  box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3);
 }
 
 .main-nav.open {
   transform: translateX(0);
-  overflow: hidden;
-  box-shadow: 5px 0 25px rgba(0,0,0,0.3);
 }
 
-/* Damit die Menülinks gut lesbar bleiben */
+/* Navigationselemente */
 .main-nav a {
   color: white;
   text-decoration: none;
-  font-size: 1.3rem;
-  padding: 12px;
-  border-radius: 10px;
+  font-size: 1.2rem;
+  padding: 10px;
+  border-radius: 8px;
   transition: background 0.3s, color 0.3s;
 }
 
@@ -229,6 +252,8 @@ header p {
   background: rgba(255, 255, 255, 0.15);
   color: #4dd0e1;
 }
+
+
 
 .burger-close {
   position: absolute;
