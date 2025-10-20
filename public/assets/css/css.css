@@ -1323,3 +1323,11 @@ body.no-scroll {
 #map-placeholder-streetview {
   border-radius: 0 0 12px 12px;
 }
+
+#map-placeholder-streetview iframe {
+  display: none;
+}
+
+#map-placeholder-streetview.loaded iframe {
+  display: block;
+}
