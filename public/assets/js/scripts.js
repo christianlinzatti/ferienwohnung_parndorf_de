@@ -842,16 +842,25 @@ window.requestAnimationFrame(() => {
   document.body.appendChild(overlay);
 
   function openMenu() {
-    burgerMenu.classList.add('open');
-    overlay.classList.add('visible');
-    document.body.classList.add('no-scroll');
-  }
+  burgerMenu.classList.remove('closing');
+  burgerMenu.classList.add('open');
+  overlay.classList.add('visible');
+  document.body.classList.add('no-scroll');
+}
 
-  function closeMenu() {
-    burgerMenu.classList.remove('open');
-    overlay.classList.remove('visible');
-    document.body.classList.remove('no-scroll');
-  }
+function closeMenu() {
+  // Weicher Ausblende-Effekt
+  burgerMenu.classList.remove('open');
+  burgerMenu.classList.add('closing');
+  overlay.classList.remove('visible');
+  document.body.classList.remove('no-scroll');
+
+  // Nach Ende der Animation: Zustand zurücksetzen
+  burgerMenu.addEventListener('animationend', function handleClose() {
+    burgerMenu.classList.remove('closing');
+    burgerMenu.removeEventListener('animationend', handleClose);
+  });
+}
 
   burgerToggle?.addEventListener('click', openMenu);
   burgerClose?.addEventListener('click', closeMenu);

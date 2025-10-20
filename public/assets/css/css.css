@@ -261,6 +261,38 @@ body.no-scroll {
   height: 100vh;
 }
 
+/* Zustand beim Öffnen */
+.main-nav.open {
+  animation: menuSlideIn 0.4s ease forwards;
+}
+
+/* Zustand beim Schließen (optional weicher Übergang) */
+.main-nav.closing {
+  animation: menuSlideOut 0.35s ease forwards;
+}
+
+/* Keyframes */
+@keyframes menuSlideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes menuSlideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
 
 .burger-close {
   position: absolute;
