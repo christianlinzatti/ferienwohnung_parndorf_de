@@ -196,14 +196,14 @@ header p {
   to { transform: translateX(0); opacity: 1; }
 }
 
-/* === OVERLAY (unscharfer Hintergrund, Menü bleibt scharf) === */
+/* === OVERLAY (unscharfer Hintergrund, bleibt hinter Menü) === */
 .nav-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 9998; /* unter dem Menü */
+  z-index: 9998;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -214,15 +214,16 @@ header p {
   pointer-events: all;
 }
 
-/* === BURGER-MENÜ === */
+/* === BURGER-MENÜ (scharf, ohne Blur, ohne Scroll) === */
 .main-nav {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
   width: min(320px, 85vw);
-  background: #00251a;            /* solides Grün – kein Blur hier! */
-  z-index: 9999;                  /* über Overlay */
+  background-color: #00251a;
+  color: white;
+  z-index: 10000; /* höher als Overlay */
   transform: translateX(-100%);
   transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   display: flex;
@@ -230,16 +231,18 @@ header p {
   padding: 25px;
   overflow: hidden;
   box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
-  isolation: isolate;             /* <<< WICHTIG: verhindert Blur-Durchschlag */
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+
+  /* 🔥 WICHTIG: eigener Rendering-Context */
+  will-change: transform;
+  backface-visibility: hidden;
+  isolation: isolate;
+  contain: paint layout style;
 }
 
 .main-nav.open {
   transform: translateX(0);
 }
 
-/* === LINKS === */
 .main-nav a {
   color: white;
   text-decoration: none;
@@ -255,13 +258,7 @@ header p {
   color: #4dd0e1;
 }
 
-/* === BODY darf beim offenen Menü nicht scrollen === */
-body.no-scroll {
-  overflow: hidden;
-  height: 100vh;
-}
-
-/* === BODY darf beim offenen Menü nicht scrollen === */
+/* Kein Scrollen im Hintergrund */
 body.no-scroll {
   overflow: hidden;
   height: 100vh;
