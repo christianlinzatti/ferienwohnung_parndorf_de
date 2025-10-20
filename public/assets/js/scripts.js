@@ -1129,6 +1129,10 @@ if (loadMapBtn && mapPlaceholder && mapContainer) {
       script.async = true;
       document.head.appendChild(script);
       loadMapBtn.disabled = true;
+
+document.getElementById('map').classList.add('active');
+});
+      
     }
   });
 }
