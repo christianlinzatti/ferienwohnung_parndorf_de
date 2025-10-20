@@ -1304,3 +1304,15 @@ body.popup-is-open,
 body.no-scroll {
   overflow: hidden; /* Diese Regel wirkt jetzt auf den <html>-Tag, wenn sie dem body hinzugefügt wird. */
 }
+
+.content-box .map-container {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+#map-placeholder {
+  border-radius: 12px 12px 0 0;
+}
+#map-placeholder-streetview {
+  border-radius: 0 0 12px 12px;
+}
