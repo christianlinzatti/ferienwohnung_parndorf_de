@@ -290,6 +290,15 @@ body.no-scroll {
   }
 }
 
+.main-nav.open a {
+  animation: fadeInUp 0.3s ease both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes menuSlideOut {
   from {
     transform: translateX(0);
