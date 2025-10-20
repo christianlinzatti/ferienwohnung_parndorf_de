@@ -1305,10 +1305,11 @@ body.no-scroll {
   overflow: hidden; /* Diese Regel wirkt jetzt auf den <html>-Tag, wenn sie dem body hinzugefügt wird. */
 }
 
-.content-box .map-container {
-  margin-top: 0;
-  margin-bottom: 0;
+
+#map-placeholder + #map-placeholder-streetview {
+  margin-top: 0; /* kein extra Abstand zwischen den beiden */
 }
+
 
 #map-placeholder {
   border-radius: 12px 12px 0 0;
