@@ -239,8 +239,6 @@ header p {
 
 .main-nav.open {
   transform: translateX(0);
-  pointer-events: auto; /* erlaubt Klicks, sobald offen */
-  cursor: auto;
 }
 
 .main-nav a {
