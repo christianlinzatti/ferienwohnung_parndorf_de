@@ -292,6 +292,8 @@ body.no-scroll {
 
 .main-nav.open a {
   animation: fadeInUp 0.3s ease both;
+    cursor: pointer !important; /* Hand-Cursor erzwingen, wenn offen */
+
 }
 
 @keyframes fadeInUp {
