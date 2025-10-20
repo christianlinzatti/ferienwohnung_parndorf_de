@@ -196,20 +196,19 @@ header p {
   to { transform: translateX(0); opacity: 1; }
 }
 
-/* === OVERLAY (unscharfer Hintergrund, bleibt hinter Menü) === */
 .nav-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55); /* stärkerer Dunkelton anstelle von Blur */
-  z-index: 9998;
+  background: rgba(0,0,0,0.55);
+  z-index: 9998; /* unter dem Menü */
   opacity: 0;
-  pointer-events: none;
+  pointer-events: none; /* verhindert Klicks solange unsichtbar */
   transition: opacity 0.28s ease;
 }
 
 .nav-overlay.visible {
   opacity: 1;
-  pointer-events: all;
+  pointer-events: all; /* Klicks auf freien Bereich = Menü schließen */
 }
 
 /* === BURGER-MENÜ (scharf, ohne Blur, ohne Scroll) === */
