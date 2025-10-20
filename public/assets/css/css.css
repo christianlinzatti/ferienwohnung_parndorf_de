@@ -234,10 +234,13 @@ header p {
   backface-visibility: hidden;
   isolation: isolate;
   contain: paint layout style;
+  pointer-events: none; /* verhindert Klicks, solange geschlossen */
 }
 
 .main-nav.open {
   transform: translateX(0);
+  pointer-events: auto; /* erlaubt Klicks, sobald offen */
+  cursor: auto;
 }
 
 .main-nav a {
@@ -269,6 +272,10 @@ body.no-scroll {
 /* Zustand beim Schließen (optional weicher Übergang) */
 .main-nav.closing {
   animation: menuSlideOut 0.35s ease forwards;
+}
+
+.main-nav.open a {
+  cursor: pointer; /* zeigt wieder den Hand-Cursor */
 }
 
 /* Keyframes */
