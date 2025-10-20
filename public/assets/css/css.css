@@ -26,7 +26,6 @@ body {
   background: var(--background-light);
   color: var(--text-color);
   line-height: 1.6;
-  padding-top: var(--header-height);
   overflow-x: hidden; /* Diese Zeile ist entscheidend */
 }
 
@@ -285,6 +284,7 @@ main {
   padding: 2rem 1rem;
   max-width: 1200px;
   margin: 0 auto;
+  margin-top: var(--header-height); /* <-- DIESE ZEILE HINZUFÜGEN */
 }
 
 .main-content-grid {
@@ -1188,20 +1188,20 @@ html, body {
 }
 
 /* 1. Das <html>-Element ist allein für den Haupt-Scrollbalken der Seite zuständig. */
+/* Das <html>-Element ist der alleinige Container für den Scrollbalken der Seite. */
 html {
-  overflow-y: auto;   /* Vertikaler Scrollbalken, nur wenn nötig. */
-  overflow-x: hidden; /* Verhindert horizontales Scrollen zuverlässig. */
+  overflow-y: scroll;  /* Erzwingt den vertikalen Scrollbalken IMMER, verhindert Springen. */
+  overflow-x: hidden;  /* Verbietet horizontales Scrollen konsequent. */
 }
 
-/* 2. Das <body>-Element bekommt keine widersprüchlichen Anweisungen mehr. */
-/* Die problematische Regel `overflow-y: visible !important;` wird hiermit entfernt. */
+/* Der <body> wird angewiesen, NIEMALS selbst einen Scrollbalken zu erzeugen. */
 body {
-  overflow-x: hidden; /* Zusätzliche Sicherheit gegen horizontales Scrollen. */
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 
-/* 3. Regel für den "Kein Scrollen"-Zustand, wenn das Menü oder ein Popup offen ist. */
-/* Das JavaScript fügt die `no-scroll`-Klasse hinzu, und diese Regel greift dann. */
+/* Sonderregel, wenn ein Popup oder Menü offen ist, um das Scrollen im <html> zu stoppen. */
 body.popup-is-open,
 body.no-scroll {
-  overflow: hidden; /* Versteckt den Überlauf und unterbindet das Scrollen der Seite. */
+  overflow: hidden; /* Diese Regel wirkt jetzt auf den <html>-Tag, wenn sie dem body hinzugefügt wird. */
 }
