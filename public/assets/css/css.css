@@ -1182,25 +1182,26 @@ footer {
   right: 190%; /* Etwas Abstand zum Punkt schaffen */
 }
 
-/* Korrigierte Regeln für das globale Scrolling */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* 1. Das <html>-Element ist allein für den Haupt-Scrollbalken der Seite zuständig. */
 html {
-  overflow-y: auto; /* Der Scrollbalken erscheint nur bei Bedarf */
-  overflow-x: hidden; /* Verhindert horizontales Scrollen konsequent */
+  overflow-y: auto;   /* Vertikaler Scrollbalken, nur wenn nötig. */
+  overflow-x: hidden; /* Verhindert horizontales Scrollen zuverlässig. */
 }
 
+/* 2. Das <body>-Element bekommt keine widersprüchlichen Anweisungen mehr. */
+/* Die problematische Regel `overflow-y: visible !important;` wird hiermit entfernt. */
 body {
-  overflow-x: hidden; /* Stellt sicher, dass auch der body kein horizontales Scrollen verursacht */
-  min-height: 100vh; /* Wichtig, damit der Body immer die volle Höhe hat */
+  overflow-x: hidden; /* Zusätzliche Sicherheit gegen horizontales Scrollen. */
 }
 
-/* Popup-Sonderfall: Scrollen unterbinden, wenn ein Popup offen ist */
+/* 3. Regel für den "Kein Scrollen"-Zustand, wenn das Menü oder ein Popup offen ist. */
+/* Das JavaScript fügt die `no-scroll`-Klasse hinzu, und diese Regel greift dann. */
 body.popup-is-open,
 body.no-scroll {
-  overflow: hidden !important;
-  height: 100vh;
-}
-
-/* Verhindert unerwünschte Scrollbalken in fixierten Elementen */
-.main-nav, .scroll-spy, header, #photo-popup {
-  overflow: visible !important;
+  overflow: hidden; /* Versteckt den Überlauf und unterbindet das Scrollen der Seite. */
 }
