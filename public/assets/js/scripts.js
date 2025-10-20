@@ -857,6 +857,7 @@ window.requestAnimationFrame(() => {
   burgerClose?.addEventListener('click', closeMenu);
   overlay.addEventListener('click', closeMenu);
 
+
 // NEU: Zentrale Funktion zum Schließen des Menüs
   function closeBurgerMenu() {
     if (burgerMenu?.classList.contains("open")) {
