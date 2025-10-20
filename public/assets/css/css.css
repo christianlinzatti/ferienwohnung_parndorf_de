@@ -1307,17 +1307,15 @@ body.no-scroll {
 
 
 
-.map-container {
-  gap: 0.5rem; /* oder 0, je nach gewünschtem Abstand */
+
+/* --- Fix: Leeren Map-Container verstecken, bis er aktiv geladen ist --- */
+#map {
+  display: none; /* unsichtbar, solange nicht geladen */
 }
 
-#map-placeholder,
-#map-placeholder-streetview {
-  margin-top: 0;
-  margin-bottom: 0;
+#map.active {
+  display: block; /* wird durch JS eingeblendet */
 }
-
-
 
 #map-placeholder {
   border-radius: 12px 12px 0 0;
