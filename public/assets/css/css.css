@@ -193,8 +193,9 @@ header p {
   position: fixed;
   top: 0;
   left: 0;
+  bottom: 0;
   width: min(320px, 85vw);
-  height: 100vh;
+  /* height: 100dvh; */
   background-color: #00251a;
   z-index: 1100;
   transform: translateX(-100%);
