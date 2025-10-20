@@ -683,6 +683,25 @@ const resetMetaTags = () => {
   photoPopupCloseBtn?.addEventListener("click", () => closePhotoPopup(true));
   photoPopup?.addEventListener("click", e => e.target === photoPopup && closePhotoPopup(true));
 
+
+  // === NEU: Pfeiltasten-Navigation für die Galerie ===
+document.addEventListener('keydown', (e) => {
+  // Prüfen, ob das Pop-up überhaupt offen ist
+  if (!photoPopup?.classList.contains('open')) {
+    return; // Wenn nicht, nichts tun
+  }
+
+  // Wenn "Pfeil nach links" gedrückt wird
+  if (e.key === 'ArrowLeft') {
+    photoPopupPrevBtn?.click(); // Simuliere einen Klick auf den "Zurück"-Button
+  }
+
+  // Wenn "Pfeil nach rechts" gedrückt wird
+  if (e.key === 'ArrowRight') {
+    photoPopupNextBtn?.click(); // Simuliere einen Klick auf den "Weiter"-Button
+  }
+});
+
   // =========================================================
   // Router-Logik (robust)
   // =========================================================
