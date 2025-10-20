@@ -196,12 +196,13 @@ header p {
   to { transform: translateX(0); opacity: 1; }
 }
 
+/* === OVERLAY (unscharfer Hintergrund, Menü bleibt scharf) === */
 .nav-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45); /* halbtransparentes Schwarz */
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 9998; /* unter dem Menü */
   opacity: 0;
   pointer-events: none;
@@ -213,30 +214,32 @@ header p {
   pointer-events: all;
 }
 
-/* === BURGER-MENÜ selbst === */
+/* === BURGER-MENÜ === */
 .main-nav {
   position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;                 /* immer volle Höhe */
-  width: min(320px, 85vw);       /* fixe Breite */
-  background: #00251a;           /* undurchsichtig → kein Blur auf Inhalt */
-  color: white;
-  z-index: 9999;                 /* über Overlay */
+  height: 100vh;
+  width: min(320px, 85vw);
+  background: #00251a;            /* solides Grün – kein Blur hier! */
+  z-index: 9999;                  /* über Overlay */
   transform: translateX(-100%);
   transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   display: flex;
   flex-direction: column;
   padding: 25px;
-  overflow: hidden;              /* kein Scrollbalken */
+  overflow: hidden;
   box-shadow: 5px 0 25px rgba(0, 0, 0, 0.4);
+  isolation: isolate;             /* <<< WICHTIG: verhindert Blur-Durchschlag */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .main-nav.open {
   transform: translateX(0);
 }
 
-/* === MENÜ LINKS === */
+/* === LINKS === */
 .main-nav a {
   color: white;
   text-decoration: none;
@@ -250,6 +253,12 @@ header p {
 .main-nav a.active {
   background: rgba(255, 255, 255, 0.15);
   color: #4dd0e1;
+}
+
+/* === BODY darf beim offenen Menü nicht scrollen === */
+body.no-scroll {
+  overflow: hidden;
+  height: 100vh;
 }
 
 /* === BODY darf beim offenen Menü nicht scrollen === */
