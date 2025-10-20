@@ -14,7 +14,7 @@ const scrollSpyNav = document.querySelector('.scroll-spy');
   }
 
   // Die Scroll-Spy Navigation erst nach dem Header einblenden
-  const headerHeight = document.querySelector('header')?.offsetHeight || 250;
+  const headerHeight = document.querySelector('header')?.offsetHeight || 150;
   window.addEventListener('scroll', () => {
     if (window.scrollY > headerHeight) {
       scrollSpyNav.classList.add('visible');
