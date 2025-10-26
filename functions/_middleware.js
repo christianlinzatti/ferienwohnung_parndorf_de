@@ -11,7 +11,7 @@ export async function onRequest(context) {
   const isNavigation = request.headers.get("accept")?.includes("text/html");
 
   // --- 0️⃣ Direkte Dateien (robots.txt etc.) durchlassen
-  const directFiles = ["/robots.txt", "/site.webmanifest", "/sitemap.xml", "/favicon.ico", "/manifest.json", "/favicon-16x16.png"];
+  const directFiles = ["/robots.txt", "/site.webmanifest", "/sitemap.xml", "/favicon.ico", "/manifest.json", "/favicon-16x16.png","/apple-icon-57x57.png","/apple-icon-60x60.png","/apple-icon-72x72.png","/apple-icon-76x76.png","/apple-icon-114x114.png","/apple-icon-120x120.png","/apple-icon-144x144.png","/apple-icon-152x152.png","/apple-icon-180x180.png","/android-icon-192x192.png","/favicon-32x32.png","/favicon-96x96.png","/favicon-16x16.png","/manifest.json","/ms-icon-144x144.png"];
   if (directFiles.some(f => path === f)) {
     return env.ASSETS.fetch(request);
   }
@@ -28,7 +28,7 @@ export async function onRequest(context) {
   }
 
   // --- 2️⃣ Deutsche Subdomain
-  if (host.startsWith("de.")) {
+  if (host.startsWith("de.") || host.startsWith("www.de.")) {
     // Assets direkt durchlassen
     if (path.startsWith("/assets/")) {
       return env.ASSETS.fetch(request);
@@ -38,7 +38,7 @@ export async function onRequest(context) {
   }
 
   // --- 3️⃣ Englische Subdomain
-  if (host.startsWith("en.")) {
+  if (host.startsWith("en.") || host.startsWith("www.en.")) {
     // Assets direkt durchlassen
     if (path.startsWith("/assets/")) {
       return env.ASSETS.fetch(request);
