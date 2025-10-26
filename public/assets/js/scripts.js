@@ -1065,6 +1065,8 @@ if (headerSlides.length > 1) {
 
 document.getElementById('load-streetview-btn')?.addEventListener('click', function () {
   const container = document.getElementById('map-placeholder-streetview');
+   document.getElementById('map-placeholder-streetview').classList.add('loaded');
+
 
   // Entfernt nur das Overlay & Vorschaubild im Streetview-Container
   container.querySelectorAll('.map-overlay, img')?.forEach(el => el.remove());
@@ -1129,6 +1131,8 @@ if (loadMapBtn && mapPlaceholder && mapContainer) {
       script.async = true;
       document.head.appendChild(script);
       loadMapBtn.disabled = true;
+      document.getElementById('map').classList.add('active');
+
     }
   });
 }

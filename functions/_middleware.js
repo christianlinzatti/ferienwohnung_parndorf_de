@@ -11,7 +11,7 @@ export async function onRequest(context) {
   const isNavigation = request.headers.get("accept")?.includes("text/html");
 
   // --- 0️⃣ Direkte Dateien (robots.txt etc.) durchlassen
-  const directFiles = ["/robots.txt", "/site.webmanifest", "/sitemap.xml", "/favicon.ico", "/manifest.json"];
+  const directFiles = ["/robots.txt", "/site.webmanifest", "/sitemap.xml", "/favicon.ico", "/manifest.json", "/favicon-16x16.png"];
   if (directFiles.some(f => path === f)) {
     return env.ASSETS.fetch(request);
   }
