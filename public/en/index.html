@@ -694,22 +694,26 @@
          </section>
          <section class="map-container content-box fade-in" data-aos="fade-up" id="anfahrt">
             <h2 id="lage" data-aos="zoom-in">Location & Surroundings</h2>
-            <div id="map-placeholder-streetview" role="region" data-aos="fade-left">
-               <div class="map-overlay" >
-                  <p>To display the Street View, your consent to load content from Google Maps is required. This may send personal data to Google.</p>
-                  <button id="load-streetview-btn" class="booking-btn-float load-map-btn">Load Street View</button>
-               </div>
-               <img src="assets/images/streetview.webp" alt="Preview of the location on the map" class="map-preview-img" loading="lazy">
+             <h3 id="maps" data-aos="zoom-in">Google Maps</h3>
+         <!-- Platzhalter für Google Maps -->
+          <div id="map-placeholder">
+            <div class="map-overlay">
+                                <p>To display the map, your consent to load content from Google Maps is required. This may send personal data to Google.</p>
+
+              <button id="load-map-btn" class="booking-btn-float load-map-btn">load map</button>
             </div>
-            <div id="map-container" style="display: none;"></div>
-            <div id="map-placeholder" role="region" data-aos="fade-right">
-               <div class="map-overlay" >
-                  <p>To display the map, your consent to load content from Google Maps is required. This may send personal data to Google.</p>
-                  <button id="load-map-btn" class="booking-btn-float load-map-btn">Load map</button>
-               </div>
-               <img src="/assets/images/map-preview.webp" alt="Preview of the location on the map" class="map-preview-img" loading="lazy">
+            <img src="/assets/images/map-preview.webp" alt="Preview of the location on the map" class="map-preview-img" loading="lazy" decoding="async">
+          </div>
+          <div id="map"></div>
+<h3 id="streetview" data-aos="zoom-in">Google Streetview</h3>
+          <!-- Platzhalter für Street View -->
+          <div id="map-placeholder-streetview">
+            <div class="map-overlay">
+              <p>To display the Street View, your consent to load content from Google Maps is required. This may send personal data to Google.</p>
+              <button id="load-streetview-btn" class="booking-btn-float load-map-btn">load Street View</button>
             </div>
-            <div id="map" style="display: none;"></div>
+            <img src="/assets/images/streetview.webp" alt="Preview of the location on the map" class="map-preview-img" loading="lazy" decoding="async">
+          </div>
          </section>
       </main>
       <footer data-aos="fade-up">
