@@ -397,6 +397,41 @@ if (form) {
    * @param {string} imageUrl - Die URL des Bildes.
    * @param {string} caption - Die Bildunterschrift aus data-caption.
    */
+
+function updateJsonLdPrimaryImage(imageUrl) {
+  // 1. Finde das Skript-Tag
+  const script = document.getElementById('unified-schema');
+  if (!script) {
+    console.warn('[JSON-LD] Unified schema script not found.');
+    return;
+  }
+
+  try {
+    // 2. Lese und parse das aktuelle JSON
+    let schemas = JSON.parse(script.textContent);
+    if (!Array.isArray(schemas)) schemas = [schemas]; // Sicherstellen, dass es ein Array ist
+
+    // 3. Finde das WebPage-Schema, das vom Skript hinzugefügt wurde
+    const webpageSchema = schemas.find(s => s['@type'] === 'WebPage');
+
+    if (webpageSchema) {
+      // 4. Aktualisiere das Bild-Objekt
+      webpageSchema.primaryImageOfPage = {
+        "@type": "ImageObject",
+        "url": imageUrl
+      };
+
+      // 5. Schreibe das aktualisierte JSON zurück in das Skript-Tag
+      script.textContent = JSON.stringify(schemas, null, 2);
+      console.log('[JSON-LD] primaryImageOfPage aktualisiert ->', imageUrl);
+    } else {
+      console.warn('[JSON-LD] WebPage schema not found for image update.');
+    }
+  } catch (e) {
+    console.error('Fehler beim Parsen/Aktualisieren des JSON-LD-Schemas:', e);
+  }
+}
+
 const updateMetaTagsForImage = (imageUrl, caption) => {
   console.log('[meta] updateMetaTagsForImage called', { imageUrl, caption });
 
@@ -432,6 +467,7 @@ const updateMetaTagsForImage = (imageUrl, caption) => {
 
   // Absolute Bild-URL erzeugen
   const fullImageUrl = new URL(imageUrl, window.location.origin).href;
+  updateJsonLdPrimaryImage(fullImageUrl);
 
   // Titel und Beschreibung übersetzt erstellen
   const newTitle = translations[lang].metaTitle.replace('{caption}', caption || '');
@@ -499,6 +535,7 @@ const resetMetaTags = () => {
     description: originalMeta.description,
     image: originalMeta.ogImage
   });
+  updateJsonLdPrimaryImage(originalMeta.ogImage || '');
 };
 
 
