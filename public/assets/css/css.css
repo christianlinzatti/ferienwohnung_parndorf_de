@@ -1326,6 +1326,10 @@ body.no-scroll {
   overflow: hidden;
 }
 
+#map-placeholder.loaded {
+  display: none;
+}
+
 #map-placeholder:not(.loaded) #map {
   display: none; /* Karte erst sichtbar, wenn geladen */
 }
