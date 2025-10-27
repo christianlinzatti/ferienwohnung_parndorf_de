@@ -694,8 +694,11 @@ main {
 }
 
 .map-preview-img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
   object-fit: cover;
   z-index: 1;
