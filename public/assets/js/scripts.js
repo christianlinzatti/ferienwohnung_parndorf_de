@@ -1105,7 +1105,7 @@ if (loadMapBtn && mapPlaceholder && mapContainer) {
       content: `
         <div style="max-width:280px; font-family:'Poppins',sans-serif;">
           <h3 style="margin:0 0 5px;color:#004d40;">
-            <a href="https://www.google.com/maps/place/Ferienwohnung+Parndorf/"
+            <a href="https://maps.app.goo.gl/A3TWeZ5z6dYmZaf88"
                target="_blank" rel="noopener noreferrer">
                Ferienwohnung Parndorf
             </a>
@@ -1113,7 +1113,7 @@ if (loadMapBtn && mapPlaceholder && mapContainer) {
           <p style="margin:0 0 10px;font-size:14px;">
             Obere Wunkau 38, 7111 Parndorf
           </p>
-          <a href="https://www.google.com/maps/dir/?api=1&destination=Ferienwohnung+Parndorf"
+          <a href="https://www.google.com/maps/dir//Ferienwohnung+Parndorf,+Obere+Wunkau+38,+7111+Parndorf/@48.0006701,16.861591,17z"
              target="_blank" rel="noopener noreferrer"
              style="color:#0071c2;text-decoration:none;font-weight:bold;">
              Route planen
