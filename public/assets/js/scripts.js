@@ -398,38 +398,55 @@ if (form) {
    * @param {string} caption - Die Bildunterschrift aus data-caption.
    */
 
-function updateJsonLdPrimaryImage(imageUrl) {
-  // 1. Finde das Skript-Tag
+function updateJsonLdPrimaryImage(imageUrl, caption = '') {
+  // 1. Finde das JSON-LD Skript-Tag
   const script = document.getElementById('unified-schema');
   if (!script) {
-    console.warn('[JSON-LD] Unified schema script not found.');
+    console.warn('[JSON-LD] Konnte <script id="unified-schema"> nicht finden.');
     return;
   }
 
+  let schemas = [];
   try {
     // 2. Lese und parse das aktuelle JSON
-    let schemas = JSON.parse(script.textContent);
-    if (!Array.isArray(schemas)) schemas = [schemas]; // Sicherstellen, dass es ein Array ist
-
-    // 3. Finde das WebPage-Schema, das vom Skript hinzugefügt wurde
-    const webpageSchema = schemas.find(s => s['@type'] === 'WebPage');
-
-    if (webpageSchema) {
-      // 4. Aktualisiere das Bild-Objekt
-      webpageSchema.primaryImageOfPage = {
-        "@type": "ImageObject",
-        "url": imageUrl
-      };
-
-      // 5. Schreibe das aktualisierte JSON zurück in das Skript-Tag
-      script.textContent = JSON.stringify(schemas, null, 2);
-      console.log('[JSON-LD] primaryImageOfPage aktualisiert ->', imageUrl);
-    } else {
-      console.warn('[JSON-LD] WebPage schema not found for image update.');
-    }
+    schemas = JSON.parse(script.textContent);
+    if (!Array.isArray(schemas)) schemas = [schemas];
   } catch (e) {
-    console.error('Fehler beim Parsen/Aktualisieren des JSON-LD-Schemas:', e);
+    console.error('Fehler beim Parsen des JSON-LD-Schemas:', e);
+    return; // Abbruch bei ungültigem JSON
   }
+
+  // 3. Finde das 'WebPage'-Schema
+  let webpageSchema = schemas.find(s => s['@type'] === 'WebPage');
+
+  // 4. (NEU) Falls kein WebPage-Schema existiert, erstelle eines
+  if (!webpageSchema) {
+    console.warn('[JSON-LD] "WebPage"-Schema nicht gefunden. Erstelle ein Neues.');
+    webpageSchema = {
+      "@type": "WebPage",
+      "url": window.location.href, // Nimm die aktuelle URL
+      "name": document.title // Nimm den aktuellen Titel
+    };
+    schemas.push(webpageSchema); // Füge es dem Array hinzu
+  }
+
+  // 5. (NEU) Erstelle das ImageObject mit URL und Caption
+  const imageObject = {
+    "@type": "ImageObject",
+    "url": imageUrl
+  };
+
+  // Füge die Caption nur hinzu, wenn sie vorhanden ist
+  if (caption && caption.trim() !== '') {
+    imageObject.caption = caption.trim();
+  }
+
+  // 6. Setze das ImageObject als primaryImageOfPage
+  webpageSchema.primaryImageOfPage = imageObject;
+
+  // 7. Schreibe das aktualisierte JSON zurück in das Skript-Tag
+  script.textContent = JSON.stringify(schemas, null, 2);
+  console.log('[JSON-LD] primaryImageOfPage (im WebPage-Objekt) aktualisiert ->', imageUrl, 'mit Caption:', caption || 'Keine');
 }
 
 const updateMetaTagsForImage = (imageUrl, caption) => {
@@ -467,11 +484,12 @@ const updateMetaTagsForImage = (imageUrl, caption) => {
 
   // Absolute Bild-URL erzeugen
   const fullImageUrl = new URL(imageUrl, window.location.origin).href;
-  updateJsonLdPrimaryImage(fullImageUrl);
+
 
   // Titel und Beschreibung übersetzt erstellen
   const newTitle = translations[lang].metaTitle.replace('{caption}', caption || '');
   const newDescription = translations[lang].metaDescription.replace('{caption}', caption || '');
+  updateJsonLdPrimaryImage(fullImageUrl,newTitle);
 
   // Seitentitel setzen
   document.title = newTitle;
