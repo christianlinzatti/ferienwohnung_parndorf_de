@@ -1092,119 +1092,63 @@ const mapPlaceholder = document.getElementById('map-placeholder');
 const mapContainer = document.getElementById('map');
 
 if (loadMapBtn && mapPlaceholder && mapContainer) {
-  // Sicherstellen, dass #map eine sichtbare Höhe hat (falls CSS fehlt)
-  if (!mapContainer.style.minHeight) {
-    mapContainer.style.minHeight = mapContainer.style.minHeight || '400px';
-    mapContainer.style.display = mapContainer.style.display || 'block';
-  }
-
-  // Callback, den die Google-API aufruft
   window.initMap = () => {
-    try {
-      const location = { lat: 48.0007115, lng: 16.8640465 };
+    const location = { lat: 48.0007115, lng: 16.8640465 };
+    const map = new google.maps.Map(mapContainer, {
+      zoom: 15,
+      center: location,
+      disableDefaultUI: true,
+      mapId: "1f521e152f97485fa96f0a37"
+    });
 
-      const map = new google.maps.Map(mapContainer, {
-        zoom: 15,
-        center: location,
-        disableDefaultUI: true,
-        // mapId: "1f521e152f97485fa96f0a37" // optional, nur wenn du eine Map-ID nutzt
-      });
+    const infoWindow = new google.maps.InfoWindow({
+      content: `
+        <div style="max-width:280px; font-family:'Poppins',sans-serif;">
+          <h3 style="margin:0 0 5px;color:#004d40;">
+            <a href="https://www.google.com/maps/place/Ferienwohnung+Parndorf/"
+               target="_blank" rel="noopener noreferrer">
+               Ferienwohnung Parndorf
+            </a>
+          </h3>
+          <p style="margin:0 0 10px;font-size:14px;">
+            Obere Wunkau 38, 7111 Parndorf
+          </p>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=Ferienwohnung+Parndorf"
+             target="_blank" rel="noopener noreferrer"
+             style="color:#0071c2;text-decoration:none;font-weight:bold;">
+             Route planen
+          </a>
+        </div>`
+    });
 
-      const infoWindow = new google.maps.InfoWindow({
-        content: `
-          <div style="max-width:280px; font-family:'Poppins',sans-serif;">
-            <h3 style="margin:0 0 5px;color:#004d40;">
-              <a href="https://www.google.com/maps/place/Ferienwohnung+Parndorf/" target="_blank" rel="noopener noreferrer">
-                Ferienwohnung Parndorf
-              </a>
-            </h3>
-            <p style="margin:0 0 10px;font-size:14px;">
-              Obere Wunkau 38, 7111 Parndorf
-            </p>
-            <a href="https://www.google.com/maps/dir/?api=1&destination=Ferienwohnung+Parndorf"
-               target="_blank" rel="noopener noreferrer"
-               style="color:#0071c2;text-decoration:none;font-weight:bold;">Route planen</a>
-          </div>`
-      });
+    const marker = new (google.maps.marker?.AdvancedMarkerElement || google.maps.Marker)({
+      position: location,
+      map,
+      title: "Ferienwohnung Parndorf",
+    });
 
-      // AdvancedMarkerElement-Fallback auf klassischen Marker
-      let marker;
-      if (google.maps.marker && typeof google.maps.marker.AdvancedMarkerElement === 'function') {
-        try {
-          marker = new google.maps.marker.AdvancedMarkerElement({
-            position: location,
-            map,
-            title: "Ferienwohnung Parndorf",
-          });
-        } catch (err) {
-          console.warn('AdvancedMarkerElement nicht verfügbar, benutze klassischen Marker.', err);
-        }
-      }
-      if (!marker) {
-        marker = new google.maps.Marker({
-          position: location,
-          map,
-          title: "Ferienwohnung Parndorf"
-        });
-      }
+    marker.addListener("click", () => infoWindow.open(map, marker));
+    infoWindow.open(map, marker);
 
-      marker.addListener("click", () => infoWindow.open(map, marker));
-      infoWindow.open(map, marker);
+    // Nur Overlay + Vorschaubild entfernen (nicht den Container)
+    mapPlaceholder.querySelectorAll('.map-overlay, img')?.forEach(el => el.remove());
 
-      // Erst jetzt das Overlay/Vorschaubild entfernen — so siehst du kein kurzes Weiß
-      mapPlaceholder.querySelectorAll('.map-overlay, img')?.forEach(el => el.remove());
-      mapPlaceholder.classList.add('loaded');
-
-      // Trigger Resize & Center damit die Map korrekt skaliert
-      setTimeout(() => {
-        try { google.maps.event.trigger(map, 'resize'); } catch (e) { /* ignore */ }
-        map.setCenter(location);
-      }, 250);
-
-      // UI Feedback
-      loadMapBtn.disabled = true;
-      loadMapBtn.classList.add('disabled', 'loaded');
-      window._mapsLoading = false;
-    } catch (err) {
-      console.error('initMap Fehler:', err);
-      window._mapsLoading = false;
-      loadMapBtn.disabled = false;
-    }
+    // Sichtbar machen, falls vorher versteckt
+    mapContainer.style.display = 'block';
+    mapPlaceholder.classList.add('loaded');
   };
 
   loadMapBtn.addEventListener('click', () => {
-    // Guard: script nur einmal laden
-    if (window._mapsLoading) return;
-    window._mapsLoading = true;
+    if (!window.google || !window.google.maps) {
+      const script = document.createElement('script');
+            script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAj3BUffMoTz7XsXEjJvnO-CBQq9oDQ4AA&callback=initMap&v=beta&libraries=marker";
 
-    // Falls die API bereits geladen ist -> direkt initialisieren
-    if (window.google && window.google.maps) {
-      try {
-        window.initMap();
-      } finally {
-        window._mapsLoading = false;
-      }
-      return;
+      script.async = true;
+      document.head.appendChild(script);
+      loadMapBtn.disabled = true;
+    } else {
+      initMap();
     }
-
-    // Script-Tag anhängen (einmalig)
-    const script = document.createElement('script');
-    // Bitte: API-Key einschränken (HTTP-Referrer). Ersetze ihn, wenn nötig.
-      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAj3BUffMoTz7XsXEjJvnO-CBQq9oDQ4AA&callback=initMap&v=beta&libraries=marker";
-
-    script.async = true;
-    script.defer = true;
-    script.onerror = () => {
-      console.error('Google Maps Script konnte nicht geladen werden.');
-      window._mapsLoading = false;
-      loadMapBtn.disabled = false;
-      loadMapBtn.classList.remove('loading');
-    };
-    document.head.appendChild(script);
-
-    // UI-Feedback
-    loadMapBtn.disabled = true;
-    loadMapBtn.classList.add('loading');
   });
 }
 
