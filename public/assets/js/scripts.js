@@ -1078,6 +1078,20 @@ window.addEventListener('focus', () => startInterval());
   document.head.appendChild(unifiedScript);
 
   console.log(`[schema] Mehrsprachiges kombiniertes Schema (${lang}) erstellt:`, combinedSchemas);
+
+  const activeOgImage = document.querySelector('meta[property="og:image"]')?.content;
+if (activeOgImage) {
+  let webpageSchema = combinedSchemas.find(s => s["@type"] === "WebPage");
+  if (!webpageSchema) {
+    webpageSchema = { "@type": "WebPage" };
+    combinedSchemas.push(webpageSchema);
+  }
+  webpageSchema.primaryImageOfPage = {
+    "@type": "ImageObject",
+    "url": activeOgImage
+  };
+  console.log("[schema] primaryImageOfPage gesetzt ->", activeOgImage);
+}
 })();
 
 
