@@ -397,15 +397,30 @@ if (form) {
    * @param {string} imageUrl - Die URL des Bildes.
    * @param {string} caption - Die Bildunterschrift aus data-caption.
    */
-  const updateMetaTagsForImage = (imageUrl, caption) => {
+const updateMetaTagsForImage = (imageUrl, caption) => {
   console.log('[meta] updateMetaTagsForImage called', { imageUrl, caption });
 
-  // fallback: wenn caption fehlt, versuche aus imageUrl einen lesbaren Namen zu bauen
-  if (!caption) {
+  // Hilfsfunktion: Meta-Tag setzen oder erstellen
+  const setMeta = (selector, value) => {
+    let el = document.head.querySelector(selector);
+    if (!el) {
+      el = document.createElement('meta');
+      const match = selector.match(/\[(.*?)=(.*?)\]/);
+      if (match) {
+        const [_, attr, val] = match;
+        el.setAttribute(attr, val.replace(/["']/g, ''));
+      }
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', value);
+  };
+
+  // Fallback: caption aus Dateinamen generieren, falls nicht vorhanden
+  if (!caption && imageUrl) {
     try {
       const u = new URL(imageUrl, window.location.origin);
-      caption = u.pathname.split('/').pop().replace(/[-_]/g, ' ');
-    } catch (e) {
+      caption = u.pathname.split('/').pop().replace(/\.(jpe?g|png|webp)$/i, '').replace(/[-_]/g, ' ');
+    } catch {
       caption = caption || '';
     }
   }
@@ -415,51 +430,75 @@ if (form) {
     return;
   }
 
-  const fullImageUrl = imageUrl ? new URL(imageUrl, window.location.origin).href : '';
+  // Absolute Bild-URL erzeugen
+  const fullImageUrl = new URL(imageUrl, window.location.origin).href;
+
+  // Titel und Beschreibung übersetzt erstellen
   const newTitle = translations[lang].metaTitle.replace('{caption}', caption || '');
   const newDescription = translations[lang].metaDescription.replace('{caption}', caption || '');
 
+  // Seitentitel setzen
   document.title = newTitle;
 
-  const setMeta = (selector, value) => {
-    const el = document.head.querySelector(selector) || document.querySelector(selector);
-    if (el) {
-      el.setAttribute('content', value);
-    } else {
-      console.warn('[meta] Selector nicht gefunden:', selector);
-    }
-  };
-
+  // Hauptmetadaten setzen
   setMeta('meta[name="description"]', newDescription);
   setMeta('meta[property="og:title"]', newTitle);
   setMeta('meta[property="og:description"]', newDescription);
-  if (fullImageUrl) setMeta('meta[property="og:image"]', fullImageUrl);
+  setMeta('meta[property="og:image"]', fullImageUrl);
   setMeta('meta[property="twitter:title"]', newTitle);
   setMeta('meta[property="twitter:description"]', newDescription);
-    setMeta('meta[property="og:url"]', window.location.href);
-setMeta('meta[name="twitter:url"]', window.location.href);
-  if (fullImageUrl) setMeta('meta[property="twitter:image"]', fullImageUrl);
+  setMeta('meta[property="og:url"]', window.location.href);
+  setMeta('meta[name="twitter:url"]', window.location.href);
+  setMeta('meta[property="twitter:image"]', fullImageUrl);
 
-  console.log('[meta] gesetzt ->', document.querySelector('meta[name="description"]')?.content);
+  // ✅ Neu: primaryImageOfPage setzen
+  setMeta('meta[itemprop="primaryImageOfPage"]', fullImageUrl);
+
+  console.log('[meta] gesetzt ->', {
+    title: newTitle,
+    description: newDescription,
+    image: fullImageUrl
+  });
 };
 
 const resetMetaTags = () => {
   console.log('[meta] resetMetaTags called');
+
   document.title = originalPageTitle;
 
-  if (originalMeta.description) document.querySelector('meta[name="description"]')?.setAttribute('content', originalMeta.description);
-  if (originalMeta.ogTitle) document.querySelector('meta[property="og:title"]')?.setAttribute('content', originalMeta.ogTitle);
-  if (originalMeta.ogDescription) document.querySelector('meta[property="og:description"]')?.setAttribute('content', originalMeta.ogDescription);
-  if (originalMeta.ogImage) document.querySelector('meta[property="og:image"]')?.setAttribute('content', originalMeta.ogImage);
-  if (originalMeta.twitterTitle) document.querySelector('meta[property="twitter:title"]')?.setAttribute('content', originalMeta.twitterTitle);
-  if (originalMeta.twitterDescription) document.querySelector('meta[property="twitter:description"]')?.setAttribute('content', originalMeta.twitterDescription);
-  if (originalMeta.twitterImage) document.querySelector('meta[property="twitter:image"]')?.setAttribute('content', originalMeta.twitterImage);
+  const setIfExists = (selector, value) => {
+    const el = document.querySelector(selector);
+    if (el && value) el.setAttribute('content', value);
+  };
+
+  // Ursprüngliche Meta-Tags wiederherstellen
+  setIfExists('meta[name="description"]', originalMeta.description);
+  setIfExists('meta[property="og:title"]', originalMeta.ogTitle);
+  setIfExists('meta[property="og:description"]', originalMeta.ogDescription);
+  setIfExists('meta[property="og:image"]', originalMeta.ogImage);
+  setIfExists('meta[property="twitter:title"]', originalMeta.twitterTitle);
+  setIfExists('meta[property="twitter:description"]', originalMeta.twitterDescription);
+  setIfExists('meta[property="twitter:image"]', originalMeta.twitterImage);
+
+  // ✅ primaryImageOfPage sauber zurücksetzen (Fallback: og:image)
+  const primary = document.querySelector('meta[itemprop="primaryImageOfPage"]');
+  if (primary) {
+    primary.setAttribute('content', originalMeta.ogImage || '');
+  } else if (originalMeta.ogImage) {
+    const newMeta = document.createElement('meta');
+    newMeta.setAttribute('itemprop', 'primaryImageOfPage');
+    newMeta.setAttribute('content', originalMeta.ogImage);
+    document.head.appendChild(newMeta);
+  }
+
+  // Canonical & Alternate Links aktualisieren
   updateCanonicalTag(window.location.pathname);
   updateAlternateLinks(window.location.pathname);
 
-
-
-  console.log('[meta] zurückgesetzt ->', document.querySelector('meta[name="description"]')?.content);
+  console.log('[meta] zurückgesetzt ->', {
+    description: originalMeta.description,
+    image: originalMeta.ogImage
+  });
 };
 
 
