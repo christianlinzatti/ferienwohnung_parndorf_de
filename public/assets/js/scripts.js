@@ -1085,7 +1085,8 @@ document.getElementById('load-streetview-btn')?.addEventListener('click', functi
   container.appendChild(iframe);
 });
 
-// Karte laden
+
+
 const loadMapBtn = document.getElementById('load-map-btn');
 const mapPlaceholder = document.getElementById('map-placeholder');
 const mapContainer = document.getElementById('map');
@@ -1103,15 +1104,24 @@ if (loadMapBtn && mapPlaceholder && mapContainer) {
     const infoWindow = new google.maps.InfoWindow({
       content: `
         <div style="max-width:280px; font-family:'Poppins',sans-serif;">
-          <h3 style="margin:0 0 5px;color:#004d40;"><a href="https://www.google.com/maps/place/Ferienwohnung+Parndorf/" target="_blank" rel="noopener noreferrer">Ferienwohnung Parndorf</a></h3>
-          <p style="margin:0 0 10px;font-size:14px;">Obere Wunkau 38, 7111 Parndorf</p>
+          <h3 style="margin:0 0 5px;color:#004d40;">
+            <a href="https://www.google.com/maps/place/Ferienwohnung+Parndorf/"
+               target="_blank" rel="noopener noreferrer">
+               Ferienwohnung Parndorf
+            </a>
+          </h3>
+          <p style="margin:0 0 10px;font-size:14px;">
+            Obere Wunkau 38, 7111 Parndorf
+          </p>
           <a href="https://www.google.com/maps/dir/?api=1&destination=Ferienwohnung+Parndorf"
              target="_blank" rel="noopener noreferrer"
-             style="color:#0071c2;text-decoration:none;font-weight:bold;">Route planen</a>
+             style="color:#0071c2;text-decoration:none;font-weight:bold;">
+             Route planen
+          </a>
         </div>`
     });
 
-    const marker = new google.maps.marker.AdvancedMarkerElement({
+    const marker = new (google.maps.marker?.AdvancedMarkerElement || google.maps.Marker)({
       position: location,
       map,
       title: "Ferienwohnung Parndorf",
@@ -1120,19 +1130,24 @@ if (loadMapBtn && mapPlaceholder && mapContainer) {
     marker.addListener("click", () => infoWindow.open(map, marker));
     infoWindow.open(map, marker);
 
-    // nur die Karten-Vorschau ausblenden – Streetview bleibt
-    mapPlaceholder.style.display = 'none';
+    // Nur Overlay + Vorschaubild entfernen (nicht den Container)
+    mapPlaceholder.querySelectorAll('.map-overlay, img')?.forEach(el => el.remove());
+
+    // Sichtbar machen, falls vorher versteckt
+    mapContainer.style.display = 'block';
+    mapPlaceholder.classList.add('loaded');
   };
 
   loadMapBtn.addEventListener('click', () => {
     if (!window.google || !window.google.maps) {
       const script = document.createElement('script');
-      script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAj3BUffMoTz7XsXEjJvnO-CBQq9oDQ4AA&callback=initMap&v=beta&libraries=marker";
+            script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAj3BUffMoTz7XsXEjJvnO-CBQq9oDQ4AA&callback=initMap&v=beta&libraries=marker";
+
       script.async = true;
       document.head.appendChild(script);
       loadMapBtn.disabled = true;
-      document.getElementById('map').classList.add('active');
-
+    } else {
+      initMap();
     }
   });
 }
