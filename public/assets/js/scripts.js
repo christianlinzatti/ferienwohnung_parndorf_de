@@ -489,7 +489,7 @@ const updateMetaTagsForImage = (imageUrl, caption) => {
   // Titel und Beschreibung übersetzt erstellen
   const newTitle = translations[lang].metaTitle.replace('{caption}', caption || '');
   const newDescription = translations[lang].metaDescription.replace('{caption}', caption || '');
-  updateJsonLdPrimaryImage(fullImageUrl,newTitle);
+  updateJsonLdPrimaryImage(fullImageUrl,caption);
 
   // Seitentitel setzen
   document.title = newTitle;
@@ -1120,11 +1120,30 @@ window.addEventListener('focus', () => startInterval());
     }
   }
 
-  // --- 5️⃣ Zusammenführen ---
+  // --- 5️⃣ Schemas zusammenführen ---
   const hasBreadcrumb = combinedSchemas.some(s => s["@type"] === "BreadcrumbList");
   if (!hasBreadcrumb) combinedSchemas.push(breadcrumbSchema);
 
-  // --- 6️⃣ Alles ersetzen ---
+  // --- 6️⃣ WebPage Schema sicherstellen und primaryImageOfPage setzen ---
+  const activeOgImage = document.querySelector('meta[property="og:image"]')?.content;
+  if (activeOgImage) {
+    let webpageSchema = combinedSchemas.find(s => s["@type"] === "WebPage");
+    if (!webpageSchema) {
+      webpageSchema = {
+          "@type": "WebPage",
+          "url": window.location.href,
+          "name": document.title
+      };
+      combinedSchemas.push(webpageSchema);
+    }
+    webpageSchema.primaryImageOfPage = {
+      "@type": "ImageObject",
+      "url": activeOgImage
+    };
+    console.log("[schema] Initial primaryImageOfPage gesetzt ->", activeOgImage);
+  }
+
+  // --- 7️⃣ Altes Skript entfernen und neues, kombiniertes Skript erstellen ---
   existingScripts.forEach(s => s.remove());
   const unifiedScript = document.createElement("script");
   unifiedScript.type = "application/ld+json";
@@ -1133,20 +1152,6 @@ window.addEventListener('focus', () => startInterval());
   document.head.appendChild(unifiedScript);
 
   console.log(`[schema] Mehrsprachiges kombiniertes Schema (${lang}) erstellt:`, combinedSchemas);
-
-  const activeOgImage = document.querySelector('meta[property="og:image"]')?.content;
-if (activeOgImage) {
-  let webpageSchema = combinedSchemas.find(s => s["@type"] === "WebPage");
-  if (!webpageSchema) {
-    webpageSchema = { "@type": "WebPage" };
-    combinedSchemas.push(webpageSchema);
-  }
-  webpageSchema.primaryImageOfPage = {
-    "@type": "ImageObject",
-    "url": activeOgImage
-  };
-  console.log("[schema] primaryImageOfPage gesetzt ->", activeOgImage);
-}
 })();
 
 
