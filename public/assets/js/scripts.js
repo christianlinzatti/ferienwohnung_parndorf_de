@@ -1130,6 +1130,7 @@ window.addEventListener('focus', () => startInterval());
     let webpageSchema = combinedSchemas.find(s => s["@type"] === "WebPage");
     if (!webpageSchema) {
       webpageSchema = {
+          "@context": "https://schema.org", // <<< HIER HINZUGEFÜGT
           "@type": "WebPage",
           "url": window.location.href,
           "name": document.title
@@ -1137,6 +1138,7 @@ window.addEventListener('focus', () => startInterval());
       combinedSchemas.push(webpageSchema);
     }
     webpageSchema.primaryImageOfPage = {
+      "@context": "https://schema.org", // <<< HIER HINZUGEFÜGT
       "@type": "ImageObject",
       "url": activeOgImage
     };
