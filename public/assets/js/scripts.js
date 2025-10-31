@@ -361,6 +361,72 @@ if (form) {
     description: document.querySelector('meta[name="description"]')?.content
   };
 
+  const updateMetaTagsForImage = (imageUrl, caption) => {
+  console.log('[meta] updateMetaTagsForImage called', { imageUrl, caption });
+
+  // Hilfsfunktion: Meta-Tag setzen oder erstellen
+  const setMeta = (selector, value) => {
+    let el = document.head.querySelector(selector);
+    if (!el) {
+      el = document.createElement('meta');
+      const match = selector.match(/\[(.*?)=(.*?)\]/);
+      if (match) {
+        const [_, attr, val] = match;
+        el.setAttribute(attr, val.replace(/["']/g, ''));
+      }
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', value);
+  };
+
+  // Fallback: caption aus Dateinamen generieren, falls nicht vorhanden
+  if (!caption && imageUrl) {
+    try {
+      const u = new URL(imageUrl, window.location.origin);
+      caption = u.pathname.split('/').pop().replace(/\.(jpe?g|png|webp)$/i, '').replace(/[-_]/g, ' ');
+    } catch {
+      caption = caption || '';
+    }
+  }
+
+  if (!imageUrl && !caption) {
+    console.warn('[meta] Abbruch: weder imageUrl noch caption vorhanden');
+    return;
+  }
+
+  // Absolute Bild-URL erzeugen
+  const fullImageUrl = new URL(imageUrl, window.location.origin).href;
+
+
+  // Titel und Beschreibung übersetzt erstellen
+  const newTitle = translations[lang].metaTitle.replace('{caption}', caption || '');
+  const newDescription = translations[lang].metaDescription.replace('{caption}', caption || '');
+  updateJsonLdPrimaryImage(fullImageUrl,caption);
+
+  // Seitentitel setzen
+  document.title = newTitle;
+
+  // Hauptmetadaten setzen
+  setMeta('meta[name="description"]', newDescription);
+  setMeta('meta[property="og:title"]', newTitle);
+  setMeta('meta[property="og:description"]', newDescription);
+  setMeta('meta[property="og:image"]', fullImageUrl);
+  setMeta('meta[property="twitter:title"]', newTitle);
+  setMeta('meta[property="twitter:description"]', newDescription);
+  setMeta('meta[property="og:url"]', window.location.href);
+  setMeta('meta[name="twitter:url"]', window.location.href);
+  setMeta('meta[property="twitter:image"]', fullImageUrl);
+
+  // ✅ Neu: primaryImageOfPage setzen
+  setMeta('meta[itemprop="primaryImageOfPage"]', fullImageUrl);
+
+  console.log('[meta] gesetzt ->', {
+    title: newTitle,
+    description: newDescription,
+    image: fullImageUrl
+  });
+};
+
  const updateCanonicalTag = (newUrl) => {
   const head = document.head;
   let canonical = head.querySelector('link[rel="canonical"]');
@@ -548,71 +614,7 @@ function updateJsonLdPrimaryImage(imageUrl, caption = '') {
   console.log('[JSON-LD] primaryImageOfPage (im WebPage-Objekt) aktualisiert ->', imageUrl, 'mit Caption:', caption || 'Keine');
 }
 
-const updateMetaTagsForImage = (imageUrl, caption) => {
-  console.log('[meta] updateMetaTagsForImage called', { imageUrl, caption });
 
-  // Hilfsfunktion: Meta-Tag setzen oder erstellen
-  const setMeta = (selector, value) => {
-    let el = document.head.querySelector(selector);
-    if (!el) {
-      el = document.createElement('meta');
-      const match = selector.match(/\[(.*?)=(.*?)\]/);
-      if (match) {
-        const [_, attr, val] = match;
-        el.setAttribute(attr, val.replace(/["']/g, ''));
-      }
-      document.head.appendChild(el);
-    }
-    el.setAttribute('content', value);
-  };
-
-  // Fallback: caption aus Dateinamen generieren, falls nicht vorhanden
-  if (!caption && imageUrl) {
-    try {
-      const u = new URL(imageUrl, window.location.origin);
-      caption = u.pathname.split('/').pop().replace(/\.(jpe?g|png|webp)$/i, '').replace(/[-_]/g, ' ');
-    } catch {
-      caption = caption || '';
-    }
-  }
-
-  if (!imageUrl && !caption) {
-    console.warn('[meta] Abbruch: weder imageUrl noch caption vorhanden');
-    return;
-  }
-
-  // Absolute Bild-URL erzeugen
-  const fullImageUrl = new URL(imageUrl, window.location.origin).href;
-
-
-  // Titel und Beschreibung übersetzt erstellen
-  const newTitle = translations[lang].metaTitle.replace('{caption}', caption || '');
-  const newDescription = translations[lang].metaDescription.replace('{caption}', caption || '');
-  updateJsonLdPrimaryImage(fullImageUrl,caption);
-
-  // Seitentitel setzen
-  document.title = newTitle;
-
-  // Hauptmetadaten setzen
-  setMeta('meta[name="description"]', newDescription);
-  setMeta('meta[property="og:title"]', newTitle);
-  setMeta('meta[property="og:description"]', newDescription);
-  setMeta('meta[property="og:image"]', fullImageUrl);
-  setMeta('meta[property="twitter:title"]', newTitle);
-  setMeta('meta[property="twitter:description"]', newDescription);
-  setMeta('meta[property="og:url"]', window.location.href);
-  setMeta('meta[name="twitter:url"]', window.location.href);
-  setMeta('meta[property="twitter:image"]', fullImageUrl);
-
-  // ✅ Neu: primaryImageOfPage setzen
-  setMeta('meta[itemprop="primaryImageOfPage"]', fullImageUrl);
-
-  console.log('[meta] gesetzt ->', {
-    title: newTitle,
-    description: newDescription,
-    image: fullImageUrl
-  });
-};
 
 const resetMetaTags = () => {
   console.log('[meta] resetMetaTags called');
