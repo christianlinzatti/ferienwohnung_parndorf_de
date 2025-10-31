@@ -139,11 +139,49 @@ const galleries = {
   const translations = {
     de: {
       metaTitle: "Ferienwohnung Parndorf | {caption}",
-      metaDescription: "Ein Blick auf: {caption}. Gemütliches Apartment in Parndorf, nur 2 km vom Designer Outlet entfernt. Ideal für Shopping, Erholung am Neusiedler See und Dienstreisen."
+      metaDescription: "Ein Blick auf: {caption}. Gemütliches Apartment in Parndorf, nur 2 km vom Designer Outlet entfernt. Ideal für Shopping, Erholung am Neusiedler See und Dienstreisen.",
+      // NEU: Eigene Description-Vorlage für Sektionen
+      metaDescriptionSection: "{caption} - Alle Infos zur Ferienwohnung Parndorf. Gemütliches Apartment in Top-Lage, nur 2 km vom Designer Outlet entfernt.",
+      // NEU: Meta-Titel für Sektionen
+      sectionMeta: {
+        "anfahrt": "Anfahrt & Lage",
+        "ausstattung": "Ausstattung",
+        "faq": "Häufige Fragen (FAQ)",
+        "highlight": "Highlights der Unterkunft",
+        "verfuegbarkeit": "Verfügbarkeit prüfen",
+        "kontakt": "Kontakt",
+        "fotogallerie": "Fotogalerie",
+        "region1": "Region & Umgebung" // ID der Region-Sektion
+      },
+      // NEU: Meta-Titel für Region
+      regionMeta: {
+        "default": "Region & Umgebung",
+        "outlet": "Region: Designer Outlet",
+        "neusiedlersee": "Region: Neusiedler See"
+      }
     },
     en: {
       metaTitle: "Holiday Apartment Parndorf | {caption}",
-      metaDescription: "A look at: {caption}. Cozy apartment in Parndorf, just 2 km from the Designer Outlet. Ideal for shopping, relaxing at Lake Neusiedl, and business trips."
+      metaDescription: "A look at: {caption}. Cozy apartment in Parndorf, just 2 km from the Designer Outlet. Ideal for shopping, relaxing at Lake Neusiedl, and business trips.",
+      // NEU
+      metaDescriptionSection: "{caption} - All info about the Holiday Apartment Parndorf. Cozy apartment in a prime location, just 2 km from the Designer Outlet.",
+      // NEU
+      sectionMeta: {
+        "anfahrt": "Directions & Location",
+        "ausstattung": "Facilities",
+        "faq": "Frequently Asked Questions (FAQ)",
+        "highlight": "Accommodation Highlights",
+        "verfuegbarkeit": "Check Availability",
+        "kontakt": "Contact",
+        "fotogallerie": "Photo Gallery",
+        "region1": "Region & Surroundings" // ID der Region-Sektion
+      },
+      // NEU
+      regionMeta: {
+        "default": "Region & Surroundings",
+        "outlet": "Region: Designer Outlet",
+        "neusiedlersee": "Region: Lake Neusiedl"
+      }
     }
   };
 
@@ -375,6 +413,20 @@ if (form) {
     }
   }
 
+  // NEUE LOGIK: Fallback für Sektions-Links (z.B. /anfahrt)
+  if (!deKey && !enKey) {
+     // Prüft, ob der 'currentKey' in den neuen Sektions- oder Regions-Metadaten existiert
+     if (translations.de.sectionMeta[currentKey] || (currentKey === 'region' && translations.de.regionMeta)) {
+        deKey = currentKey;
+        enKey = currentKey; // Annahme: Sektions-Keys sind gleich (z.B. 'anfahrt', 'region')
+     } else {
+        // Fallback zur Homepage/Highlights, wenn nichts passt
+        deKey = "highlights";
+        enKey = "highlights";
+     }
+  }
+
+
   const deUrl = `https://de.ferienwohnung-parndorf.at/${deKey || "highlights"}/`;
   const enUrl = `https://en.ferienwohnung-parndorf.at/${enKey || "highlights"}/`;
 
@@ -390,6 +442,53 @@ if (form) {
 
   head.append(linkDe, linkEn);
   console.log("[meta] alternate links gesetzt:", { deUrl, enUrl });
+};
+
+// NEUE FUNKTION: Metatags für Sektionen (ohne Bildwechsel)
+const updateMetaTagsForSection = (caption) => {
+  if (!caption) {
+    console.warn('[meta] updateMetaTagsForSection called without caption. Resetting.');
+    resetMetaTags();
+    return;
+  }
+
+  console.log('[meta] updateMetaTagsForSection called', { caption });
+
+  // Titel und Beschreibung aus Übersetzungen
+  const newTitle = translations[lang].metaTitle.replace('{caption}', caption);
+  const newDescription = translations[lang].metaDescriptionSection.replace('{caption}', caption);
+
+  // Seitentitel setzen
+  document.title = newTitle;
+
+  // Meta-Tags setzen
+  setMeta('meta[name="description"]', newDescription);
+  setMeta('meta[property="og:title"]', newTitle);
+  setMeta('meta[property="og:description"]', newDescription);
+  setMeta('meta[property="twitter:title"]', newTitle);
+  setMeta('meta[property="twitter:description"]', newDescription);
+
+  // Originalbild beibehalten (wichtig!)
+  if (originalMeta.ogImage) {
+    const fullImageUrl = new URL(originalMeta.ogImage, window.location.origin).href;
+    setMeta('meta[property="og:image"]', fullImageUrl);
+    setMeta('meta[property="twitter:image"]', fullImageUrl); // Annahme: twitter image = og image
+    setMeta('meta[itemprop="primaryImageOfPage"]', fullImageUrl);
+    // JSON-LD mit Originalbild und neuer Caption aktualisieren
+    updateJsonLdPrimaryImage(fullImageUrl, caption);
+  }
+
+  // URLs aktualisieren
+  setMeta('meta[property="og:url"]', window.location.href);
+  setMeta('meta[name="twitter:url"]', window.location.href);
+
+  // Alternates aktualisieren
+  updateAlternateLinks(window.location.pathname);
+
+  console.log('[meta] Sektion gesetzt ->', {
+    title: newTitle,
+    description: newDescription
+  });
 };
 
   /**
@@ -799,72 +898,105 @@ document.addEventListener('keydown', (e) => {
   // =========================================================
   // Router-Logik (robust)
   // =========================================================
-  const handleRoute = (isInitial = false) => {
+ const handleRoute = (isInitial = false) => {
     updateCanonicalTag(window.location.pathname);
     const rawPath = window.location.pathname || "";
-    const cleaned = rawPath.replace(/^\/+|\/+$/g, "");
+    const cleaned = rawPath.replace(/^\/+|\/+$/g, ""); // "anfahrt", "wohnzimmer", "wohnzimmer/kueche", "region/outlet"
     const hash = (window.location.hash || "").replace(/^#/, "");
+    const t = translations[lang]; // Übersetzungen holen
 
-    if (hash) {
+    // 1. Handle Hashes (e.g., /#anfahrt)
+    // Dieser Fall tritt auf, wenn ein Link #anfahrt geklickt wird, der *kein* data-link ist (z.B. Scroll-Spy)
+    if (hash && cleaned === "") {
       const targetEl = document.getElementById(hash);
       if (targetEl) {
         if (!isInitial) {
-          const offset = header?.offsetHeight || 0;
-const top = targetEl.getBoundingClientRect().top + window.pageYOffset - offset;
-window.requestAnimationFrame(() => {
-  window.scrollTo({ top, behavior: 'smooth' });
-});
+          targetEl.scrollIntoView({ behavior: 'smooth' });
         }
+        // Metatags für Hash-Links aktualisieren
+        const metaCaption = t.sectionMeta[hash] || t.sectionMeta['highlights']; // Fallback
+        updateMetaTagsForSection(metaCaption);
         return;
       }
     }
 
-    const target = cleaned || "highlights";
-    const parts = target.split("/").filter(Boolean);
+    const parts = cleaned.split("/").filter(Boolean);
     const galleryKeyRaw = parts[0] ? stripExt(parts[0].toLowerCase()) : "";
     const imageKeyRaw = parts[1] ? stripExt(parts[1].toLowerCase()) : "";
-
     const galleryKeys = Object.keys(galleriesActive);
 
+    // 2. Handle Gallery Routes (e.g., /wohnzimmer or /wohnzimmer/wohnzimmer)
     if (galleryKeyRaw && galleryKeys.includes(galleryKeyRaw)) {
       if (!isInitial) {
-        const fotosSection = document.getElementById("fotos");
+        const fotosSection = document.getElementById("fotogallerie");
         fotosSection?.scrollIntoView({ behavior: "smooth" });
       }
 
       currentGalleryImages = galleriesActive[galleryKeyRaw].slice();
-       const shouldUpdateUrl = !!imageKeyRaw;
-
+      const shouldUpdateUrl = !!imageKeyRaw;
 
       if (!imageKeyRaw) {
-      currentGalleryIndex = 0;
-    } else {
-      // 🧩 Wenn ein Bild angegeben ist (/wohnzimmer/wohnzimmer)
-      const matchIndex = currentGalleryImages.findIndex(
-        s => stripExt(s).toLowerCase() === imageKeyRaw.toLowerCase()
-      );
-      currentGalleryIndex = matchIndex >= 0 ? matchIndex : 0;
-    }
-
-      openPhotoPopup(shouldUpdateUrl);
-      return;
-    } else {
-      if (photoPopup?.classList.contains('open')) closePhotoPopup(false);
-
-      if (target === "whatsapp") {
-        waWidget?.classList.add("open");
-        return;
+        currentGalleryIndex = 0;
+      } else {
+        const matchIndex = currentGalleryImages.findIndex(
+          s => stripExt(s).toLowerCase() === imageKeyRaw.toLowerCase()
+        );
+        currentGalleryIndex = matchIndex >= 0 ? matchIndex : 0;
       }
 
+      openPhotoPopup(shouldUpdateUrl); // Diese Funktion ruft updateMetaTagsForImage()
+      return;
+    }
+
+    // 3. Handle Non-Gallery Routes (Sections)
+    // If popup is open from a previous gallery route, close it.
+    if (photoPopup?.classList.contains('open')) {
+      closePhotoPopup(false); // false = don't update history, we're already on the new URL
+    }
+
+    let targetSectionId = null;
+    let metaCaption = null; // For updating meta tags
+
+    if (galleryKeyRaw === "region") { // /region, /region/outlet, /region/neusiedlersee
+      targetSectionId = "region1"; // Die ID der Sektion
+      const regionKey = parts[1] || 'default'; // 'outlet', 'neusiedlersee', or 'default'
+      metaCaption = t.regionMeta[regionKey] || t.regionMeta.default;
+
+    } else if (galleryKeyRaw === "whatsapp") {
+      waWidget?.classList.add("open");
+      metaCaption = t.sectionMeta['kontakt']; // Meta-Tag für Kontakt setzen
+      // Kein Scrollen, da Widget öffnet
+
+    } else {
+      // Default case: Check if the path matches an ID (e.g., /anfahrt, /ausstattung)
+      const el = document.getElementById(galleryKeyRaw);
+      if (el) {
+        targetSectionId = galleryKeyRaw;
+        metaCaption = t.sectionMeta[targetSectionId] || t.sectionMeta['highlights'];
+      }
+    }
+
+    // 4. Perform Scroll (if a target was found)
+    if (targetSectionId) {
       if (!isInitial) {
-        const targetEl = document.getElementById(target);
+        const targetEl = document.getElementById(targetSectionId);
         targetEl?.scrollIntoView({ behavior: "smooth" });
       }
+
+      // 5. Update Meta Tags for this section
+      updateMetaTagsForSection(metaCaption);
+
+    } else if (cleaned === "" || cleaned === "highlights" || !galleryKeyRaw) {
+       // Scrolled to homepage (/)
+       if (!isInitial) window.scrollTo({ top: 0, behavior: 'smooth' });
+       resetMetaTags(); // Reset to default
     }
 
-    document.querySelectorAll('nav a[data-link]').forEach(link => {
+    // 6. Update Active Nav Links
+    document.querySelectorAll('.main-nav a[data-link]').forEach(link => {
       const hrefAttr = (link.getAttribute("href") || "").replace(/^\/+|\/+$/g, "");
-      link.classList.toggle("active", hrefAttr === cleaned || hrefAttr === hash);
+      const linkKey = hrefAttr.split("/")[0]; // Nur den ersten Teil vergleichen (z.B. 'wohnzimmer')
+      link.classList.toggle("active", linkKey === galleryKeyRaw || hrefAttr === galleryKeyRaw);
     });
   };
 
