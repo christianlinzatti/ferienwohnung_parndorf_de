@@ -744,24 +744,23 @@ const resetMetaTags = () => {
   let currentGalleryImages = [];
   let currentGalleryIndex = 0;
 
-  const updateUrlForCurrentImage = () => {
-    const currentSrc = currentGalleryImages[currentGalleryIndex];
-    if (!currentSrc) return;
+const updateUrlForCurrentImage = () => {
+  const currentSrc = currentGalleryImages[currentGalleryIndex];
+  if (!currentSrc) return;
 
-    const imageKey = stripExt(currentSrc.split('/').pop().toLowerCase());
+  const imageKey = stripExt(currentSrc.split('/').pop().toLowerCase());
 
-    // versuche galleryKey zu finden
-    let galleryKey = null;
-    for (const [gk, imgs] of Object.entries(galleriesActive)) {
-      if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey)) {
-        galleryKey = gk;
-        break;
-      }
+  let galleryKey = null;
+  for (const [gk, imgs] of Object.entries(galleriesActive)) {
+    if (imgs.some(s => stripExt(s.toLowerCase()) === imageKey)) {
+      galleryKey = gk;
+      break;
     }
+  }
 
-    const newUrl = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
-    history.replaceState({ popupScope: 'global' }, null, newUrl);
-  };
+  const newUrl = galleryKey ? `/${galleryKey}/${imageKey}` : `/${imageKey}`;
+  history.replaceState({ popupScope: 'global' }, null, newUrl);
+};
 
   const popupCaption = photoPopup?.querySelector(".popup-caption");
 
@@ -815,6 +814,34 @@ const resetMetaTags = () => {
   }
 };
 
+
+function openGlobalImage(imageFilename) {
+  // Den Galerie-Key finden, zu dem dieses Bild gehört
+  let galleryKey = null;
+  for (const [gk, imgs] of Object.entries(galleriesActive)) {
+    if (imgs.some(s => stripExt(s) === stripExt(imageFilename))) {
+      galleryKey = gk;
+      break;
+    }
+  }
+
+  // Wenn keine Galerie gefunden, abbrechen
+  if (!galleryKey) {
+    console.warn('[gallery] Kein galleryKey für', imageFilename);
+    return;
+  }
+
+  // Galerie setzen und Index bestimmen
+  currentGalleryImages = galleriesActive[galleryKey].map(img => IMAGE_BASE_PATH + img);
+  currentGalleryIndex = currentGalleryImages.findIndex(
+    s => stripExt(s.split('/').pop()) === stripExt(imageFilename)
+  );
+
+  // Popup bleibt offen – nur Inhalt neu rendern
+  renderGallery();
+  updateUrlForCurrentImage();
+}
+
     const openPhotoPopup = (updateUrl = false) => {
     if (currentGalleryImages.length === 0) return;
     renderGallery();
@@ -838,18 +865,39 @@ const resetMetaTags = () => {
   };
 
   photoPopupNextBtn?.addEventListener("click", () => {
-    if (!currentGalleryImages.length) return;
-    currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryImages.length;
-    renderGallery();
-    updateUrlForCurrentImage();
-  });
+  if (!allImages.length) return;
 
-  photoPopupPrevBtn?.addEventListener("click", () => {
-    if (!currentGalleryImages.length) return;
-    currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
-    renderGallery();
-    updateUrlForCurrentImage();
-  });
+  // Aktuelles Bild bestimmen
+  const currentSrc = currentGalleryImages[currentGalleryIndex];
+  const currentBase = stripExt(currentSrc.split('/').pop().toLowerCase());
+
+  // Index im globalen Array finden
+  let globalIndex = allImages.findIndex(
+    img => stripExt(img.toLowerCase()) === currentBase
+  );
+
+  // Nächstes globales Bild (mit Wrap-Around)
+  globalIndex = (globalIndex + 1) % allImages.length;
+
+  const nextImage = allImages[globalIndex];
+  openGlobalImage(nextImage);
+});
+
+photoPopupPrevBtn?.addEventListener("click", () => {
+  if (!allImages.length) return;
+
+  const currentSrc = currentGalleryImages[currentGalleryIndex];
+  const currentBase = stripExt(currentSrc.split('/').pop().toLowerCase());
+
+  let globalIndex = allImages.findIndex(
+    img => stripExt(img.toLowerCase()) === currentBase
+  );
+
+  globalIndex = (globalIndex - 1 + allImages.length) % allImages.length;
+
+  const prevImage = allImages[globalIndex];
+  openGlobalImage(prevImage);
+});
 
   photoPopupCloseBtn?.addEventListener("click", () => closePhotoPopup(true));
   photoPopup?.addEventListener("click", e => e.target === photoPopup && closePhotoPopup(true));
@@ -872,6 +920,33 @@ document.addEventListener('keydown', (e) => {
     photoPopupNextBtn?.click(); // Simuliere einen Klick auf den "Weiter"-Button
   }
 });
+
+function openGlobalImage(imageFilename) {
+  // Den Galerie-Key finden, zu dem dieses Bild gehört
+  let galleryKey = null;
+  for (const [gk, imgs] of Object.entries(galleriesActive)) {
+    if (imgs.some(s => stripExt(s) === stripExt(imageFilename))) {
+      galleryKey = gk;
+      break;
+    }
+  }
+
+  // Wenn keine Galerie gefunden, abbrechen
+  if (!galleryKey) {
+    console.warn('[gallery] Kein galleryKey für', imageFilename);
+    return;
+  }
+
+  // Galerie setzen und Index bestimmen
+  currentGalleryImages = galleriesActive[galleryKey].map(img => IMAGE_BASE_PATH + img);
+  currentGalleryIndex = currentGalleryImages.findIndex(
+    s => stripExt(s.split('/').pop()) === stripExt(imageFilename)
+  );
+
+  // Popup bleibt offen – nur Inhalt neu rendern
+  renderGallery();
+  updateUrlForCurrentImage();
+}
 
 
 const metaDataMap = {
