@@ -360,19 +360,7 @@ if (form) {
     twitterImage: document.querySelector('meta[property="twitter:image"]')?.content,
     description: document.querySelector('meta[name="description"]')?.content
   };
-  function setMeta(selector, value) {
-  let el = document.head.querySelector(selector);
-  if (!el) {
-    el = document.createElement('meta');
-    const match = selector.match(/\[(.*?)=(.*?)\]/);
-    if (match) {
-      const [_, attr, val] = match;
-      el.setAttribute(attr, val.replace(/["']/g, ''));
-    }
-    document.head.appendChild(el);
-  }
-  el.setAttribute('content', value);
-}
+
 
   const updateMetaTagsForImage = (imageUrl, caption) => {
   console.log('[meta] updateMetaTagsForImage called', { imageUrl, caption });
@@ -445,116 +433,105 @@ if (form) {
   console.log('[meta] Canonical aktualisiert ->', absUrl);
 };
 
-  const updateAlternateLinks = (currentPath = window.location.pathname) => {
-  const head = document.head;
-  head.querySelectorAll('link[rel="alternate"]').forEach(el => el.remove());
 
-  const isEnglish = window.location.hostname.startsWith("en.");
-  const currentKey = currentPath.replace(/^\/+|\/+$/g, "").split("/")[0];
 
-  // passendes Gegenstück finden
-  let deKey = null;
-  let enKey = null;
-
-  if (isEnglish) {
-    // englische Seite: passendes deutsches Mapping suchen
-    for (const [de, imgs] of Object.entries(galleries)) {
-      const en = Object.keys(galleriesEn).find(k => galleriesEn[k][0] === imgs[0]);
-      if (en === currentKey) {
-        deKey = de;
-        enKey = en;
-        break;
-      }
+function setMeta(selector, value) {
+  if (!value) return; // Kein Wert → nichts setzen
+  let el = document.head.querySelector(selector);
+  if (!el) {
+    el = document.createElement('meta');
+    const match = selector.match(/\[(.*?)=(.*?)\]/);
+    if (match) {
+      const [_, attr, val] = match;
+      el.setAttribute(attr, val.replace(/["']/g, ''));
     }
-  } else {
-    // deutsche Seite: passendes englisches Mapping suchen
-    for (const [en, imgs] of Object.entries(galleriesEn)) {
-      const de = Object.keys(galleries).find(k => galleries[k][0] === imgs[0]);
-      if (de === currentKey) {
-        deKey = de;
-        enKey = en;
-        break;
-      }
-    }
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', value);
+}
+
+function getCurrentLang() {
+  // Beispiel: URL = https://de.ferienwohnung-parndorf.at/region/neusiedlersee
+  const host = window.location.hostname;
+  if (host.startsWith('en.')) return 'en';
+  return 'de'; // Standard
+}
+
+function updateMetaTagsForSection(arg) {
+  const lang = getCurrentLang();
+
+  // Wenn arg ein Pfad ist (beginnt mit '/'), nutze es als key
+  let meta = null;
+  if (typeof arg === 'string' && arg.startsWith('/')) {
+    meta = metaDataMap[lang]?.[arg];
   }
 
-  // NEUE LOGIK: Fallback für Sektions-Links (z.B. /anfahrt)
-  if (!deKey && !enKey) {
-     // Prüft, ob der 'currentKey' in den neuen Sektions- oder Regions-Metadaten existiert
-     if (translations.de.sectionMeta[currentKey] || (currentKey === 'region' && translations.de.regionMeta)) {
-        deKey = currentKey;
-        enKey = currentKey; // Annahme: Sektions-Keys sind gleich (z.B. 'anfahrt', 'region')
-     } else {
-        // Fallback zur Homepage/Highlights, wenn nichts passt
-        deKey = "highlights";
-        enKey = "highlights";
-     }
-  }
+  // Wenn kein Mapping gefunden, und arg ist ein Caption-Text, benutze die Caption-Fallback-Logik
+  if (!meta && typeof arg === 'string') {
+    const caption = arg; // z. B. "Anfahrt & Lage"
+    const newTitle = translations[lang].metaTitle.replace('{caption}', caption);
+    const newDescription = translations[lang].metaDescriptionSection.replace('{caption}', caption);
 
+    document.title = newTitle;
+    setMeta('meta[name="description"]', newDescription);
+    setMeta('meta[property="og:title"]', newTitle);
+    setMeta('meta[property="og:description"]', newDescription);
 
-  const deUrl = `https://de.ferienwohnung-parndorf.at/${deKey || "highlights"}/`;
-  const enUrl = `https://en.ferienwohnung-parndorf.at/${enKey || "highlights"}/`;
+    // keep existing og:image if present
+    const existingImage = document.querySelector('meta[property="og:image"]')?.content;
+    if (existingImage) {
+      setMeta('meta[property="og:image"]', existingImage);
+      setMeta('meta[property="twitter:image"]', existingImage);
+      setMeta('meta[itemprop="primaryImageOfPage"]', existingImage);
+      updateJsonLdPrimaryImage(existingImage, caption);
+    }
 
-  const linkDe = document.createElement("link");
-  linkDe.rel = "alternate";
-  linkDe.hreflang = "de";
-  linkDe.href = deUrl;
-
-  const linkEn = document.createElement("link");
-  linkEn.rel = "alternate";
-  linkEn.hreflang = "en";
-  linkEn.href = enUrl;
-
-  head.append(linkDe, linkEn);
-  console.log("[meta] alternate links gesetzt:", { deUrl, enUrl });
-};
-
-// NEUE FUNKTION: Metatags für Sektionen (ohne Bildwechsel)
-const updateMetaTagsForSection = (caption) => {
-  if (!caption) {
-    console.warn('[meta] updateMetaTagsForSection called without caption. Resetting.');
-    resetMetaTags();
+    setMeta('meta[property="og:url"]', window.location.href);
+    updateAlternateLinks(window.location.pathname);
     return;
   }
 
-  console.log('[meta] updateMetaTagsForSection called', { caption });
-
-  // Titel und Beschreibung aus Übersetzungen
-  const newTitle = translations[lang].metaTitle.replace('{caption}', caption);
-  const newDescription = translations[lang].metaDescriptionSection.replace('{caption}', caption);
-
-  // Seitentitel setzen
-  document.title = newTitle;
-
-  // Meta-Tags setzen
-  setMeta('meta[name="description"]', newDescription);
-  setMeta('meta[property="og:title"]', newTitle);
-  setMeta('meta[property="og:description"]', newDescription);
-  setMeta('meta[property="twitter:title"]', newTitle);
-  setMeta('meta[property="twitter:description"]', newDescription);
-
-  // Originalbild beibehalten (wichtig!)
-  if (originalMeta.ogImage) {
-    const fullImageUrl = new URL(originalMeta.ogImage, window.location.origin).href;
-    setMeta('meta[property="og:image"]', fullImageUrl);
-    setMeta('meta[property="twitter:image"]', fullImageUrl); // Annahme: twitter image = og image
-    setMeta('meta[itemprop="primaryImageOfPage"]', fullImageUrl);
-    // JSON-LD mit Originalbild und neuer Caption aktualisieren
-    updateJsonLdPrimaryImage(fullImageUrl, caption);
+  // Wenn ein meta-Mapping existiert, setze es (meta.image und meta.description optional)
+  if (meta) {
+    document.title = meta.title || document.title;
+    if (meta.description) {
+      setMeta('meta[name="description"]', meta.description);
+      setMeta('meta[property="og:description"]', meta.description);
+    }
+    if (meta.image) {
+      setMeta('meta[property="og:image"]', meta.image);
+      setMeta('meta[property="twitter:image"]', meta.image);
+      updateJsonLdPrimaryImage(meta.image, meta.title || '');
+    }
+    setMeta('meta[property="og:title"]', meta.title);
+    setMeta('meta[property="og:url"]', window.location.href);
+    updateAlternateLinks(window.location.pathname);
   }
+}
 
-  // URLs aktualisieren
-  setMeta('meta[property="og:url"]', window.location.href);
-  setMeta('meta[name="twitter:url"]', window.location.href);
+// === hreflang-Alternate-Links ===
+function updateAlternateLinks(path) {
+  const baseDe = 'https://de.ferienwohnung-parndorf.at';
+  const baseEn = 'https://en.ferienwohnung-parndorf.at';
 
-  // Alternates aktualisieren
-  updateAlternateLinks(window.location.pathname);
+  // Alte hreflang-Tags entfernen
+  document.querySelectorAll('link[rel="alternate"]').forEach(link => link.remove());
 
-  console.log('[meta] Sektion gesetzt ->', {
-    title: newTitle,
-    description: newDescription
+  const alternates = [
+    { hreflang: 'de', href: `${baseDe}${path}` },
+    { hreflang: 'en', href: `${baseEn}${path}` }
+  ];
+
+  alternates.forEach(({ hreflang, href }) => {
+    const link = document.createElement('link');
+    link.rel = 'alternate';
+    link.hreflang = hreflang;
+    link.href = href;
+    document.head.appendChild(link);
   });
-};
+}
+
+
 
   /**
    * Aktualisiert die Meta-Tags der Seite basierend auf dem aktiven Bild.
@@ -896,6 +873,134 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
+
+const metaDataMap = {
+  de: {
+    '/': {
+      title: 'Ferienwohnung Parndorf – Ihr Zuhause am Neusiedler See',
+      description: 'Entdecken Sie unsere komfortable Ferienwohnung in Parndorf – ideal gelegen zwischen Outlet und Neusiedler See.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/wohnzimmer.webp'
+    },
+    '/wohnzimmer': {
+      title: 'Wohnzimmer – Ferienwohnung Parndorf',
+      description: 'Gemütliches Wohnzimmer mit bequemer Couch – Ihr Rückzugsort in Parndorf.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/wohnzimmer.webp'
+    },
+    '/schlafzimmer': {
+      title: 'Schlafzimmer – Ferienwohnung Parndorf',
+      description: 'Erholsamer Schlaf in stilvollem Ambiente – entdecken Sie unser Schlafzimmer.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/schlafzimmer.webp'
+    },
+    '/kueche': {
+      title: 'Küche & Essbereich – Ferienwohnung Parndorf',
+      description: 'Voll ausgestattete Küche und Essbereich für gemütliche Mahlzeiten in Parndorf.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/kueche.webp'
+    },
+    '/badezimmer': {
+      title: 'Badezimmer – Ferienwohnung Parndorf',
+      description: 'Modernes Badezimmer mit Dusche und WC – Wohlfühlen leicht gemacht.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/badezimmer.webp'
+    },
+    '/terrasse': {
+      title: 'Terrasse & Garten – Ferienwohnung Parndorf',
+      description: 'Entspannen Sie im Garten oder genießen Sie Ihren Kaffee auf der sonnigen Terrasse.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/terrasse.webp'
+    },
+    '/eingangsbereich': {
+      title: 'Eingangsbereich – Ferienwohnung Parndorf',
+      description: 'Herzlich willkommen! Einladender Eingangsbereich für Ihren Aufenthalt.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/eingangsbereich.webp'
+    },
+    '/ausstattung': {
+      title: 'Ausstattung – Ferienwohnung Parndorf',
+      description: 'Alle Details zur Ausstattung: WLAN, Küche, Terrasse, Parkplatz, und mehr.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/wohnzimmer.webp'
+    },
+    '/anfahrt': {
+      title: 'Anfahrt & Lage – Ferienwohnung Parndorf',
+      description: 'So finden Sie uns – zentrale Lage zwischen Neusiedler See und Outlet-Center.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/map.webp'
+    },
+    '/kontakt': {
+      title: 'Kontakt – Ferienwohnung Parndorf',
+      description: 'Kontaktieren Sie uns für Buchungen oder Fragen zur Unterkunft.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/kontakt.webp'
+    },
+    '/region/neusiedlersee': {
+      title: 'Region Neusiedler See – Ausflugsziele & Aktivitäten',
+      description: 'Alles über den Neusiedler See: Sehenswürdigkeiten, Natur, Freizeit und Tipps für Ihren Aufenthalt in Parndorf.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/region-neusiedlersee.jpg'
+    },
+    '/region/outlet': {
+      title: 'Designer Outlet Parndorf – Shopping & Lifestyle',
+      description: 'Nur 2 km vom Apartment entfernt: Designer Outlet Parndorf mit über 160 Shops.',
+      image: 'https://de.ferienwohnung-parndorf.at/assets/images/outlet.webp'
+    }
+  },
+  en: {
+    '/': {
+      title: 'Holiday Apartment Parndorf – Your Home at Lake Neusiedl',
+      description: 'Discover our cozy apartment in Parndorf – perfectly located between the outlet center and Lake Neusiedl.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/wohnzimmer.webp'
+    },
+    '/livingroom': {
+      title: 'Living Room – Holiday Apartment Parndorf',
+      description: 'Cozy living room with a comfortable couch – your retreat in Parndorf.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/wohnzimmer.webp'
+    },
+    '/bedroom': {
+      title: 'Bedroom – Holiday Apartment Parndorf',
+      description: 'Relax and unwind in our stylish bedroom.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/schlafzimmer.webp'
+    },
+    '/kitchen': {
+      title: 'Kitchen & Dining Area – Holiday Apartment Parndorf',
+      description: 'Fully equipped kitchen and dining area for your stay in Parndorf.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/kueche.webp'
+    },
+    '/bathroom': {
+      title: 'Bathroom – Holiday Apartment Parndorf',
+      description: 'Modern bathroom with shower and toilet.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/badezimmer.webp'
+    },
+    '/terrace': {
+      title: 'Terrace & Garden – Holiday Apartment Parndorf',
+      description: 'Enjoy breakfast on the sunny terrace or relax in the garden.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/terrasse.webp'
+    },
+    '/entrance': {
+      title: 'Entrance – Holiday Apartment Parndorf',
+      description: 'Welcome area of the apartment – feel at home.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/eingangsbereich.webp'
+    },
+    '/facilities': {
+      title: 'Facilities – Holiday Apartment Parndorf',
+      description: 'All apartment amenities: WiFi, kitchen, terrace, parking, and more.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/wohnzimmer.webp'
+    },
+    '/directions': {
+      title: 'Directions & Location – Holiday Apartment Parndorf',
+      description: 'Find us easily – between Lake Neusiedl and the Designer Outlet.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/map.webp'
+    },
+    '/contact': {
+      title: 'Contact – Holiday Apartment Parndorf',
+      description: 'Contact us for booking or inquiries.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/kontakt.webp'
+    },
+    '/region/neusiedlersee': {
+      title: 'Lake Neusiedl Region – Sights & Activities',
+      description: 'All about Lake Neusiedl: attractions, nature, leisure, and travel tips.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/region-neusiedlersee.jpg'
+    },
+    '/region/outlet': {
+      title: 'Designer Outlet Parndorf – Shopping & Lifestyle',
+      description: 'Just 2 km away – 160 designer shops for the perfect shopping experience.',
+      image: 'https://en.ferienwohnung-parndorf.at/assets/images/outlet.webp'
+    }
+  }
+};
+
   // =========================================================
   // Router-Logik (robust)
   // =========================================================
@@ -1053,7 +1158,7 @@ document.addEventListener('keydown', (e) => {
       // Ruft jetzt direkt die zentrale Funktion auf
       if (burgerMenu?.classList.contains("open")) {
         closeBurgerMenu();
-      }s
+      }
     }
   });
 
