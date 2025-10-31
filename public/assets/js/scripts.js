@@ -360,24 +360,23 @@ if (form) {
     twitterImage: document.querySelector('meta[property="twitter:image"]')?.content,
     description: document.querySelector('meta[name="description"]')?.content
   };
+  function setMeta(selector, value) {
+  let el = document.head.querySelector(selector);
+  if (!el) {
+    el = document.createElement('meta');
+    const match = selector.match(/\[(.*?)=(.*?)\]/);
+    if (match) {
+      const [_, attr, val] = match;
+      el.setAttribute(attr, val.replace(/["']/g, ''));
+    }
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', value);
+}
 
   const updateMetaTagsForImage = (imageUrl, caption) => {
   console.log('[meta] updateMetaTagsForImage called', { imageUrl, caption });
 
-  // Hilfsfunktion: Meta-Tag setzen oder erstellen
-  const setMeta = (selector, value) => {
-    let el = document.head.querySelector(selector);
-    if (!el) {
-      el = document.createElement('meta');
-      const match = selector.match(/\[(.*?)=(.*?)\]/);
-      if (match) {
-        const [_, attr, val] = match;
-        el.setAttribute(attr, val.replace(/["']/g, ''));
-      }
-      document.head.appendChild(el);
-    }
-    el.setAttribute('content', value);
-  };
 
   // Fallback: caption aus Dateinamen generieren, falls nicht vorhanden
   if (!caption && imageUrl) {
