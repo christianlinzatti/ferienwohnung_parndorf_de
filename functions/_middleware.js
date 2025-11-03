@@ -16,6 +16,16 @@ export async function onRequest(context) {
     return env.ASSETS.fetch(request);
   }
 
+   // --- 🧭 Redirects für www.de / www.en Subdomains
+  if (host === "www.de.ferienwohnung-parndorf.at") {
+    const target = `https://de.ferienwohnung-parndorf.at${url.pathname}${url.search}`;
+    return Response.redirect(target, 301);
+  }
+  if (host === "www.en.ferienwohnung-parndorf.at") {
+    const target = `https://en.ferienwohnung-parndorf.at${url.pathname}${url.search}`;
+    return Response.redirect(target, 301);
+  }
+
   // --- 1️⃣ Root-Domain: Sprachbasierte Weiterleitung für echte Besucher
   if (host === "ferienwohnung-parndorf.at" || host === "www.ferienwohnung-parndorf.at") {
     if (!isBot && isNavigation) {
