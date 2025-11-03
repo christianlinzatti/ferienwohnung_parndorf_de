@@ -423,12 +423,40 @@ if (form) {
     head.appendChild(canonical);
   }
 
-  // Hostname + Sprache automatisch bestimmen
+  // Bestimme die Ziel-URL (falls newUrl leer, nutze aktuelle Location)
+  let target = '';
+  if (!newUrl) {
+    // Verwende pathname + search (kein Hash)
+    const u = new URL(window.location.href);
+    target = (u.pathname || '/') + (u.search || '');
+  } else {
+    try {
+      // Wenn newUrl eine absolute oder relative URL ist, parsen
+      const u = new URL(newUrl, window.location.origin);
+      target = (u.pathname || '/') + (u.search || '');
+    } catch (e) {
+      // Fallback: als Pfad behandeln
+      target = String(newUrl);
+    }
+  }
+
+  // Normalisiere Pfad: führenden Slash sicherstellen, doppelte Slashes entfernen
+  if (!target.startsWith('/')) target = '/' + target;
+  target = target.replace(/\/{2,}/g, '/');
+
+  // Falls kein Dateiname/Extension im Pfad vorhanden ist, sorge für einen abschließenden Slash
+  // (vermeidet canonical ohne Slash auf Seiten wie "/highlights")
+  const hasExtension = /\.[a-zA-Z0-9]{1,6}$/.test(target);
+  if (!hasExtension && !target.endsWith('/')) {
+    target = target + '/';
+  }
+
+  // Sprache / Host korrekt wählen
   const langPrefix = window.location.hostname.startsWith("en.")
     ? "https://en.ferienwohnung-parndorf.at"
     : "https://de.ferienwohnung-parndorf.at";
 
-  const absUrl = langPrefix + newUrl.replace(/\/+$/, "") + "/";
+  const absUrl = langPrefix + target;
   canonical.setAttribute('href', absUrl);
   console.log('[meta] Canonical aktualisiert ->', absUrl);
 };
