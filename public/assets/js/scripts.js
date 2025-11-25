@@ -542,12 +542,16 @@ function updateAlternateLinks(path) {
   const baseDe = 'https://de.ferienwohnung-parndorf.at';
   const baseEn = 'https://en.ferienwohnung-parndorf.at';
 
-  // Alte hreflang-Tags entfernen
+  // remove old hreflang tags
   document.querySelectorAll('link[rel="alternate"]').forEach(link => link.remove());
 
+  // translate path for alternate host
+  const translatedForEn = translatePathClient(path, 'de->en');
+  const translatedForDe = translatePathClient(path, 'en->de');
+
   const alternates = [
-    { hreflang: 'de', href: `${baseDe}${path}` },
-    { hreflang: 'en', href: `${baseEn}${path}` }
+    { hreflang: 'de', href: baseDe + (path.endsWith('/') ? path : path + '/') },
+    { hreflang: 'en', href: baseEn + (translatedForEn.endsWith('/') ? translatedForEn : translatedForEn + '/') }
   ];
 
   alternates.forEach(({ hreflang, href }) => {
@@ -557,6 +561,31 @@ function updateAlternateLinks(path) {
     link.href = href;
     document.head.appendChild(link);
   });
+}
+
+// lightweight client-side translator (matching server dictionaries)
+function translatePathClient(pathIn, direction) {
+  // ensure leading slash and no trailing triple
+  let p = pathIn || '/';
+  if (!p.startsWith('/')) p = '/' + p;
+  if (!p.endsWith('/')) p = p + '/';
+  if (p === '/') return '/';
+
+  const deToEn = {
+    'wohnzimmer':'livingroom','schlafzimmer':'bedroom','kueche':'kitchen','badezimmer':'bathroom',
+    'terrasse':'terrace','eingangsbereich':'entrance','ausstattung':'facilities','anfahrt':'directions',
+    'kontakt':'contact','region':'region','neusiedlersee':'neusiedlersee','outlet':'outlet'
+  };
+  const enToDe = Object.fromEntries(Object.entries(deToEn).map(([k,v])=>[v,k]));
+
+  const parts = p.replace(/^\/|\/$/g,'').split('/');
+  const mapped = parts.map(seg => {
+    const s = seg.toLowerCase();
+    if (direction === 'de->en') return deToEn[s] || s;
+    if (direction === 'en->de') return enToDe[s] || s;
+    return s;
+  });
+  return '/' + mapped.join('/');
 }
 
 
