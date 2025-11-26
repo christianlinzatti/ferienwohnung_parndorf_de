@@ -268,7 +268,7 @@ export const onRequest = async (context) => {
   // -----------------------------------------------
   // SPA FALLBACK
   // -----------------------------------------------
-  return assets.fetch(new Request(base + `/index.html`, request));
+  return assets.fetch(new Request(`https://${hostname}/index.html`, request));
 };
 
 // ====================================================================
