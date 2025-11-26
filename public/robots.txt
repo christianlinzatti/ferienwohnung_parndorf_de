@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /cdn-cgi/
-
-Sitemap: https://ferienwohnung-parndorf.at/sitemap.xml
