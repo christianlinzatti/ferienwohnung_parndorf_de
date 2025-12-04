@@ -1391,12 +1391,7 @@ function closeMenu() {
   }
 
 
-  if (burgerToggle && burgerMenu) {
-    burgerToggle.addEventListener("click", () => {
-        burgerMenu.classList.add("open");
-        document.body.classList.add("no-scroll");
-    });
-  }
+
 
  if (burgerToggle && burgerMenu) {
     burgerToggle.addEventListener("click", () => {
