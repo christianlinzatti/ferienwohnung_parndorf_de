@@ -123,7 +123,12 @@ export async function onRequest(context) {
       "/kontakt/": { title: "Kontakt – Ferienwohnung Parndorf", description: "Kontaktieren Sie uns ...", image: `${baseDe}/assets/images/kontakt.webp` },
       "/region/": { title: "Region Parndorf & Neusiedler See – Sehenswürdigkeiten & Aktivitäten", description: "Entdecken Sie die Region ...", image: `${baseDe}/assets/images/region.webp` },
       "/region/neusiedlersee/": { title: "Region Neusiedler See – Ausflugsziele & Aktivitäten", description: "Alles über den Neusiedler See ...", image: `${baseDe}/assets/images/region-neusiedlersee.jpg` },
-      "/region/outlet/": { title: "Designer Outlet Parndorf – Shopping & Lifestyle", description: "Nur 2 km vom Apartment ...", image: `${baseDe}/assets/images/outlet.webp` }
+      "/region/outlet/": { title: "Designer Outlet Parndorf – Shopping & Lifestyle", description: "Nur 2 km vom Apartment ...", image: `${baseDe}/assets/images/outlet.webp` },
+      "/terrasse/garten/": {
+  title: "Terrasse & Garten – Ferienwohnung Parndorf",
+  description: "Entspannen Sie im privaten Garten und auf der sonnigen Terrasse. Ideal für Frühstück im Freien.",
+  image: `${baseDe}/assets/images/terrasse-garten.webp` // Bildpfad ggf. anpassen
+}
     },
     en: {
       "/": { title: "Holiday Apartment Parndorf – Your Home at Lake Neusiedl", description: "Discover our cozy apartment ...", image: `${baseEn}/assets/images/wohnzimmer.webp` },
@@ -138,6 +143,11 @@ export async function onRequest(context) {
       "/contact/": { title: "Contact – Holiday Apartment Parndorf", description: "Contact us for booking ...", image: `${baseEn}/assets/images/kontakt.webp` },
       "/region/": { title: "Region Parndorf & Lake Neusiedl – Sights & Activities", description: "Discover the Parndorf region ...", image: `${baseEn}/assets/images/region.webp` },
       "/region/neusiedlersee/": { title: "Lake Neusiedl Region – Sights & Activities", description: "All about Lake Neusiedl ...", image: `${baseEn}/assets/images/region-neusiedlersee.jpg` },
+      "/terrace/garden/": {
+  title: "Terrace & Garden – Holiday Apartment Parndorf",
+  description: "Relax in the private garden and on the sunny terrace. Perfect for outdoor breakfast.",
+  image: `${baseEn}/assets/images/terrasse-garten.webp` // Bildpfad ggf. anpassen
+},
       "/region/outlet/": { title: "Designer Outlet Parndorf – Shopping & Lifestyle", description: "Just 2 km away ...", image: `${baseEn}/assets/images/outlet.webp` }
     }
   };
