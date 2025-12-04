@@ -1,4 +1,4 @@
-// _middleware.js (korrigiert, loopfrei, prerender für Bots)
+// _middleware.js (korrigiert: garten-Fix hinzugefügt)
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -48,7 +48,6 @@ export async function onRequest(context) {
       return Response.redirect(`${baseDe}${path}`, 301);
     }
     // Non navigation requests (robots/sitemap) - serve from assets root if present
-    // Try to serve /index.html from assets to be safe
     try {
       return await assets.fetch(new URL("/index.html", request.url));
     } catch (e) {
@@ -71,7 +70,8 @@ export async function onRequest(context) {
     kontakt: "contact",
     region: "region",
     neusiedlersee: "neusiedlersee",
-    outlet: "outlet"
+    outlet: "outlet",
+    garten: "garden" // <--- HIER WURDE DIE FEHLENDE ÜBERSETZUNG HINZUGEFÜGT
   };
   const enToDe = Object.fromEntries(Object.entries(deToEn).map(([k, v]) => [v, k]));
 
@@ -107,7 +107,7 @@ export async function onRequest(context) {
   }
 
   // ----------------------------
-  // 6) META map (with trailing slashes) - your full map (abridged here; use your full map)
+  // 6) META map (with trailing slashes)
   // ----------------------------
   const metaDataMap = {
     de: {
@@ -125,10 +125,10 @@ export async function onRequest(context) {
       "/region/neusiedlersee/": { title: "Region Neusiedler See – Ausflugsziele & Aktivitäten", description: "Alles über den Neusiedler See ...", image: `${baseDe}/assets/images/region-neusiedlersee.jpg` },
       "/region/outlet/": { title: "Designer Outlet Parndorf – Shopping & Lifestyle", description: "Nur 2 km vom Apartment ...", image: `${baseDe}/assets/images/outlet.webp` },
       "/terrasse/garten/": {
-  title: "Terrasse & Garten – Ferienwohnung Parndorf",
-  description: "Entspannen Sie im privaten Garten und auf der sonnigen Terrasse. Ideal für Frühstück im Freien.",
-  image: `${baseDe}/assets/images/terrasse-garten.webp` // Bildpfad ggf. anpassen
-}
+        title: "Terrasse & Garten – Ferienwohnung Parndorf",
+        description: "Entspannen Sie im privaten Garten und auf der sonnigen Terrasse. Ideal für Frühstück im Freien.",
+        image: `${baseDe}/assets/images/garten.webp`
+      }
     },
     en: {
       "/": { title: "Holiday Apartment Parndorf – Your Home at Lake Neusiedl", description: "Discover our cozy apartment ...", image: `${baseEn}/assets/images/wohnzimmer.webp` },
@@ -144,10 +144,10 @@ export async function onRequest(context) {
       "/region/": { title: "Region Parndorf & Lake Neusiedl – Sights & Activities", description: "Discover the Parndorf region ...", image: `${baseEn}/assets/images/region.webp` },
       "/region/neusiedlersee/": { title: "Lake Neusiedl Region – Sights & Activities", description: "All about Lake Neusiedl ...", image: `${baseEn}/assets/images/region-neusiedlersee.jpg` },
       "/terrace/garden/": {
-  title: "Terrace & Garden – Holiday Apartment Parndorf",
-  description: "Relax in the private garden and on the sunny terrace. Perfect for outdoor breakfast.",
-  image: `${baseEn}/assets/images/terrasse-garten.webp` // Bildpfad ggf. anpassen
-},
+        title: "Terrace & Garden – Holiday Apartment Parndorf",
+        description: "Relax in the private garden and on the sunny terrace. Perfect for outdoor breakfast.",
+        image: `${baseEn}/assets/images/garten.webp`
+      },
       "/region/outlet/": { title: "Designer Outlet Parndorf – Shopping & Lifestyle", description: "Just 2 km away ...", image: `${baseEn}/assets/images/outlet.webp` }
     }
   };
@@ -176,25 +176,23 @@ export async function onRequest(context) {
   if (isBot && isHtmlNav) {
     // local helper to translate path for alternate
     function translatePathForOtherLang(p, fromLang) {
-  if (!p || p === "/") return "/";
+      if (!p || p === "/") return "/";
 
-  // Entferne führenden/nachgestellten Slash und teile in Segmente
-  const segments = p.replace(/^\/|\/$/g, "").split("/");
+      // Entferne Slash am Anfang/Ende
+      const segments = p.replace(/^\/|\/$/g, "").split("/");
 
-  // Wähle die entsprechende Übersetzungs-Map
-  const translationMap = fromLang === "de" ? deToEn : enToDe;
+      // Wähle Map
+      const translationMap = fromLang === "de" ? deToEn : enToDe;
 
-  // Übersetze jedes Segment
-  const translatedSegments = segments.map(seg => {
-    // Wenn es einen Eintrag in der Map gibt, verwende diesen, sonst das Segment selbst
-    return translationMap[seg] || seg;
-  });
+      // Segmente übersetzen
+      const translatedSegments = segments.map(seg => {
+        return translationMap[seg] || seg;
+      });
 
-  // Setze den Pfad wieder zusammen mit führendem und nachgestelltem Slash
-  return "/" + translatedSegments.join("/") + "/";
-}
+      return "/" + translatedSegments.join("/") + "/";
+    }
 
-    const otherLangPath = const otherLangPath = translatePathForOtherLang(path, lang);
+    const otherLangPath = translatePathForOtherLang(path, lang);
     const alternateDe = `${baseDe}${lang === "de" ? path : otherLangPath}`;
     const alternateEn = `${baseEn}${lang === "en" ? path : otherLangPath}`;
 
@@ -282,8 +280,7 @@ export async function onRequest(context) {
   }
 
   // ----------------------------
-  // 9) SPA fallback for real visitors (NO external absolute fetch — use ASSETS.fetch with path)
-  //    Serve the right index.html for the subdomain without causing the worker to re-enter.
+  // 9) SPA fallback for real visitors
   // ----------------------------
   try {
     if (hostname.startsWith("de.")) {
@@ -292,14 +289,12 @@ export async function onRequest(context) {
     if (hostname.startsWith("en.")) {
       return await assets.fetch(new URL("/en/index.html", request.url));
     }
-    // fallback: serve root index
+    // fallback
     return await assets.fetch(new URL("/index.html", request.url));
   } catch (err) {
-    // if asset missing, return a small friendly error rather than redirecting
     return new Response("Not found", { status: 404 });
   }
 
-  // helper escape
   function escapeHtml(s) {
     return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
   }
