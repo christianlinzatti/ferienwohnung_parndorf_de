@@ -572,11 +572,21 @@ function translatePathClient(pathIn, direction) {
   if (p === '/') return '/';
 
   const deToEn = {
-    'wohnzimmer':'livingroom','schlafzimmer':'bedroom','kueche':'kitchen','badezimmer':'bathroom',
-    'terrasse':'terrace','eingangsbereich':'entrance','ausstattung':'facilities','anfahrt':'directions',
-    'kontakt':'contact','region':'region','neusiedlersee':'neusiedlersee','outlet':'outlet'
-  };
-  const enToDe = Object.fromEntries(Object.entries(deToEn).map(([k,v])=>[v,k]));
+    wohnzimmer: "livingroom",
+    schlafzimmer: "bedroom",
+    kueche: "kitchen",
+    badezimmer: "bathroom",
+    terrasse: "terrace",
+    eingangsbereich: "entrance",
+    ausstattung: "facilities",
+    anfahrt: "directions",
+    kontakt: "contact",
+    region: "region",
+    neusiedlersee: "neusiedlersee",
+    outlet: "outlet",
+    garten: "garden"
+};
+const enToDe = Object.fromEntries(Object.entries(deToEn).map(([k, v]) => [v, k]));
 
   const parts = p.replace(/^\/|\/$/g,'').split('/');
   const mapped = parts.map(seg => {

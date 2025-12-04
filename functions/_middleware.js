@@ -165,14 +165,26 @@ export async function onRequest(context) {
   // ----------------------------
   if (isBot && isHtmlNav) {
     // local helper to translate path for alternate
-    function translateFirstSegmentForOtherLang(p, fromLang) {
-      if (!p || p === "/") return "/";
-      const seg = p.replace(/^\/|\/$/g, "").split("/")[0];
-      if (fromLang === "de") return "/" + (deToEn[seg] || seg) + "/";
-      return "/" + (enToDe[seg] || seg) + "/";
-    }
+    function translatePathForOtherLang(p, fromLang) {
+  if (!p || p === "/") return "/";
 
-    const otherLangPath = translateFirstSegmentForOtherLang(path, lang);
+  // Entferne führenden/nachgestellten Slash und teile in Segmente
+  const segments = p.replace(/^\/|\/$/g, "").split("/");
+
+  // Wähle die entsprechende Übersetzungs-Map
+  const translationMap = fromLang === "de" ? deToEn : enToDe;
+
+  // Übersetze jedes Segment
+  const translatedSegments = segments.map(seg => {
+    // Wenn es einen Eintrag in der Map gibt, verwende diesen, sonst das Segment selbst
+    return translationMap[seg] || seg;
+  });
+
+  // Setze den Pfad wieder zusammen mit führendem und nachgestelltem Slash
+  return "/" + translatedSegments.join("/") + "/";
+}
+
+    const otherLangPath = const otherLangPath = translatePathForOtherLang(path, lang);
     const alternateDe = `${baseDe}${lang === "de" ? path : otherLangPath}`;
     const alternateEn = `${baseEn}${lang === "en" ? path : otherLangPath}`;
 
