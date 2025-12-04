@@ -542,16 +542,38 @@ function updateAlternateLinks(path) {
   const baseDe = 'https://de.ferienwohnung-parndorf.at';
   const baseEn = 'https://en.ferienwohnung-parndorf.at';
 
+  // Aktuelle Sprache ermitteln
+  const isEn = window.location.hostname.startsWith("en.");
+
+  // Pfade für BEIDE Sprachen berechnen
+  let pathDe, pathEn;
+
+  if (isEn) {
+    // Wir sind auf Englisch -> Input 'path' ist Englisch
+    pathEn = path;
+    // Wir müssen für DE von En nach De übersetzen
+    pathDe = translatePathClient(path, 'en->de');
+  } else {
+    // Wir sind auf Deutsch -> Input 'path' ist Deutsch
+    pathDe = path;
+    // Wir müssen für EN von De nach En übersetzen
+    pathEn = translatePathClient(path, 'de->en');
+  }
+
+  // Helper für saubere Slashes
+  const clean = (p) => {
+    let s = p || '/';
+    if (!s.startsWith('/')) s = '/' + s;
+    if (!s.endsWith('/')) s = s + '/';
+    return s === '/' ? '/' : s;
+  };
+
   // remove old hreflang tags
   document.querySelectorAll('link[rel="alternate"]').forEach(link => link.remove());
 
-  // translate path for alternate host
-  const translatedForEn = translatePathClient(path, 'de->en');
-  const translatedForDe = translatePathClient(path, 'en->de');
-
   const alternates = [
-    { hreflang: 'de', href: baseDe + (path.endsWith('/') ? path : path + '/') },
-    { hreflang: 'en', href: baseEn + (translatedForEn.endsWith('/') ? translatedForEn : translatedForEn + '/') }
+    { hreflang: 'de', href: baseDe + clean(pathDe) },
+    { hreflang: 'en', href: baseEn + clean(pathEn) }
   ];
 
   alternates.forEach(({ hreflang, href }) => {
@@ -561,14 +583,18 @@ function updateAlternateLinks(path) {
     link.href = href;
     document.head.appendChild(link);
   });
+
+  console.log('[meta] Alternates updated:', alternates);
 }
 
 // lightweight client-side translator (matching server dictionaries)
 function translatePathClient(pathIn, direction) {
   // ensure leading slash and no trailing triple
   let p = pathIn || '/';
+  // Pfad säubern
+  p = p.replace(/\/+$/, ''); // Trailing slash weg für split
   if (!p.startsWith('/')) p = '/' + p;
-  if (!p.endsWith('/')) p = p + '/';
+
   if (p === '/') return '/';
 
   const deToEn = {
@@ -585,16 +611,21 @@ function translatePathClient(pathIn, direction) {
     neusiedlersee: "neusiedlersee",
     outlet: "outlet",
     garten: "garden"
-};
-const enToDe = Object.fromEntries(Object.entries(deToEn).map(([k, v]) => [v, k]));
+  };
 
-  const parts = p.replace(/^\/|\/$/g,'').split('/');
+  // Umkehr-Map erstellen
+  const enToDe = Object.fromEntries(Object.entries(deToEn).map(([k, v]) => [v, k]));
+
+  const parts = p.split('/').filter(Boolean); // Leere Teile entfernen
+
   const mapped = parts.map(seg => {
     const s = seg.toLowerCase();
+    // Prüfen ob Übersetzung existiert, sonst Original behalten (z.B. bei Bildnamen "betten")
     if (direction === 'de->en') return deToEn[s] || s;
     if (direction === 'en->de') return enToDe[s] || s;
     return s;
   });
+
   return '/' + mapped.join('/');
 }
 
