@@ -1,4 +1,4 @@
-// _middleware.js - Fixed Mixed-Language Redirects
+// _middleware.js - Fixed Mixed-Language Redirects & Detection
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -21,6 +21,8 @@ export async function onRequest(context) {
   function normalizePathForMap(p) {
     if (!p || p === "/") return "/";
     let s = p.toLowerCase();
+    // Decode URI components to handle umlaute/spaces correctly
+    try { s = decodeURIComponent(s); } catch (e) {}
     if (!s.startsWith("/")) s = "/" + s;
     if (!s.endsWith("/")) s = s + "/";
     return s;
@@ -70,6 +72,7 @@ export async function onRequest(context) {
     outlet: "outlet",
     garten: "garden"
   };
+
   // Umkehr-Map erstellen
   const enToDe = Object.fromEntries(Object.entries(deToEn).map(([k, v]) => [v, k]));
 
@@ -81,38 +84,45 @@ export async function onRequest(context) {
   // 4) CORRECTED: Check ALL path segments for wrong language
   // ----------------------------
 
-  // Nur ausführen, wenn wir nicht auf Assets zugreifen
+  // Definition von Assets (keine Redirects für Bilder/JS/CSS)
   const isAsset = path.startsWith("/assets/") || path.match(/\.(css|js|png|jpg|jpeg|webp|svg|gif|ico|txt|json|xml|pdf|webmanifest|woff2?)$/i);
 
   if (!isAsset && path !== "/") {
-    // Pfad in Segmente zerlegen (filter(Boolean) entfernt leere Strings durch Slashes)
+    // Pfad in Segmente zerlegen und leere entfernen
     const segments = path.split('/').filter(Boolean);
-    let isModified = false;
+    let needsRedirect = false;
 
     const translatedSegments = segments.map(seg => {
       const lower = seg.toLowerCase();
+      let translated = lower;
 
       if (lang === "de") {
-        // Wir sind auf DE. Prüfen, ob das Segment englisch ist (z.B. "kitchen")
+        // Wir sind auf DE (de.ferienwohnung...).
+        // Prüfen: Ist das Segment eigentlich Englisch? (z.B. "kitchen")
         if (enToDe[lower]) {
-          isModified = true;
-          return enToDe[lower]; // Ersetze "kitchen" durch "kueche"
+          translated = enToDe[lower]; // Übersetze zu "kueche"
         }
-      } else if (lang === "en") {
-        // Wir sind auf EN. Prüfen, ob das Segment deutsch ist (z.B. "kueche")
+      } else {
+        // Wir sind auf EN (en.ferienwohnung...).
+        // Prüfen: Ist das Segment eigentlich Deutsch? (z.B. "kueche")
         if (deToEn[lower]) {
-          isModified = true;
-          return deToEn[lower]; // Ersetze "kueche" durch "kitchen"
+          translated = deToEn[lower]; // Übersetze zu "kitchen"
         }
       }
-      // Wenn das Wort nicht im Wörterbuch steht (z.B. "essbereich" oder Bildnamen), lassen wir es so
-      return lower;
+
+      // Prüfen, ob eine Änderung stattgefunden hat UND ob es nicht das gleiche Wort ist
+      // (Wichtig: Verhindert Redirects, wenn deToEn['outlet'] == 'outlet')
+      if (translated !== lower) {
+        needsRedirect = true;
+      }
+
+      return translated;
     });
 
-    // Wenn mindestens ein Segment geändert wurde, Redirect auslösen
-    if (isModified) {
-      // Pfad wieder zusammenbauen, sicherstellen dass Slashes korrekt sind
+    // Wenn mindestens ein Segment falsch war -> 301 Redirect auslösen
+    if (needsRedirect) {
       const newPath = "/" + translatedSegments.join("/") + "/";
+      console.log(`[Middleware] Fixing URL: ${origPath} -> ${newPath}`);
       return Response.redirect(`${base}${newPath}`, 301);
     }
   }
@@ -192,11 +202,6 @@ export async function onRequest(context) {
   // 8) Bot prerendering
   // ----------------------------
   if (isBot && isHtmlNav) {
-    const alternateDe = `${baseDe}${path}`; // Since we already fixed the path in step 4
-    const alternateEn = `${baseEn}${path}`; // NOTE: This simple version assumes path is correct for current lang.
-    // To be perfectly strict, we would need to reverse-translate for the alternate link, but since
-    // we now force redirects on wrong segments, the canonical path logic is cleaner.
-
     const unifiedJsonLd = [
       {
         "@context": "https://schema.org",
