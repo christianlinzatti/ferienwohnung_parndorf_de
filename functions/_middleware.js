@@ -23,7 +23,7 @@ function escapeHtml(s) {
 }
 
 /**
- * Übersetzt einen Pfad (z.B. "/region/kueche/") in die Ziel-Sprache.
+ * Übersetzt einen Pfad (z.B. "/region/kueche/") in die Ziel-Sprache für hreflang.
  */
 function translatePath(path, fromLang, toLang, deToEn, enToDe) {
     if (path === "/") return "/";
@@ -70,11 +70,10 @@ function generateBreadcrumbSchema(currentPath, currentLang, currentBase, map) {
     // 2. Alle weiteren Segmente
     segments.forEach((segment, index) => {
       url += `${segment}/`;
-      // Pfad im korrekten Format für den Map-Lookup
       const pathKey = normalizePath(url.replace(currentBase, ""));
 
       const segmentMeta = map[pathKey] || {};
-      // Breadcrumb Name aus den Metadaten oder dem Segment ableiten
+      // Breadcrumb Name aus den Metadaten oder dem Segment ableiten (Fallback-Logik)
       const breadcrumbName = segmentMeta.breadcrumbName || segment.charAt(0).toUpperCase() + segment.slice(1);
 
       itemListElement.push({
@@ -120,7 +119,7 @@ export async function onRequest(context) {
     "schlafzimmer": "bedroom",
     "kueche": "kitchen",
     "badezimmer": "bathroom",
-    "terrasse": "terrace",
+    "terrasse": "terrasse",
     "eingangsbereich": "entrance",
     "ausstattung": "facilities",
     "anfahrt": "directions",
@@ -147,8 +146,7 @@ export async function onRequest(context) {
   };
 
   // -------------------------------------------------------
-  // 2. META-DATEN MAP (Aktualisiert basierend auf Ihrer Vorgabe)
-  // HINWEIS: Pfade wurden mit /Slashes/ versehen, um mit normalizePath konsistent zu sein.
+  // 2. META-DATEN MAP (Aktualisiert)
   // -------------------------------------------------------
   const metaDataMap = {
     de: {
@@ -164,7 +162,7 @@ export async function onRequest(context) {
       "/ausstattung/": { title: "Ausstattung – Ferienwohnung Parndorf", description: "Alle Details zur Ausstattung: WLAN, Küche, Terrasse, Parkplatz, und mehr.", image: `${baseDe}/assets/images/wohnzimmer.webp` },
       "/anfahrt/": { title: "Anfahrt & Lage – Ferienwohnung Parndorf", description: "So finden Sie uns – zentrale Lage zwischen Neusiedler See und Outlet-Center.", image: `${baseDe}/assets/images/map.webp` },
       "/kontakt/": { title: "Kontakt – Ferienwohnung Parndorf", description: "Kontaktieren Sie uns für Buchungen oder Fragen zur Unterkunft.", image: `${baseDe}/assets/images/kontakt.webp` },
-      // Regionsseiten (Parent /region/ für Breadcrumbs hinzugefügt)
+      // Regionsseiten
       "/region/": { title: "Region Parndorf – Entdecken Sie das Burgenland", description: "Entdecken Sie die Region rund um Parndorf und den Neusiedler See.", image: `${baseDe}/assets/images/region.webp` },
       "/region/neusiedlersee/": { title: "Region Neusiedler See – Ausflugsziele & Aktivitäten", description: "Alles über den Neusiedler See: Sehenswürdigkeiten, Natur, Freizeit und Tipps für Ihren Aufenthalt in Parndorf.", image: `${baseDe}/assets/images/region-neusiedlersee.jpg` },
       "/region/outlet/": { title: "Designer Outlet Parndorf – Shopping & Lifestyle", description: "Nur 2 km vom Apartment entfernt: Designer Outlet Parndorf mit über 160 Shops.", image: `${baseDe}/assets/images/outlet.webp` }
@@ -182,7 +180,7 @@ export async function onRequest(context) {
       "/facilities/": { title: "Facilities – Holiday Apartment Parndorf", description: "All apartment amenities: WiFi, kitchen, terrace, parking, and more.", image: `${baseEn}/assets/images/wohnzimmer.webp` },
       "/directions/": { title: "Directions & Location – Holiday Apartment Parndorf", description: "Find us easily – between Lake Neusiedl and the Designer Outlet.", image: `${baseEn}/assets/images/map.webp` },
       "/contact/": { title: "Contact – Holiday Apartment Parndorf", description: "Contact us for booking or inquiries.", image: `${baseEn}/assets/images/kontakt.webp` },
-      // Regionsseiten (Parent /region/ für Breadcrumbs hinzugefügt)
+      // Regionsseiten
       "/region/": { title: "Parndorf Region – Discover Burgenland", description: "Discover the Parndorf region and Lake Neusiedl.", image: `${baseEn}/assets/images/region.webp` },
       "/region/neusiedlersee/": { title: "Lake Neusiedl Region – Sights & Activities", description: "All about Lake Neusiedl: attractions, nature, leisure, and travel tips.", image: `${baseEn}/assets/images/region-neusiedlersee.jpg` },
       "/region/outlet/": { title: "Designer Outlet Parndorf – Shopping & Lifestyle", description: "Just 2 km away – 160 designer shops for the perfect shopping experience.", image: `${baseEn}/assets/images/outlet.webp` }
@@ -217,6 +215,23 @@ export async function onRequest(context) {
     const segments = path.replace(/^\/|\/$/g, "").split('/').filter(Boolean);
     let needsRedirect = false;
 
+
+    // NEU: 🚨 Redundante Pfadsegmente prüfen (z.B. /kueche/kueche/ -> /kueche/)
+    if (segments.length >= 2) {
+        const lastSegment = segments[segments.length - 1];
+        const secondLastSegment = segments[segments.length - 2];
+
+        if (lastSegment === secondLastSegment) {
+            // Nur das redundante Segment entfernen
+            const canonicalSegments = segments.slice(0, -1);
+            const canonicalPath = `/${canonicalSegments.join("/")}/`;
+
+            // Führt den 301 Redirect zur kürzeren URL aus
+            return Response.redirect(`${currentBase}${canonicalPath}`, 301);
+        }
+    }
+
+    // Alte Logik: Pfad-Sprachübersetzung (wird nur ausgeführt, wenn keine Redundanz vorliegt)
     const newSegments = segments.map(seg => {
       const lower = seg.toLowerCase();
 
@@ -235,7 +250,7 @@ export async function onRequest(context) {
     });
 
     if (needsRedirect) {
-      // 301 Redirect zur korrekten URL
+      // 301 Redirect zur korrekten URL (wegen Sprachinkonsistenz)
       return Response.redirect(`${currentBase}/${newSegments.join("/")}/`, 301);
     }
   }
@@ -262,7 +277,7 @@ export async function onRequest(context) {
   // Meta-Daten abrufen (Map oder Fallback)
   let meta = currentMetaDataMap && currentMetaDataMap[path] ? currentMetaDataMap[path] : getAutoMeta(path, lang);
 
-  // **Breadcrumb Name automatisch ableiten**
+  // Breadcrumb Name automatisch ableiten, falls nicht explizit in der Map gesetzt
   if (!meta.breadcrumbName) {
       const titlePrefix = meta.title.split(" – ")[0].trim();
       meta.breadcrumbName = titlePrefix || (lang === "de" ? "Seite" : "Page");
@@ -277,14 +292,12 @@ export async function onRequest(context) {
     const alternateLang = lang === "de" ? "en" : "de";
     const alternateBase = lang === "de" ? baseEn : baseDe;
 
-    // Pfad übersetzen (z.B. /kueche/ -> /kitchen/)
     const alternatePath = translatePath(path, lang, alternateLang, deToEn, enToDe);
     const alternateUrl = alternateBase + alternatePath;
 
     const hreflangDeUrl = lang === "de" ? currentBase + path : alternateUrl;
     const hreflangEnUrl = lang === "en" ? currentBase + path : alternateUrl;
 
-    // x-default sollte auf die bevorzugte Version (hier DE) verweisen
     const hreflangXDefaultUrl = baseDe + translatePath(path, lang, "de", deToEn, enToDe);
 
     const hreflangLinks = `
@@ -320,7 +333,7 @@ export async function onRequest(context) {
         },
         "geo": { "@type": "GeoCoordinates", "latitude": 48.0007115, "longitude": 16.8640465 }
       },
-      // HINZUGEFÜGT: ContactPoint Schema
+      // ContactPoint Schema
       {
         "@context": "https://schema.org",
         "@type": "ContactPoint",
@@ -391,3 +404,9 @@ export async function onRequest(context) {
     if (response.status === 404) {
        response = await assets.fetch(new URL("/index.html", request.url));
     }
+    return response;
+
+  } catch (err) {
+    return new Response("Not found", { status: 404 });
+  }
+}
