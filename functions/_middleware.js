@@ -1,6 +1,6 @@
-// _middleware.js - Komplettlösung für Redirects, SEO & Sprach-Schutz
+// _middleware.js - Finaler Fix gegen Redirect-Loops & SEO-Optimierung
 
-// --- 1. HILFSFUNKTIONEN ---
+// --- HILFSFUNKTIONEN ---
 
 function normalizePath(p) {
   if (!p || p === "/") return "/";
@@ -8,15 +8,16 @@ function normalizePath(p) {
   try { s = decodeURIComponent(s); } catch (e) {}
   if (!s.startsWith("/")) s = "/" + s;
   
-  // WICHTIG: Dateien (jpg, webp, css etc.) dürfen KEINEN Slash am Ende bekommen!
-  const isFile = /\.[a-z0-9]{2,4}$/.test(s);
-  if (!s.endsWith("/") && !isFile) s = s + "/";
-  
+  // WICHTIG: Assets (Bilder, CSS, JS) dürfen KEINEN Slash am Ende bekommen!
+  const isFile = s.includes('.');
+  if (!s.endsWith("/") && !isFile) {
+    s = s + "/";
+  }
   return s;
 }
 
 function escapeHtml(s) {
-  return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+  return String(s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
 function translatePath(path, fromLang, toLang, deToEn, enToDe) {
@@ -27,42 +28,7 @@ function translatePath(path, fromLang, toLang, deToEn, enToDe) {
   return "/" + newSegments.join("/") + "/";
 }
 
-function generateBreadcrumbSchema(currentPath, currentLang, currentBase, map) {
-  if (currentPath === "/" || currentPath === "") return null;
-  const segments = currentPath.replace(/^\/|\/$/g, "").split('/').filter(Boolean);
-  const itemListElement = [];
-  
-  // Fix: Sicherstellen, dass Basis-URL sauber mit Slash beginnt
-  let url = currentBase.endsWith('/') ? currentBase : currentBase + '/';
-
-  // Startseite
-  const homeMeta = map["/"] || {};
-  itemListElement.push({
-    "@type": "ListItem",
-    "position": 1,
-    "name": homeMeta.breadcrumbName || (currentLang === "de" ? "Startseite" : "Home"),
-    "item": url
-  });
-
-  // Unterseiten
-  segments.forEach((segment, index) => {
-    url += `${segment}/`;
-    const pathKey = normalizePath(url.replace(currentBase, ""));
-    const segmentMeta = map[pathKey] || {};
-    const breadcrumbName = segmentMeta.breadcrumbName || (segment.charAt(0).toUpperCase() + segment.slice(1));
-
-    itemListElement.push({
-      "@type": "ListItem",
-      "position": index + 2,
-      "name": breadcrumbName,
-      "item": url
-    });
-  });
-
-  return { "@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": itemListElement };
-}
-
-// --- 2. ON REQUEST START ---
+// --- ON REQUEST START ---
 
 export async function onRequest(context) {
   const { request, env } = context;
@@ -70,31 +36,34 @@ export async function onRequest(context) {
   const hostname = url.hostname.toLowerCase();
   const ua = request.headers.get("user-agent") || "";
   const accept = request.headers.get("accept") || "";
-  const isHtmlNav = accept.includes("text/html");
   const assets = env.ASSETS;
 
-  const baseDe = "https://de.ferienwohnung-parndorf.at";
-  const baseEn = "https://en.ferienwohnung-parndorf.at";
-
-  // --- A. STATISCHE DATEIEN (Wichtig: Vor den Redirects abfangen!) ---
-  const isAsset = url.pathname.match(/\.(css|js|png|jpg|jpeg|webp|svg|gif|ico|txt|json|xml|pdf|webmanifest|woff2?)$/i);
-  if (isAsset || url.pathname.startsWith("/assets/")) {
+  // 1. SOFORTIGER ABBRUCH FÜR STATISCHE DATEIEN
+  // Dies verhindert, dass Bilder in die Redirect-Logik geraten
+  const isAsset = url.pathname.includes('.') || url.pathname.startsWith("/assets/");
+  if (isAsset) {
     return assets.fetch(request);
   }
 
-  // --- B. SEO-NORMALISIERUNG ---
+  // 2. PFAD-NORMALISIERUNG & WWW-CHECK
   const path = normalizePath(url.pathname);
-  const lang = hostname.startsWith("en.") ? "en" : "de";
-  const currentBase = lang === "de" ? baseDe : baseEn;
+  const needsWwwRedirect = hostname.startsWith("www.");
+  const needsSlashRedirect = url.pathname !== path;
 
-  // Umleitung bei falschem Pfad-Format (z.B. fehlender Slash am Ende)
-  if (url.pathname !== path) {
-    return Response.redirect(`${url.protocol}//${url.host}${path}`, 301);
+  if (needsWwwRedirect || needsSlashRedirect) {
+    const newHost = hostname.replace(/^www\./, "");
+    // Wir nutzen https und den bereinigten Host/Pfad
+    return Response.redirect(`https://${newHost}${path}`, 301);
   }
 
-  // --- C. DICTIONARIES ---
+  // 3. SEO & SPRACH-KONFIGURATION
+  const lang = hostname.startsWith("en.") ? "en" : "de";
+  const baseDe = "https://de.ferienwohnung-parndorf.at";
+  const baseEn = "https://en.ferienwohnung-parndorf.at";
+  const currentBase = lang === "de" ? baseDe : baseEn;
+
   const deToEn = { "wohnzimmer": "livingroom", "schlafzimmer": "bedroom", "kueche": "kitchen", "badezimmer": "bathroom", "terrasse": "terrace", "eingangsbereich": "entrance", "ausstattung": "facilities", "anfahrt": "directions", "kontakt": "contact", "region": "region", "neusiedlersee": "neusiedlersee", "outlet": "outlet" };
-  const enToDe = { "livingroom": "wohnzimmer", "bedroom": "schlafzimmer", "kitchen": "kueche", "bathroom": "badezimmer", "terrace": "terrasse", "entrance": "eingangsbereich", "facilities": "ausstattung", "directions": "anfahrt", "contact": "kontakt", "region": "region", "neusiedlersee": "neusiedlersee", "outlet": "outlet" };
+  const enToDe = Object.fromEntries(Object.entries(deToEn).map(([k, v]) => [v, k]));
 
  const metaDataMap = {
 
@@ -162,45 +131,17 @@ export async function onRequest(context) {
 
 
 
-  // --- D. WWW- & SPRACH-REDIRECTS ---
-  if (hostname.startsWith("www.")) {
-    return Response.redirect(`https://${hostname.replace(/^www\./, "")}${path}`, 301);
-  }
-
-  if (isHtmlNav && path !== "/") {
-    const segments = path.replace(/^\/|\/$/g, "").split('/').filter(Boolean);
-    let needsLangRedirect = false;
-
-    const correctedSegments = segments.map(seg => {
-      const lower = seg.toLowerCase();
-      if (lang === "en" && enToDe[lower]) { needsLangRedirect = true; return lower === "terrasse" ? "terrace" : (Object.keys(deToEn).find(k => deToEn[k] === lower) || lower); }
-      if (lang === "de" && deToEn[lower]) { needsLangRedirect = true; return enToDe[lower] || lower; }
-      if (lang === "en" && lower === "terrasse") { needsLangRedirect = true; return "terrace"; }
-      if (lang === "de" && lower === "terrace") { needsLangRedirect = true; return "terrasse"; }
-      return lower;
-    });
-
-    if (needsLangRedirect) {
-      return Response.redirect(`${currentBase}/${correctedSegments.join("/")}/`, 301);
-    }
-  }
-
-  // --- E. BOT RESPONSE (SEO OPTIMIERUNG) ---
+  // 4. BOT-RESPONSE (Für Google-Vorschaubilder)
   const isBot = /(googlebot|bingbot|yandex|duckduckbot|facebookexternalhit|twitterbot)/i.test(ua);
-  if (isBot && isHtmlNav) {
-    const meta = metaDataMap[lang][path] || { title: "Ferienwohnung Parndorf", description: "Apartment nähe Outlet", image: `${currentBase}/assets/images/wohnzimmer.webp` };
-    const breadcrumbSchema = generateBreadcrumbSchema(path, lang, currentBase, metaDataMap[lang]);
-    
-    const jsonLd = [
-      { "@context": "https://schema.org", "@type": "WebPage", "url": currentBase + path, "name": meta.title, "description": meta.description, "primaryImageOfPage": { "@type": "ImageObject", "url": meta.image } }
-    ];
-    if (breadcrumbSchema) jsonLd.push(breadcrumbSchema);
+  const isHtml = accept.includes("text/html");
 
+  if (isBot && isHtml) {
+    const meta = metaDataMap[lang][path] || metaDataMap[lang]["/"];
+    
     const html = `<!doctype html>
 <html lang="${lang}">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${escapeHtml(meta.title)}</title>
   <meta name="description" content="${escapeHtml(meta.description)}">
   <meta name="robots" content="max-image-preview:large">
@@ -210,20 +151,32 @@ export async function onRequest(context) {
   <meta property="og:image" content="${meta.image}">
   <meta property="og:title" content="${escapeHtml(meta.title)}">
   <meta property="og:description" content="${escapeHtml(meta.description)}">
-  <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "url": "${currentBase + path}",
+    "name": "${escapeHtml(meta.title)}",
+    "primaryImageOfPage": { "@type": "ImageObject", "url": "${meta.image}" }
+  }
+  </script>
 </head>
-<body><main><h1>${escapeHtml(meta.title)}</h1><p>${escapeHtml(meta.description)}</p></main></body></html>`;
+<body><h1>${escapeHtml(meta.title)}</h1><p>${escapeHtml(meta.description)}</p></body></html>`;
 
     return new Response(html, { headers: { "content-type": "text/html; charset=utf-8" } });
   }
 
-  // --- F. SPA FALLBACK ---
+  // 5. REGULÄRE AUSLIEFERUNG (SPA)
   try {
-    const fetchUrl = hostname.startsWith("en.") ? "/en/index.html" : "/de/index.html";
-    let response = await assets.fetch(new URL(fetchUrl, request.url));
-    if (response.status === 404) response = await assets.fetch(new URL("/index.html", request.url));
+    const fetchPath = lang === "en" ? "/en/index.html" : "/de/index.html";
+    const response = await assets.fetch(new URL(fetchPath, request.url));
+    
+    if (response.status === 404) {
+      return assets.fetch(new URL("/index.html", request.url));
+    }
     return response;
-  } catch (err) {
-    return new Response("Not found", { status: 404 });
+  } catch (e) {
+    return new Response("Service Unavailable", { status: 503 });
   }
 }
