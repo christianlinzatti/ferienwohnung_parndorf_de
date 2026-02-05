@@ -1,53 +1,52 @@
-// _middleware.js - Maximale Stabilität für Systemdateien & SEO
+// _middleware.js - Vollständige Version (Fix für robots.txt & SEO)
 
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const path = url.pathname;
   const hostname = url.hostname.toLowerCase();
+  const ua = request.headers.get("user-agent") || "";
+  const accept = request.headers.get("accept") || "";
   const assets = env.ASSETS;
 
-  // --- 1. PRIORITÄT: SYSTEMDATEIEN (KEIN REDIRECT, KEIN VERARBEITEN) ---
-  // Diese Dateien müssen im Root deines Cloudflare Pages Projekts liegen
-  const systemFiles = [
-    "/robots.txt",
-    "/sitemap.xml",
-    "/site.webmanifest",
-    "/favicon.ico",
-    "/browserconfig.xml"
-  ];
+  // --- 1. DATEI-PRÜFUNG (robots.txt, Bilder, CSS, etc.) ---
+  // Wenn ein Punkt im Pfad ist oder es sich um Systemdateien handelt: 
+  // Sofort stoppen und die echte Datei ausliefern.
+  const isSystemFile = path === "/robots.txt" || 
+                       path === "/sitemap.xml" || 
+                       path === "/site.webmanifest" || 
+                       path === "/favicon.ico";
 
-  if (systemFiles.includes(path) || path.startsWith("/assets/")) {
-    return assets.fetch(request);
+  if (isSystemFile || path.includes('.') || path.startsWith("/assets/")) {
+    return context.next(); 
   }
 
-  // --- 2. WEITERE DATEI-PRÜFUNG (Bilder, JS, CSS) ---
-  // Wenn ein Punkt im Pfad ist, ist es eine Datei -> direkt ausliefern
-  if (path.includes('.')) {
-    return assets.fetch(request);
-  }
-
-  // --- 3. WWW-UMLEITUNG (NUR FÜR SEITENAUFRUFE) ---
+  // --- 2. WWW-UMLEITUNG ---
   if (hostname.startsWith("www.")) {
     const newHost = hostname.replace(/^www\./, "");
     return Response.redirect(`https://${newHost}${path}`, 301);
   }
 
-  // --- 4. PFAD-NORMALISIERUNG (SLASH AM ENDE) ---
-  // Wir erzwingen den Slash nur, wenn es keine Datei ist
+  // --- 3. PFAD-NORMALISIERUNG (Trailing Slash) ---
   if (path !== "/" && !path.endsWith("/")) {
     return Response.redirect(`https://${hostname}${path}/`, 301);
   }
 
-  // --- 5. SEO & SPRACH-LOGIK ---
+  // --- 4. SEO-KONFIGURATION ---
   const lang = hostname.startsWith("en.") ? "en" : "de";
   const baseDe = "https://de.ferienwohnung-parndorf.at";
   const baseEn = "https://en.ferienwohnung-parndorf.at";
+  const currentBase = lang === "de" ? baseDe : baseEn;
 
-  const deToEn = { "wohnzimmer": "livingroom", "schlafzimmer": "bedroom", "kueche": "kitchen", "badezimmer": "bathroom", "terrasse": "terrace", "eingangsbereich": "entrance", "ausstattung": "facilities", "anfahrt": "directions", "kontakt": "contact", "region": "region", "neusiedlersee": "neusiedlersee", "outlet": "outlet" };
+  const deToEn = { 
+    "wohnzimmer": "livingroom", "schlafzimmer": "bedroom", "kueche": "kitchen", 
+    "badezimmer": "bathroom", "terrasse": "terrace", "eingangsbereich": "entrance", 
+    "ausstattung": "facilities", "anfahrt": "directions", "kontakt": "contact", 
+    "region": "region", "neusiedlersee": "neusiedlersee", "outlet": "outlet" 
+  };
   const enToDe = Object.fromEntries(Object.entries(deToEn).map(([k, v]) => [v, k]));
 
-   const metaDataMap = {
+ const metaDataMap = {
 
     de: {
 
@@ -113,23 +112,24 @@ export async function onRequest(context) {
 
 
 
-  // --- 6. BOT-VORSCHAU (GOOGLE & CO) ---
-  const ua = request.headers.get("user-agent") || "";
-  const isBot = /googlebot|bingbot|facebookexternalhit|twitterbot/i.test(ua);
-  
-  if (isBot && request.headers.get("accept")?.includes("text/html")) {
+  // --- 5. BOT-LOGIK (Meta-Tags injizieren) ---
+  const isBot = /googlebot|bingbot|facebookexternalhit|twitterbot|pinterest/i.test(ua);
+  if (isBot && accept.includes("text/html")) {
     const meta = metaDataMap[lang][path] || metaDataMap[lang]["/"];
-    
-    return new Response(`<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><title>${meta.title}</title><meta name="description" content="${meta.description}"><meta name="robots" content="max-image-preview:large"><meta property="og:image" content="${meta.image}"></head><body><h1>${meta.title}</h1><p>${meta.description}</p></body></html>`, 
-    { headers: { "content-type": "text/html; charset=utf-8" } });
+    const escape = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+    return new Response(
+      `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><title>${escape(meta.title)}</title><meta name="description" content="${escape(meta.description)}"><meta name="robots" content="max-image-preview:large"><meta property="og:image" content="${meta.image}"><meta property="og:title" content="${escape(meta.title)}"><meta property="og:description" content="${escape(meta.description)}"><meta property="og:type" content="website"><link rel="canonical" href="${currentBase + path}"></head><body><h1>${escape(meta.title)}</h1><p>${escape(meta.description)}</p></body></html>`,
+      { headers: { "content-type": "text/html; charset=utf-8" } }
+    );
   }
 
-  // --- 7. FINALE AUSLIEFERUNG ---
-  try {
-    const targetFile = lang === "en" ? "/en/index.html" : "/de/index.html";
-    const response = await assets.fetch(new URL(targetFile, request.url));
-    return response.status === 404 ? assets.fetch(new URL("/index.html", request.url)) : response;
-  } catch (e) {
-    return new Response("Service Unavailable", { status: 503 });
+  // --- 6. REGULÄRE AUSLIEFERUNG (SPA) ---
+  const fetchPath = lang === "en" ? "/en/index.html" : "/de/index.html";
+  const response = await assets.fetch(new URL(fetchPath, request.url));
+
+  if (response.status === 404) {
+    return assets.fetch(new URL("/index.html", request.url));
   }
+  return response;
 }
